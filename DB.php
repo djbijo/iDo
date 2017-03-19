@@ -2,12 +2,12 @@
 
 require_once('config.php');
 
-class Db {
+class DB {
 
     // Database link
     protected static $link;
 
-    /*
+    /**
      * connect: Connect to the database
      * @return bool: Failure=false / Success=mysqli object instance
      */
@@ -37,7 +37,7 @@ class Db {
         return self::$link;
     }
 
-    /*
+    /**
      * query: Query the database
      * $query string: The query string
      * @return mixed The result of the mysqli query() function
@@ -53,9 +53,8 @@ class Db {
         return $result;
     }
 
-    /*
+    /**
      * select: Fetch rows from database
-     *
      * @query The query string
      * @return bool: Failure=False / Success=array database rows
      */
@@ -64,6 +63,7 @@ class Db {
         $rows = array();
         $result = $this->query($query);
         if ($result === false) {
+            echo 'false';
             return false;
         }
         while ($row = $result->fetch_assoc()) {
@@ -72,7 +72,7 @@ class Db {
         return $rows;
     }
 
-    /*
+    /**
      * error: fetch the last error from  database
      * @return string Database error message
      */
@@ -82,16 +82,30 @@ class Db {
         return $link->error;
     }
 
-    /*
-     * Quote and escape value for use in a database query
-     *
+    /**
+     * quote: Quote and escape value for use in a database query
      * @param string $value The value to be quoted and escaped
      * @return string The quoted and escaped string
      */
-
     public function quote($value) {
         $link = $this->connect();
         return "'" . $link->real_escape_string($value) . "'";
+    }
+    
+    /**
+     * affectedRows: return the number of affected rows in latest query
+     * @return int # of affected rows in latest query
+     */
+    public function affectedRows() {
+        return mysqli_affected_rows( self::$link ) ;
+    }
+    
+    /**
+     * insertID: return the insert id of latest query
+     * @return int insert id of latest query
+     */
+    public function insertID() {
+        return mysqli_insert_id( self::$link ) ;
     }
 
 }

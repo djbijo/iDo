@@ -1,7 +1,7 @@
 <?php
 
-include ("DB.php");
-include ("DB_user.php");
+require_once('DB.php');
+require_once('DB_user.php');
 
 interface iEvent {
 
@@ -76,61 +76,59 @@ class Event implements iEvent {
      */
 
 
-    /*
+    /**
      * createEvent: create new event in Events table
-     * $Name 		string: name of event owner/owners or name of event
-     * $EventDate 	date: date of event
-     * @return: false=event not created, eventID=event created successfuly
+     * @param string $Name : name of event owner/owners or name of event
+     * @param date $EventDate : date of event
+     * @return type false=event not created, eventID=event created successfully
      */
-
     public function createEvent($Name, $EventDate) {
-
+        
         $db = new DB();
         // Make strings query safe
         $name = $db->quote($Name);
+        $eventDate = $db->quote($EventDate);
 
         // Add new event to Events table
-        $result = $db->query("INSERT INTO Events SET Name = '$name', Date = '$EventDate'");
-
+        $result = $db->query("INSERT INTO Events (Name, EventDate) VALUES ($name, $eventDate)");
         if (!$result) {
             return false;
         }
 
-        if (!isset(self::$event)) {
-            self::$event = $db->insert_id;
-            return self::$event;
+        if (!isset(self::$eventID)) {
+            self::$eventID = $db->insertID();
+            return self::$eventID;
         }
     }
 
-    /*
+    /**
      * deleteEvent: delete relevant event from events table, delete also RSVP table, Messages table and RawData table
-     * $Event int: the ID of the event to erase
-     * @return: false = event not erased or no 'root' permission for user, true = event erased successfuly
+     * @param int $Event : the ID of the event to erase
+     * @param string $UserID : the ID of the user that wants to delete the event
+     * @return bool false = event not erased or no 'root' permission for user, true = event erased successfully
      */
-
     public function deleteEvent($Event, $UserID) {
-        
         $db = new DB();
         $user = new User();
         // Check user permission for event
         $result = $user->getEvents($UserID);
         for ($i = 1; $i <= 3; $i++) {
-            if ($result["event'$i'"] == $Event) {
-                if ($result["permission'$i'"] == 'root') {
+            if ($result["event'$i'"] === $Event) {
+                if ($result["permission'$i'"] === 'root') {
                     // delete event from Events table
-                    $sql = $db->query("DELETE FROM Events WHERE ID = '$Event'");
+                    $sql = $db->query("DELETE FROM Events WHERE ID=$Event");
                     if ($sql) {
                         // delete event[eventID] table
-                        $sql = $db->query("DROP TABLE Event'$Event'");
+                        $sql = $db->query("DROP TABLE Event$Event");
                         if ($sql) {
                             // delete RSVP[eventID] table
-                            $sql = $db->query("DROP TABLE RSVP'$Event'");
+                            $sql = $db->query("DROP TABLE RSVP$Event");
                             if ($sql) {
                                 // delete Messages[eventID] table
-                                $sql = $db->query("DROP TABLE Messages'$Event'");
+                                $sql = $db->query("DROP TABLE Messages$Event");
                                 if ($sql) {
                                     // delete RawData[eventID] table
-                                    $sql = $db->query("DROP TABLE RawData'$Event'");
+                                    $sql = $db->query("DROP TABLE RawData$Event");
                                     return true;
                                 }
                             }

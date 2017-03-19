@@ -8,16 +8,19 @@
         <?php
         include ("DB_user.php");
 
-        $ID = '300';
-        $Name = 'Gil';
-        $Email = 'djbijo@gmail.com';
-        $Phone = '052-8599996';
-        $Event1 = 1;
-        $Permission1 = 'root';
-        $user = new User;
-        $result = $user->addUser($ID, $Name, $Email, $Phone, $Event1, $Permission1);
-        echo "User added: " . $result;
+        $ID = '324345tyhdfglsdfjtuhkgflid';
+        $Name = 'Yossi';
+        $Email = 'YossiHamelech@gmail.com';
+        $Phone = '050-000000000';
+        $EventName = 'WotWot';
+        $EventDate = '2018-05-12';
+        $user = new User();
+        $event = new Event();
+        
+        $result = $event ->deleteEvent(14, '32');
 
+        echo nl2br ("\n User added: " . $result."\n");
+        
         ?>
     </body>
 </html>
