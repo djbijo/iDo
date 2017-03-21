@@ -70,7 +70,10 @@ var updateGoogleUser = function () {
 	if(googleUser){
 	if (auth2.isSignedIn.get() == true){
 	  signWithServer();
-          $("#sendMessage").load("sendMessageForm.html");
+//          $("#sendMessage").load("sendMessageForm.html");
+        editableGrid = new EditableGrid("DemoGridJSON"); 
+        editableGrid.tableLoaded = function() { this.renderGrid("RSVPList", "testgrid"); };
+        editableGrid.loadJSON("rsvp.json");
       }
 	// document.getElementById("content").innerHTML='<object type="text/html" data="?php echo file_get_contents("sendMessage.php"); ?" ></object>';
 	//console.log('displaying php');

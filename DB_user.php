@@ -27,7 +27,7 @@ class User implements iUser {
      * @param string $ID : user ID
      * @return bool: false = user not in database / true = user in database
      */
-    private function checkUserID($ID) {
+    public function checkUserID($ID) {
         $db = new DB();
         // Make strings query safe
         $id = $db->quote($ID);
@@ -244,18 +244,18 @@ class User implements iUser {
      *                   array['event3'] = event3 id, array['permission3'] = event3 permission,
      */
     public function getEvents($ID) {
-        $db = new DB();
-        // Make strings query safe
-        $id = $db->quote($ID);
-
-        $result = $db->select("SELECT * FROM Users WHERE ID=$id");
-
-        $out['event1'] = $result[6];
-        $out['permission1'] = $result[7];
-        $out['event2'] = $result[8];
-        $out['permission2'] = $result[9];
-        $out['event3'] = $result[10];
-        $out['permission3'] = $result[11];
+//        $db = new DB();
+//        // Make strings query safe
+//        $id = $db->quote($ID);
+//
+//        $result = $db->select("SELECT * FROM Users WHERE ID=$id");
+//
+//        $out['event1'] = $result[6];
+//        $out['permission1'] = $result[7];
+//        $out['event2'] = $result[8];
+//        $out['permission2'] = $result[9];
+//        $out['event3'] = $result[10];
+//        $out['permission3'] = $result[11];
         return true;
     }
 

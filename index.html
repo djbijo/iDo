@@ -3,12 +3,26 @@
     <script src="js/jquery-3.1.1.js"></script> 
     <script src="js/mngusr.js" async defer></script>
     <script src="https://apis.google.com/js/platform.js?onload=appStart" async defer></script>	
+    <script src="editablegrid/editablegrid.js"></script>
+    <link rel="stylesheet" href="editablegrid/editablegrid.css" type="text/css" media="screen">
+
+    <style>
+            body { font-family:'lucida grande', tahoma, verdana, arial, sans-serif; font-size:11px; }
+            h1 { font-size: 15px; }
+            a { color: #548dc4; text-decoration: none; }
+            a:hover { text-decoration: underline; }
+            table.testgrid { border-collapse: collapse; border: 1px solid #CCB; width: 800px; }
+            table.testgrid td, table.testgrid th { padding: 5px; border: 1px solid #E0E0E0; }
+            table.testgrid th { background: #E5E5E5; text-align: left; }
+            input.invalid { background: red; color: #FDFDFD; }
+    </style>    
   </head>
   <body>
     <div id="gsignin"></div>
 	<div href="#" onclick="signOut();">Sign out</a>	
 	<div id=content></div>
         <div id="sendMessage"></div>
+        <div id="RSVPList"></div>
   </body>
   
 </html>
