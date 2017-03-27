@@ -8,18 +8,19 @@
         <?php
         include ("DB_user.php");
 
-        $ID = '324345tyhdfglsdfjtuhkgflid';
-        $Name = 'Yossi';
-        $Email = 'YossiHamelech@gmail.com';
-        $Phone = '050-000000000';
-        $EventName = 'WotWot';
-        $EventDate = '2018-05-12';
-        $user = new User();
-        $event = new Event();
+        $ID = '1111';
+        $Name = 'Gil';
+        $Email = 'Gil@gmail.com';
+        $Phone = '050-00210000';
+        $Event = 1;
+        $EventName = 'Wroot';
+        $EventDate = '2018-08-12';
+        $EventPhone = '050-00210000';
+        $user = new User($ID);
         
-        $result = $event ->deleteEvent(14, '32');
+        $user::$event->deleteEvent($user);
 
-        echo nl2br ("\n User added: " . $result."\n");
+        //echo $result['permission2'];
         
         ?>
     </body>

@@ -5,14 +5,16 @@ require_once('DB_user.php');
 
 interface iEvent {
 
-    public function createEvent($Name, $EventDate);
-
-    public function deleteEvent($Event, $UserID);
+    public function deleteEvent(User $user);
 }
 
 class Event implements iEvent {
 
-    protected static $eventID;
+    protected static $db;
+    public $eventID;
+    public $rsvp;
+    public $messages;
+    public $rawData;
 
     /*
       private function createRSVP(int $eventID) {
@@ -75,70 +77,86 @@ class Event implements iEvent {
       }
      */
 
-
     /**
-     * createEvent: create new event in Events table
-     * @param string $Name : name of event owner/owners or name of event
+     * __construct: create new Event object. if Event not in Events table (eventName,eventDate!=Null) add Event to Events table (do not make any change to Users Table!)
+     * @param User $user : user element connected to this instance of event
+     * @param string $EventName : name of event owner/owners or name of event
      * @param date $EventDate : date of event
-     * @return type false=event not created, eventID=event created successfully
+     * @param string $Email : Email to use for sending and receiving Emails
+     * @param string $EventPhone : Phone to use for sending and receiving messages
+     * @return object Event
      */
-    public function createEvent($Name, $EventDate) {
-        
-        $db = new DB();
-        // Make strings query safe
-        $name = $db->quote($Name);
-        $eventDate = $db->quote($EventDate);
+    public function __construct(User $user, $EventName = NULL, $EventDate = NULL, $EventPhone = NULL, $EventEmail = NULL) {
 
-        // Add new event to Events table
-        $result = $db->query("INSERT INTO Events (Name, EventDate) VALUES ($name, $eventDate)");
-        if (!$result) {
-            return false;
+        if (!isset(self::$db)) {
+            self::$db = $user->getDB();
         }
+        // Event is not in Events table (new Event)
+        if ($EventName != NULL and $EventDate != NULL and $EventDate != NULL and $EventEmail != NULL and $EventPhone != NULL) {
+            // initiate Database with user Database
+            // Make strings query safe
+            $rootID = $user->getID();
+            $eventName = self::$db->quote($EventName);
+            $eventDate = self::$db->quote($EventDate);
+            $eventEmail = self::$db->quote($EventEmail);
+            $eventPhone = self::$db->quote($EventPhone);
 
-        if (!isset(self::$eventID)) {
-            self::$eventID = $db->insertID();
-            return self::$eventID;
+            // Add new event to Events table
+            $result = self::$db->query("INSERT INTO Events (EventName, EventDate, RootID, Email, Phone) VALUES
+                                        ($eventName, $eventDate, $rootID, $eventEmail, $eventPhone)");
+            if (!$result) {
+                return false;
+            }
+            // set eventID if not already set.
+            if (!isset($this->eventID)) {
+                $this->eventID = self::$db->insertID();
+            }
+            // make new RSVP, Messages and RawData tables
+            /*
+              $rsvp = new RSVP();
+              $messages = new Messages();
+              $rawData = new RawData();
+             */
         }
+        // Event is in Events table
+        return;
     }
 
     /**
      * deleteEvent: delete relevant event from events table, delete also RSVP table, Messages table and RawData table
-     * @param int $Event : the ID of the event to erase
-     * @param string $UserID : the ID of the user that wants to delete the event
+     * @param User $user : user object related to this event
      * @return bool false = event not erased or no 'root' permission for user, true = event erased successfully
      */
-    public function deleteEvent($Event, $UserID) {
-        $db = new DB();
-        $user = new User();
+    public function deleteEvent(User $user) {
         // Check user permission for event
-        $result = $user->getEvents($UserID);
+        $result = $user->getEvents();
         for ($i = 1; $i <= 3; $i++) {
-            if ($result["event'$i'"] === $Event) {
-                if ($result["permission'$i'"] === 'root') {
+            if ($result["event$i"] === $this->eventID) {
+                $eventID = $this->eventID;
+                if ($result["permission$i"] === 'root') {
                     // delete event from Events table
-                    $sql = $db->query("DELETE FROM Events WHERE ID=$Event");
+                    $sql = self::$db->query("DELETE FROM Events WHERE ID=$eventID");
                     if ($sql) {
-                        // delete event[eventID] table
-                        $sql = $db->query("DROP TABLE Event$Event");
-                        if ($sql) {
-                            // delete RSVP[eventID] table
-                            $sql = $db->query("DROP TABLE RSVP$Event");
-                            if ($sql) {
-                                // delete Messages[eventID] table
-                                $sql = $db->query("DROP TABLE Messages$Event");
-                                if ($sql) {
-                                    // delete RawData[eventID] table
-                                    $sql = $db->query("DROP TABLE RawData$Event");
-                                    return true;
-                                }
-                            }
-                        }
+                        /*
+                          // delete RSVP[eventID] table
+                          $sql = $db->query("DROP TABLE RSVP$eventID");
+                          // delete Messages[eventID] table
+                          $sql = $db->query("DROP TABLE Messages$eventID");
+                          // delete RawData[eventID] table
+                          $sql = $db->query("DROP TABLE RawData$eventID");
+                          if ($sql) {
+                         */
+                        self::$db->query("UPDATE Users SET Event$i=NULL, Permission$i=NULL
+                                            WHERE Event$i=$eventID");
+                        return true;
+                        //}
                     }
                 }
             }
         }
         return false;
     }
+
 }
 
 ?>

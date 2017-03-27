@@ -12,23 +12,23 @@ SET time_zone = "+02:00";
 /* Users table */
 DROP TABLE IF EXISTS Users;
 CREATE TABLE IF NOT EXISTS Users (  
-	ID VARCHAR(100) NOT NULL,
-	Name VARCHAR(100) NOT NULL,
-	Email VARCHAR(100) NOT NULL,
-	Phone VARCHAR(100) NOT NULL,
-	Event1 INT NOT NULL,
-	Permission1 VARCHAR(100) NOT NULL,
+	ID VARCHAR(20) NOT NULL,
+	Name VARCHAR(50) NOT NULL,
+	Email VARCHAR(50) NOT NULL,
+	Phone VARCHAR(12)  DEFAULT NULL,
+	Event1 INT  DEFAULT NULL,
+	Permission1 VARCHAR(50) DEFAULT NULL,
 	Event2 INT DEFAULT NULL,
-	Permission2 VARCHAR(100) DEFAULT NULL,
+	Permission2 VARCHAR(50) DEFAULT NULL,
 	Event3 INT DEFAULT NULL,
-	Permission3 VARCHAR(100) DEFAULT NULL
+	Permission3 VARCHAR(50) DEFAULT NULL
     ) DEFAULT CHARACTER SET utf8; 
 
 /* demo users */
 INSERT INTO Users (ID, Name, Email, Phone, Event1, Permission1, Event2, Permission2, Event3, Permission3) VALUES
 	('12345678', 'Dan', 'Dan@gmail.com', '054-1231234', '1', 'root', NULL, NULL, NULL, NULL),
-	('87654321', 'Dana', 'Dana@gmail.com', '052-2222222', '2', 'root', NULL, NULL, NULL, NULL),
-	('1111', 'Yosi', 'yos@gmail.com', '055-5555555', '1', 'edit', NULL, NULL, NULL, NULL),
+	('87654321', 'Dana', 'Dana@gmail.com', '052-2222222', '2', 'edit', NULL, NULL, NULL, NULL),
+	('1111', 'Yosi', 'yos@gmail.com', '055-5555555', '2', 'root', NULL, NULL, NULL, NULL),
 	('22', 'Yosefa', 'efa@gmail.com', '053-33333333', '1', 'review', NULL, NULL, NULL, NULL);
 
 
@@ -37,14 +37,18 @@ INSERT INTO Users (ID, Name, Email, Phone, Event1, Permission1, Event2, Permissi
 DROP TABLE IF EXISTS Events;
 CREATE TABLE IF NOT EXISTS Events (
 	ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	Name  VARCHAR(100) NOT NULL,
-	EventDate DATE NOT NULL
+	EventName  VARCHAR(50) NOT NULL,
+	EventDate DATE NOT NULL,
+        RootID VARCHAR(20) NOT NULL,
+        Email VARCHAR(50) NOT NULL,
+	Phone VARCHAR(12) NOT NULL,
+        CreateDate datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 	) DEFAULT CHARACTER SET utf8; 
 
 /* demo events */
-INSERT INTO Events (ID, Name, EventDate) VALUES
-	(1, 'Dan and moshe', "2009-09-24"),
-	(2, 'Dana and Yosi', "2010-10-10");
+INSERT INTO Events (ID, EventName, EventDate, RootID, Email, Phone, CreateDate) VALUES
+	(1, 'Dan and moshe', "2009-09-24", '12345678', 'Dan@gmail.com', '051-1111111', "2008-09-24"),
+	(2, 'Dana and Yosi', "2010-10-10", '1111', 'yos@gmail.com', '0522222222', "2009-10-10");
 
 -----------------------------------------------------------
 
@@ -52,13 +56,13 @@ INSERT INTO Events (ID, Name, EventDate) VALUES
 DROP TABLE IF EXISTS RSVP1;
 CREATE TABLE IF NOT EXISTS RSVP1 (
   ID INT(5) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  Name VARCHAR(100) NOT NULL,
-  Surname VARCHAR(100) NOT NULL,
-  Nickname VARCHAR(100) DEFAULT NULL,
+  Name VARCHAR(50) NOT NULL,
+  Surname VARCHAR(50) NOT NULL,
+  Nickname VARCHAR(50) DEFAULT NULL,
   Invitees INT(3) NOT NULL,
   Phone VARCHAR(12) DEFAULT NULL,
-  Email VARCHAR(100) DEFAULT NULL,
-  Groups VARCHAR(100) DEFAULT NULL,
+  Email VARCHAR(50) DEFAULT NULL,
+  Groups VARCHAR(50) DEFAULT NULL,
   RSVP INT(3) DEFAULT NULL,
   Ride BOOLEAN DEFAULT FALSE
 ) DEFAULT CHARACTER SET utf8;
@@ -87,7 +91,7 @@ INSERT INTO RSVP2 (ID, Name, Surname, Nickname, Invitees, Phone, Email, Groups, 
 DROP TABLE IF EXISTS Messages1;
 CREATE TABLE IF NOT EXISTS Messages1 (
   ID INT(2) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  MessageType VARCHAR(100) NOT NULL,
+  MessageType VARCHAR(10) NOT NULL,
   Message TEXT NOT NULL,
   Groups VARCHAR(100) DEFAULT NULL,
   SendDate DATE NOT NULL,
@@ -111,11 +115,11 @@ INSERT INTO Messages2 (ID, MessageType, Message, Groups, SendDate, SendTime) VAL
 DROP TABLE IF EXISTS RawData1;
 CREATE TABLE IF NOT EXISTS RawData1 (
 	ID INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	Name VARCHAR(100) NOT NULL,
-	Surname VARCHAR(100) NOT NULL,
+	Name VARCHAR(50) NOT NULL,
+	Surname VARCHAR(50) NOT NULL,
 	Phone VARCHAR(12) DEFAULT NULL,
-	Email VARCHAR(100) DEFAULT NULL,
-	Groups VARCHAR(100) DEFAULT NULL,
+	Email VARCHAR(50) DEFAULT NULL,
+	Groups VARCHAR(50) DEFAULT NULL,
 	RSVP INT(3) DEFAULT NULL,
 	Message TEXT NOT NULL,
 	RecivedDate DATE NOT NULL,

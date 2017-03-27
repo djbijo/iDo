@@ -93,6 +93,16 @@ class DB {
     }
     
     /**
+     * escapeString: escape value for use in a database query
+     * @param string $value The value to be quoted and escaped
+     * @return string The quoted and escaped string
+     */
+    public function escapeString($value) {
+        $link = $this->connect();
+        return $link->real_escape_string($value);
+    }
+    
+    /**
      * affectedRows: return the number of affected rows in latest query
      * @return int # of affected rows in latest query
      */
