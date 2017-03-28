@@ -1,11 +1,13 @@
 <?php
 
-require_once('DB.php');
 require_once('DB_user.php');
+require_once('DB_rsvp.php');
 
 interface iEvent {
 
     public function deleteEvent(User $user);
+    
+    public function getEventID();
 }
 
 class Event implements iEvent {
@@ -17,25 +19,7 @@ class Event implements iEvent {
     public $rawData;
 
     /*
-      private function createRSVP(int $eventID) {
-      $sql = "CREATE TABLE IF NOT EXISTS RSVP_'$eventID' (
-      ID INT(5) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-      Name VARCHAR(100) NOT NULL,
-      Surname VARCHAR(100) NOT NULL,
-      Nickname VARCHAR(100) DEFAULT NULL,
-      Invitees INT(3) NOT NULL,
-      Cell VARCHAR(12) DEFAULT NULL,
-      Email VARCHAR(100) DEFAULT NULL,
-      Groups VARCHAR(100) DEFAULT NULL,
-      RSVP INT(3) DEFAULT NULL,
-      Ride BOOLEAN DEFAULT FALSE
-      ) DEFAULT CHARACTER SET utf8";
-
-      if (!mysqli_query($link, $sql)) {
-      $output = 'Error deleting user from Users table: ' . mysqli_error($link);
-      include 'output.html.php';
-      exit();
-      }
+      
       }
 
       private function createMessages(int $eventID) {
@@ -100,7 +84,9 @@ class Event implements iEvent {
             $eventDate = self::$db->quote($EventDate);
             $eventEmail = self::$db->quote($EventEmail);
             $eventPhone = self::$db->quote($EventPhone);
-
+            
+            echo "rootID is $rootID;"; echo "eventName is $eventName;"; echo "eventDate is $eventDate;"; echo "eventEmail is $eventEmail;"; echo "eventPhone is $eventPhone;";
+            
             // Add new event to Events table
             $result = self::$db->query("INSERT INTO Events (EventName, EventDate, RootID, Email, Phone) VALUES
                                         ($eventName, $eventDate, $rootID, $eventEmail, $eventPhone)");
@@ -112,8 +98,9 @@ class Event implements iEvent {
                 $this->eventID = self::$db->insertID();
             }
             // make new RSVP, Messages and RawData tables
-            /*
-              $rsvp = new RSVP();
+            echo "making rsvp";
+            $this->rsvp = new RSVP($this);
+              /*
               $messages = new Messages();
               $rawData = new RawData();
              */
@@ -153,6 +140,28 @@ class Event implements iEvent {
                     }
                 }
             }
+        }
+        return false;
+    }
+    
+    /**
+     * getDB:  get the DataBase
+     * @return type db (DataBase) / false if Database yet initialized
+     */
+    public function getDB() {
+        if (isset(self::$db)) {
+            return self::$db;
+        }
+        return false;
+    }
+    
+    /**
+     * getEventID:  get Event ID
+     * @return int  Event ID / false if ID yet initialized
+     */
+    public function getEventID() {
+        if (isset(self::$eventID)) {
+            return self::$eventID;
         }
         return false;
     }

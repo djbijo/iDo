@@ -1,7 +1,7 @@
 <?php
 
-include ("DB.php");
-include ("DB_event.php");
+require_once ("DB.php");
+require_once ("DB_event.php");
 
 interface iUser {
 
@@ -46,7 +46,6 @@ class User implements iUser {
         if (!isset(self::$db)) {
             self::$db = new DB();
         }
-
         // user is in users table (registered to iDO)
         if ($this->checkUserID($ID)) {
             if (!isset(self::$id)) {
@@ -71,9 +70,9 @@ class User implements iUser {
                 }
 
                 if (!isset($event)) {
-                    self::$event = new Event($this, $EventName, $EventDate, $Email, $EventPhone);
+                    self::$event = new Event($this, $EventName, $EventDate, $EventPhone, $Email);
                 }
-
+                echo "event is".self::$event->eventID;
                 $result = $this->addUser($ID, $Name, $Email, $Phone, self::$event->eventID, 'root');
                 if (!$result) {
                     return false;
@@ -186,6 +185,9 @@ class User implements iUser {
             self::$id = self::$db->quote($ID);
         }
         $id = self::$id;
+        
+        //echo "id is $id;"; echo "email is $email;"; echo "phone is $phone;"; echo "name is $name;"; echo "Event1 is $Event1;";echo "Permission1 is $permission1;";
+        //echo "Event2 is $Event2;";echo "Permission2 is $permission2;";echo "Event3 is $Event3;";echo "Permission3 is $permission3;";
 
         //insert user to Users table
         $result = self::$db->query("INSERT INTO Users (ID, Name, Email, Phone, Event1, permission1, Event2, permission2, Event3, permission3) VALUES
@@ -382,7 +384,7 @@ class User implements iUser {
 
     /**
      * getDB:  get User ID
-     * @return int  User ID / false if ID yet initialized
+     * @return string  User ID / false if ID yet initialized
      */
     public function getID() {
         if (isset(self::$id)) {
