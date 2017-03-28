@@ -70,6 +70,8 @@ CREATE TABLE IF NOT EXISTS RSVP1 (
 DROP TABLE IF EXISTS RSVP2;
 CREATE TABLE RSVP2 AS SELECT * FROM RSVP1;
 
+DROP TABLE IF EXISTS RSVPsample;
+CREATE TABLE RSVPsample AS SELECT * FROM RSVP1;
 
 /* demo RSVP */
 INSERT INTO RSVP1 (ID, Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Ride) VALUES
@@ -85,6 +87,9 @@ INSERT INTO RSVP2 (ID, Name, Surname, Nickname, Invitees, Phone, Email, Groups, 
 	(3, 'Vaughn', 'Harlan', 'Bijo', 1, NULL , 'tempor.lorem@egestasDuisac.com', 'Tachat', 0, False),
 	(4, 'Mathis', 'Lareina', NULL , 1, '111111111', 'ac.turpis.egestas@Proin.com', 'Friends', 1, True),
 	(5, 'Barrera', 'Chiquita', 'Chiquita', 8, '099-985637932', 'ipsum@tempus.org', 'Friends', 10, False);
+
+INSERT INTO RSVPsample (Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Ride) VALUES
+	('John', 'Do', 'Johany', '3', '051-1111111', 'JohanDo@gmail.com', 'friends', '2', 'yes');
 
 -----------------------------------------------------------
 /* Message table */

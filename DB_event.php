@@ -8,6 +8,9 @@ interface iEvent {
     public function deleteEvent(User $user);
     
     public function getEventID();
+    
+    public function getDB();
+    
 }
 
 class Event implements iEvent {
@@ -126,12 +129,12 @@ class Event implements iEvent {
                     if ($sql) {
                         /*
                           // delete RSVP[eventID] table
-                          $sql = $db->query("DROP TABLE RSVP$eventID");
+                          $sqlRSVP = $this->rsvp->deleteRSVP();
                           // delete Messages[eventID] table
-                          $sql = $db->query("DROP TABLE Messages$eventID");
+                          $sqlMessages = $this->messages->deleteMessages();
                           // delete RawData[eventID] table
-                          $sql = $db->query("DROP TABLE RawData$eventID");
-                          if ($sql) {
+                          $sqlRawData = $this->rawData->deleteRawData();
+                          if ($sqlRSVP and $sqlMessages and $sqlRawData) {
                          */
                         self::$db->query("UPDATE Users SET Event$i=NULL, Permission$i=NULL
                                             WHERE Event$i=$eventID");
