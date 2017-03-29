@@ -89,7 +89,7 @@ class DB {
      */
     public function quote($value) {
         $link = $this->connect();
-        return "'" . $link->real_escape_string($value) . "'";
+        return "'" . $link->real_escape_string(strip_tags($value)) . "'";
     }
     
     /**
@@ -99,7 +99,7 @@ class DB {
      */
     public function escapeString($value) {
         $link = $this->connect();
-        return $link->real_escape_string($value);
+        return $link->real_escape_string(strip_tags($value));
     }
     
     /**
@@ -107,7 +107,7 @@ class DB {
      * @return int # of affected rows in latest query
      */
     public function affectedRows() {
-        return mysqli_affected_rows( self::$link ) ;
+        return mysqli_affected_rows(self::$link) ;
     }
     
     /**
@@ -115,7 +115,7 @@ class DB {
      * @return int insert id of latest query
      */
     public function insertID() {
-        return mysqli_insert_id( self::$link ) ;
+        return mysqli_insert_id(self::$link) ;
     }
 
 }

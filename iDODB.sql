@@ -126,9 +126,9 @@ CREATE TABLE IF NOT EXISTS RawData1 (
 	Email VARCHAR(50) DEFAULT NULL,
 	Groups VARCHAR(50) DEFAULT NULL,
 	RSVP INT(3) DEFAULT NULL,
+        Ride BOOLEAN DEFAULT FALSE,
 	Message TEXT NOT NULL,
-	RecivedDate DATE NOT NULL,
-	RecivedTime TIME NOT NULL
+        Recived datetime NOT NULL DEFAULT CURRENT_TIMESTAMP  
 ) DEFAULT CHARACTER SET utf8;
 
 DROP TABLE IF EXISTS RawData2;
@@ -136,13 +136,13 @@ CREATE TABLE RawData2 AS SELECT * FROM RawData1;
 
 
 /* demo RawData */
-INSERT INTO RawData1 (ID, Name, Surname, Phone, Email, Groups, RSVP, Message, RecivedDate, RecivedTime) VALUES
-	(1, 'Hoffman', 'Tatyana','054-1111111', 'Nam@quisdiamluctus.org', 'Friends', 5, 'we are 5 people', '2009-10-10', '10:10:10'),
-	(2, 'Hamilton', 'Mohammad', '051-2222222', 'dui@duiCras.edu', 'Coligues', 11, '11', '2009-12-12', '12:12:00');
+INSERT INTO RawData1 (ID, Name, Surname, Phone, Email, Groups, RSVP, Message, Recived) VALUES
+	(1, 'Hoffman', 'Tatyana','054-1111111', 'Nam@quisdiamluctus.org', 'Friends', 5, 'we are 5 people', '2009-10-10 10:10:10'),
+	(2, 'Hamilton', 'Mohammad', '051-2222222', 'dui@duiCras.edu', 'Coligues', 11, '11', '2009-12-12 12:12:00');
 
-INSERT INTO RawData2 (ID, Name, Surname, Phone, Email, Groups, RSVP, Message, RecivedDate, RecivedTime) VALUES
-	(1, 'Oriah', 'Halamish','054-4444444', 'Nam@quisdiamluctus.org', 'Friends', 1, 'I will come solo', '2009-10-10', '10:10:10'),
-	(2, 'Gil', 'levy', '051-1111111', 'dui@duiCras.edu', NULL, 2, 'two people', '2009-12-12', '12:12:00');
+INSERT INTO RawData2 (ID, Name, Surname, Phone, Email, Groups, RSVP, Message, Recived) VALUES
+	(1, 'Oriah', 'Halamish','054-4444444', 'Nam@quisdiamluctus.org', 'Friends', 1, 'I will come solo', '2009-10-10 10:10:10'),
+	(2, 'Gil', 'levy', '051-1111111', 'dui@duiCras.edu', NULL, 2, 'two people', '2009-12-12 12:12:00');
 
 	
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

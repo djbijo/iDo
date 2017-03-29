@@ -6,11 +6,10 @@ require_once('DB_rsvp.php');
 interface iEvent {
 
     public function deleteEvent(User $user);
-    
+
     public function getEventID();
-    
+
     public function getDB();
-    
 }
 
 class Event implements iEvent {
@@ -21,56 +20,13 @@ class Event implements iEvent {
     public $messages;
     public $rawData;
 
-    /*
-      
-      }
-
-      private function createMessages(int $eventID) {
-      $sql = "CREATE TABLE IF NOT EXISTS Messages_'$eventID' (
-      ID INT(2) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-      MessageType VARCHAR(100) NOT NULL,
-      Message TEXT NOT NULL,
-      Groups VARCHAR(100) DEFAULT NULL,
-      SendDate DATE NOT NULL,
-      SendTime TIME NOT NULL
-      ) DEFAULT CHARACTER SET utf8";
-
-      if (!mysqli_query($link, $sql)) {
-      $output = 'Error deleting user from Users table: ' . mysqli_error($link);
-      include 'output.html.php';
-      exit();
-      }
-      }
-
-      private function createRawData(int $eventID) {
-      $sql = "CREATE TABLE IF NOT EXISTS RawData_'$eventID' (
-      ID INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-      Name VARCHAR(100) NOT NULL,
-      Surname VARCHAR(100) NOT NULL,
-      Cell VARCHAR(12) DEFAULT NULL,
-      Email VARCHAR(100) DEFAULT NULL,
-      Groups VARCHAR(100) DEFAULT NULL,
-      RSVP INT(3) DEFAULT NULL,
-      Message TEXT NOT NULL,
-      RecivedDate DATE NOT NULL,
-      RecivedTime TIME NOT NULL
-      ) DEFAULT CHARACTER SET utf8";
-
-      if (!mysqli_query($link, $sql)) {
-      $output = 'Error deleting user from Users table: ' . mysqli_error($link);
-      include 'output.html.php';
-      exit();
-      }
-      }
-     */
-
     /**
      * __construct: create new Event object. if Event not in Events table (eventName,eventDate!=Null) add Event to Events table (do not make any change to Users Table!)
      * @param User $user : user element connected to this instance of event
      * @param string $EventName : name of event owner/owners or name of event
      * @param date $EventDate : date of event
-     * @param string $Email : Email to use for sending and receiving Emails
-     * @param string $EventPhone : Phone to use for sending and receiving messages
+     * @param string $EventPhone : Phone to use for sending and receiving messages 
+     * @param string $EventEmail : Email to use for sending and receiving Emails
      * @return object Event
      */
     public function __construct(User $user, $EventName = NULL, $EventDate = NULL, $EventPhone = NULL, $EventEmail = NULL) {
@@ -87,9 +43,13 @@ class Event implements iEvent {
             $eventDate = self::$db->quote($EventDate);
             $eventEmail = self::$db->quote($EventEmail);
             $eventPhone = self::$db->quote($EventPhone);
-            
-            echo "rootID is $rootID;"; echo "eventName is $eventName;"; echo "eventDate is $eventDate;"; echo "eventEmail is $eventEmail;"; echo "eventPhone is $eventPhone;";
-            
+
+            echo "rootID is $rootID;";
+            echo "eventName is $eventName;";
+            echo "eventDate is $eventDate;";
+            echo "eventEmail is $eventEmail;";
+            echo "eventPhone is $eventPhone;";
+
             // Add new event to Events table
             $result = self::$db->query("INSERT INTO Events (EventName, EventDate, RootID, Email, Phone) VALUES
                                         ($eventName, $eventDate, $rootID, $eventEmail, $eventPhone)");
@@ -103,9 +63,9 @@ class Event implements iEvent {
             // make new RSVP, Messages and RawData tables
             echo "making rsvp";
             $this->rsvp = new RSVP($this);
-              /*
-              $messages = new Messages();
-              $rawData = new RawData();
+            /*
+              $this->messages = new Messages();
+              $this->rawData = new RawData();
              */
         }
         // Event is in Events table
@@ -129,11 +89,11 @@ class Event implements iEvent {
                     if ($sql) {
                         /*
                           // delete RSVP[eventID] table
-                          $sqlRSVP = $this->rsvp->deleteRSVP();
+                          $sqlRSVP = $this->rsvp->delete();
                           // delete Messages[eventID] table
-                          $sqlMessages = $this->messages->deleteMessages();
+                          $sqlMessages = $this->messages->delete();
                           // delete RawData[eventID] table
-                          $sqlRawData = $this->rawData->deleteRawData();
+                          $sqlRawData = $this->rawData->delete();
                           if ($sqlRSVP and $sqlMessages and $sqlRawData) {
                          */
                         self::$db->query("UPDATE Users SET Event$i=NULL, Permission$i=NULL
@@ -146,7 +106,7 @@ class Event implements iEvent {
         }
         return false;
     }
-    
+
     /**
      * getDB:  get the DataBase
      * @return type db (DataBase) / false if Database yet initialized
@@ -157,7 +117,7 @@ class Event implements iEvent {
         }
         return false;
     }
-    
+
     /**
      * getEventID:  get Event ID
      * @return int  Event ID / false if ID yet initialized

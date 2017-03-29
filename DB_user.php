@@ -176,9 +176,9 @@ class User implements iUser {
         $email = self::$db->quote($Email);
         $phone = self::$db->quote($Phone);
         $name = self::$db->quote($Name);
-        $Permission1 != 'NULL' ? $permission1 = self::$db->quote($Permission1) : $permission1 = 'NULL';
-        $Permission2 != 'NULL' ? $permission2 = self::$db->quote($Permission2) : $permission2 = 'NULL';
-        $Permission3 != 'NULL' ? $permission3 = self::$db->quote($Permission3) : $permission3 = 'NULL';
+        ($Permission1 != 'NULL') ? $permission1 = self::$db->quote($Permission1) : $permission1 = 'NULL';
+        ($Permission2 != 'NULL') ? $permission2 = self::$db->quote($Permission2) : $permission2 = 'NULL';
+        ($Permission3 != 'NULL') ? $permission3 = self::$db->quote($Permission3) : $permission3 = 'NULL';
 
         // save user ID
         if (!isset(self::$id)) {
