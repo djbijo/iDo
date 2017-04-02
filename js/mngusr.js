@@ -13,7 +13,7 @@ var appStart = function() {
  */
 var initSigninV2 = function() {
   auth2 = gapi.auth2.init({
-      client_id: '1072089522959-lncmb7n5llcqm2sjoei28ufm6g63fatm.apps.googleusercontent.com',
+      client_id: '1072089522959-lncmb7n5llcqm2sjoei28ufm6g63fatm.apps.googleusercontent.com'
       // scope: 'profile'
   });
 
@@ -37,7 +37,7 @@ var initSigninV2 = function() {
   }
 
   // Start with the current live values.
-  refreshValues();
+  // refreshValues();
 };
 
 /**
@@ -47,6 +47,7 @@ var initSigninV2 = function() {
  */
 var signinChanged = function (val) {
   console.log('Signin state changed to ', val);
+
   //document.getElementById('signed-in-cell').innerText = val;
 };
 
@@ -69,24 +70,15 @@ var userChanged = function (user) {
 var updateGoogleUser = function () {
 	if(googleUser){
 	if (auth2.isSignedIn.get() == true){
+	  $("#login").modal("hide");
 	  signWithServer();
-//          $("#sendMessage").load("sendMessageForm.html");
-        editableGrid = new EditableGrid("DemoGridJSON"); 
-        editableGrid.tableLoaded = function() { this.renderGrid("RSVPList", "testgrid"); };
-        editableGrid.loadJSON("rsvp.json");
-      }
-	// document.getElementById("content").innerHTML='<object type="text/html" data="?php echo file_get_contents("sendMessage.php"); ?" ></object>';
-	//console.log('displaying php');
-    /*document.getElementById('user-id').innerText = googleUser.getId();
-    document.getElementById('user-scopes').innerText =
-      googleUser.getGrantedScopes();
-    document.getElementById('auth-response').innerText =
-      JSON.stringify(googleUser.getAuthResponse(), undefined, 2);*/
-  } else {
 
-    /*document.getElementById('user-id').innerText = '--';
-    document.getElementById('user-scopes').innerText = '--';
-    document.getElementById('auth-response').innerText = '--';*/
+      }
+    else {
+        console.log("showing login modal");
+        $("#login").modal();
+    }
+  } else {
 	
   }
 };
@@ -133,7 +125,9 @@ var onFailure = function(error) {
 function signOut() {  
 //FIXME: change to signOut();  
     auth2.disconnect().then(function () {
-      console.log('User signed out.');	  
+      console.log('User signed out.');
+      //fixme: we should display sommthing else
+      $("#login").modal();
     });
 }
   
@@ -145,8 +139,22 @@ function signWithServer() {
 	xhr.open('POST', 'signinuser.php');
 	xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	xhr.onload = function() {
-	  console.log(xhr.responseText);
-          //document.write(xhr.responseText);
+	  //only for development
+        var resp;
+        try {
+            resp = JSON.parse(xhr.responseText);
+            if (resp.status == 'error') {
+                document.getElementById("errMsg").innerHTML = "הודעת שגיאה";
+                $("#error_modal").modal();
+            }
+            console.log(resp);
+        } catch (e) {
+            document.getElementById("errMsg").innerHTML = xhr.responseText;
+            $("#error_modal").modal();
+        }
+        // $("#error_modal").modal();
+
+        //document.write(xhr.responseText);
 	};
 	xhr.send('idtoken=' + id_token
                 + '&accesstoken=' + access_token);  

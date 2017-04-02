@@ -97,10 +97,13 @@ class User implements iUser {
      * @param string $ID : user ID
      * @return bool: false = user not in database / true = user in database
      */
-    private function checkUserID($ID) {
+    static function checkUserID($ID) {
+
+        if (!isset(self::$db)) {
+            self::$db = new DB();
+        }
         // Make strings query safe
         $id = self::$db->quote($ID);
-
         // Search for user ID in Users table
         if (!self::$db->select("SELECT * FROM Users WHERE ID=$id")) {
             return false;

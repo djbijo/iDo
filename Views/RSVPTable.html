@@ -1,0 +1,165 @@
+<!--<body>-->
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--<body>-->
+<!--<div class="container">-->
+    <!--<h1>From data</h1>-->
+    <p></p>
+<div id="toolbar">
+    <button id="button" class="btn btn-default">הוסף רשומה</button>
+    <select class="form-control">
+        <option value="">Export Basic</option>
+        <option value="all">Export All</option>
+        <option value="selected">Export Selected</option>
+    </select>
+</div>
+<table id="table">
+    <!--data-toggle="table"-->
+    <!--data-show-export="true"-->
+    <!--data-pagination="true"-->
+    <!--data-show-export="true"-->
+    <!--data-search="true"-->
+    <!--data-toolbar="#toolbar"-->
+    <!--data-mobile-responsive="true"-->
+    <!--data-show-columns="true"-->
+    <!--data-show-pagination-switch="true"-->
+    <!--data-show-refresh="true"-->
+    <!--data-key-events="true"-->
+    <!--data-cookie="true"-->
+    <!--data-cookie-id-table="saveId"-->
+    <!--data-url="json/rsvp.json">-->
+    <!--<thead>-->
+    <!--<tr>-->
+        <!--<th data-field="id">מס"ד</th>-->
+        <!--<th data-field="name"       id="name">שם פרטי</th>-->
+        <!--<th data-field="surname"    data-editable="true">שם משפחה</th>-->
+        <!--<th data-field="nick"       data-editable="true">כינוי</th>-->
+        <!--<th data-field="phone"      data-editable="true">טלפון</th>-->
+        <!--<th data-field="email"      data-editable="true">מייל</th>-->
+        <!--<th data-field="groups"     data-editable="true" data-sortable="true">קבוצות</th>-->
+        <!--<th data-field="invitees"   data-editable="true" data-sortable="true">מוזמנים</th>-->
+        <!--<th data-field="rsvp"       data-editable="true" data-sortable="true">אישרו הגעה</th>-->
+        <!--<th data-field="maybe"      data-editable="true">מתלבטים</th>-->
+        <!--<th data-field="ride"       data-editable="true">הסעה</th>-->
+        <!--<th data-field="del"         >מחק</th>-->
+    <!--</tr>-->
+    <!--</thead>-->
+</table>
+<!--</div>-->
+<!--</body>-->
+<!--</html>-->
+<script>
+//    $.getJSON('json/rsvp.json', function(data) {
+//        console.log(data);
+//    });
+
+//    var rsvp = console.log(JSON.parse("rsvp.json"));
+    var $table = $('#table')
+        $button = $('#button');
+
+$(function () {
+    $table.bootstrapTable({
+        idField: 'rsvp',
+        url: 'json/rsvp.json',
+        toolbar: '#toolbar',
+        idField: 'id',
+        columns: [
+            {
+                field: 'id',
+                title: 'מס"ד',
+                visible: false
+        },  {
+            field: 'name',
+            title: 'שם',
+            editable: {
+                type: 'text',
+                url: 'tableUpdate.php',
+                title: 'name',
+                success: function (response, newValue) {
+                    console.log(response);
+                    respArr = JSON.parse(response);
+                    console.log(respArr);
+                    if (!respArr.success)
+                        return respArr.msg;
+                }
+            }
+        }, {
+            field: 'surname',
+            title: 'שם משפחה',
+            editable: {
+                type: 'text',
+                url: '/post',
+                title: 'surname'
+            }
+        }]
+    })
+});
+//    $(function () {
+//        var data = $.getJSON('json/rsvp.json');
+//        [
+//            {
+//                "id"       : 0,
+//                "name"     : "ישראל",
+//                "surname"  : "ישראלי",
+//                "nick"     : "שרול",
+//                "phone"    : "052-555",
+//                "email"    : "israel@israeli.com",
+//                "groups"   : "חברים",
+//                "invitees" : 7,
+//                "rsvp"     : 2,
+//                "maybe"    : 1,
+//                "ride"     : "כן"
+//            }
+//        ];
+//        $table.bootstrapTable({data: data});
+//    });
+    $(function () {
+        $('#toolbar').find('select').change(function () {
+            $table.bootstrapTable('destroy').bootstrapTable({
+                exportDataType: $(this).val()
+            });
+        });
+    })
+
+    $(function () {
+        $button.click(function () {
+            var randomId = 100 + ~~(Math.random() * 100);
+            $table.bootstrapTable('insertRow', {
+                index: 1,
+                row: {
+                    "id"       : 0,
+                    "name"     : "ישראל",
+                    "surname"  : "ישראלי",
+                    "nick"     : "שרול",
+                    "phone"    : "052-555",
+                    "email"    : "israel@israeli.com",
+                    "groups"   : "חברים",
+                    "invitees" : 7,
+                    "rsvp"     : 2,
+                    "maybe"    : 1,
+                    "ride"     : "כן"
+                }
+            });
+        });
+    });
+    $.mockjax({
+        url: '/post',
+        responseTime: 400,
+//        status: 200,
+        response: function(settings) {
+//            console.log(settings);
+            if(settings.data.value == 'err') {
+                this.status = 500;
+                this.responseText = {
+                    success: false,
+                    msg: "not good, not good"
+                }
+            } else {
+                this.responseText = {
+                    success: true
+                };
+            }
+            this.data = "something";
+        }
+    });
+</script>

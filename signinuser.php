@@ -1,9 +1,20 @@
 <?php
 // signinuser.php
-require_once 'c://wamp64/apps/google-api-php-client/vendor/autoload.php';
+require_once 'vendor/autoload.php';
 require_once 'DB_user.php';
-session_start();
 
+session_start();
+//FIXME: check if this is necessary maybe it's better onlt to check if the user hadn't changed
+if (isset($_SESSION['loggedin'])) {
+// remove all session variables
+    session_unset();
+
+// destroy the session
+    session_destroy();
+//    $_SESSION['beenHere'] = 0;
+}
+header('Content-type: application/json');
+//$response['status'] = 'error';
 // Get $id_token via HTTPS POST.
 $id_token = $_POST['idtoken'];
 $access_token = $_POST['accesstoken'];
@@ -13,25 +24,33 @@ $client->setScopes('email');
 $client->setAccessToken($access_token);
 $payload = $client->verifyIdToken($id_token);
 if ($payload) {
-  $userid = $payload['sub'];
-  echo 'user '.$userid.' logged in, email:'.$payload['email'];
-  if (!isset($_SESSION['loggedin'])){
-    $user = new User();
-    $event = new Event();
-    if (!$user->checkUserID($userid)){
-        echo ' user does not exist';
-        $event = $user->newUser($userid, $payload['name'], $payload['email'], 0, 'test', '0001');
+  $usrId = $payload['sub'];
+  $response['user'] = $usrId;
+  $response['email'] = $payload['email'];
+  $response['status'] = 'success';
+//  if (!isset($_SESSION['loggedin'])){
+//    $event = new Event();
+    if (!User::checkUserID($usrId)){
+//        echo ' user does not exist';
+        $user = new User($usrId, $payload['name'], $payload['email'], 0, 'test', '0001');
+    }
+    else {
+        $user = new User($usrId);
     }
     $_SESSION['loggedin'] = true;
-    $_SESSION['userid'] = $userid;
-    $_SESSION['event']  = $event;
-  }
-  else {
-      echo 'user is already logged in with sesstion';
-  }
+    $_SESSION['user'] = $user;
+    $_SESSION['beenHere'] = isset($_SESSION['beenHere']) ? $_SESSION['beenHere'] + 1 : 0;
+    $response['beenHere'] = $_SESSION['beenHere'];
+//  }
+//  else {
+////      echo 'user is already logged in with session';
+//      $response['session_active'] = 'true';
+//  }
   // If request specified a G Suite domain:
   //$domain = $payload['hd'];
 } else {
-	echo 'error';
+    $response['status'] = 'error';
+//	echo 'error';
   // Invalid ID token
 }
+echo json_encode($response);

@@ -1,2 +1,6 @@
-/Ido_netbeans/nbproject/private/
-/nbproject/private/
+
+.idea/
+bower_components/
+composer.lock
+vendor/
+yarn.lock

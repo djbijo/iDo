@@ -1,0 +1,28 @@
+[
+  {
+    "id"       : 0,
+    "name"     : "ישראל",
+    "surname"  : "ישראלי",
+    "nick"     : "שרול",
+    "phone"    : "052-555",
+    "email"    : "israel@israeli.com",
+    "groups"   : "חברים",
+    "invitees" : 7,
+    "rsvp"     : 2,
+    "maybe"    : 1,
+    "ride"     : "כן"
+  },
+  {
+    "id"       : 1,
+    "name"     : "ישddראל",
+    "surname"  : "ישראלי",
+    "nick"     : "שרול",
+    "phone"    : "052-555",
+    "email"    : "israel@israeli.com",
+    "groups"   : "חברים",
+    "invitees" : 7,
+    "rsvp"     : 2,
+    "maybe"    : 1,
+    "ride"     : "כן"
+  }
+]
