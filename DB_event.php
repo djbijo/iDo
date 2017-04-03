@@ -67,10 +67,9 @@ class Event implements iEvent {
             
             // make new RSVP, Messages and RawData tables
             $this->rsvp = new RSVP($this);
-            /*
-              $this->messages = new Messages();
-              $this->rawData = new RawData();
-             */
+            $this->messages = new Messages();
+            $this->rawData = new RawData();
+
         } else {
             //throw exeption
         }
@@ -92,15 +91,14 @@ class Event implements iEvent {
                 
                     // delete event from Events table
                     $sql = self::$db->query("DELETE FROM Events WHERE ID=$eventID");
-                    /*
-                      // delete RSVP[eventID] table
-                      $sqlRSVP = $this->rsvp->delete();
-                      // delete Messages[eventID] table
-                      $sqlMessages = $this->messages->delete();
-                      // delete RawData[eventID] table
-                      $sqlRawData = $this->rawData->delete();
-                      if ($sqlRSVP and $sqlMessages and $sqlRawData) {
-                     */
+                    // delete RSVP[eventID] table
+                    $sqlRSVP = $this->rsvp->delete();
+                    // delete Messages[eventID] table
+                    $sqlMessages = $this->messages->delete();
+                    // delete RawData[eventID] table
+                    $sqlRawData = $this->rawData->delete();
+                    if ($sqlRSVP and $sqlMessages and $sqlRawData) {
+                    
                     
                     //}
             }

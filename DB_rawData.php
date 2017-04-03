@@ -49,7 +49,7 @@ class rawData extends Table {
      */
     public function get() {
         $eventID = self::$eventID;
-        $result = self::$db->query("SELECT * FROM rawData$eventID");
+        $result = self::$db->select("SELECT * FROM rawData$eventID");
         return $result;
     }
 
@@ -87,14 +87,8 @@ class rawData extends Table {
 
         $eventID = Table::$eventID;
 
-        if ($stmt = $mysqli->prepare("INSERT INTO rawData" . $eventID . "  (Name, Surname, Phone, Email, Groups, RSVP, Ride, Message) VALUES
-                    (?, ?, ?, ?, ?, ?, ?, ?)")) {
-
-            $stmt->bind_param("sssssibs", $name, $surName, $phone, $email, $groups, $RSVP, $Ride, $message);
-            $result = $stmt->execute();
-            $stmt->close();
-        }
-
+        $result = Table::$db->query("INSERT INTO rawData" . $eventID . "  (Name, Surname, Phone, Email, Groups, RSVP, Ride, Message) VALUES
+                    ( $name, $surName, $phone, $email, $groups, $RSVP, $Ride, $message)");
         return $result;
     }
 

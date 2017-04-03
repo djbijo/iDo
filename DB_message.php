@@ -45,7 +45,7 @@ class Messages extends Table {
      */
     public function get() {
         $eventID = self::$eventID;
-        $result = self::$db->query("SELECT * FROM messages$eventID");
+        $result = self::$db->select("SELECT * FROM messages$eventID");
         return $result;
     }
 
@@ -75,14 +75,8 @@ class Messages extends Table {
 
         $eventID = Table::$eventID;
 
-        if ($stmt = $mysqli->prepare("INSERT INTO messages".$eventID . "  (MessageType, Message, Groups, SendDate, SendTime) VALUES
-                    ( ?, ?, ?, ?, ?)")) {
-
-            $stmt->bind_param("sssdt", $messageType, $message, $groups, $SendDate, $SendTime);
-            $result = $stmt->execute();
-            $stmt->close();
-        }
-
+        $result = Table::$db->query("INSERT INTO messages$eventID (MessageType, Message, Groups, SendDate, SendTime) VALUES
+                    ( $messageType, $message, $groups, $SendDate, $SendTime)");
         return $result;
     }
 
@@ -94,7 +88,6 @@ class Messages extends Table {
     public function delete($id) {
         return Table::deleteFromTable('messages', $id);
     }
-
 }
 
 ?>

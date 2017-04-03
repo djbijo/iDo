@@ -51,7 +51,7 @@ class RSVP extends Table {
      */
     public function get() {
         $eventID = Table::$eventID;
-        $result = Table::$db->query("SELECT * FROM rsvp$eventID");
+        $result = Table::$db->select("SELECT * FROM rsvp$eventID");
         return $result;
     }
 
@@ -79,23 +79,17 @@ class RSVP extends Table {
     public function add($Name, $SurName, $Invitees, $NickName = NULL, $Phone = NULL, $Email = NULL, $Groups = NULL, $RSVP = 0, $Ride = false) {
 
         // Make strings query safe
-        $name = Table::$db->qoute($Name);
-        $surName = Table::$db->qoute($SurName);
-        ($NickName != NULL ) ? $nickName = Table::$db->qoute($NickName) : $nickName = NULL;
-        ($Phone != NULL) ? $phone = Table::$db->qoute($Phone) : $phone = NULL;
-        ($Email != NULL ) ? $email = Table::$db->qoute($Email) : $email = NULL;
-        ($Groups != NULL) ? $groups = Table::$db->qoute($Groups) : $groups = NULL;
+        $name = Table::$db->quote($Name);
+        $surName = Table::$db->quote($SurName);
+        ($NickName != NULL ) ? $nickName = Table::$db->quote($NickName) : $nickName = NULL;
+        ($Phone != NULL) ? $phone = Table::$db->quote($Phone) : $phone = NULL;
+        ($Email != NULL ) ? $email = Table::$db->quote($Email) : $email = NULL;
+        ($Groups != NULL) ? $groups = Table::$db->quote($Groups) : $groups = NULL;
 
         $eventID = Table::$eventID;
 
-        if ($stmt = $mysqli->prepare("INSERT INTO rsvp" . $eventID . "  (Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Ride) VALUES
-                    (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-
-            $stmt->bind_param("ssssisssib", $name, $surName, $nickName, $Invitees, $phone, $email, $groups, $RSVP, $Ride);
-            $result = $stmt->execute();
-            $stmt->close();
-        }
-
+        $result = Table::$db->query("INSERT INTO rsvp$eventID (Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Ride) VALUES
+                    ($name, $surName, $nickName, $Invitees, $phone, $email, $groups, $RSVP, $Ride)");
         return $result;
     }
 
@@ -151,7 +145,7 @@ class RSVP extends Table {
      * thanks John Peter for this solution: http://stackoverflow.com/questions/15699301/export-mysql-data-to-excel-in-php
      * @return bool true if excel imported / false if excel not imported
      */
-    public function exportExcel(bool $sample = false) {
+    public function exportExcel($sample = false) {
 
         $eventID = Table::$eventID;
 
