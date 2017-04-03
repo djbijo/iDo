@@ -29,13 +29,23 @@ class Event implements iEvent {
      * @param string $EventEmail : Email to use for sending and receiving Emails
      * @return object Event
      */
-    public function __construct(User $user, $EventName = NULL, $EventDate = NULL, $EventPhone = NULL, $EventEmail = NULL) {
+    public function __construct(User $user, $EventID = NULL, $EventName = NULL, $EventDate = NULL, $EventPhone = NULL, $EventEmail = NULL) {
 
         if (!isset(self::$db)) {
             self::$db = $user->getDB();
         }
+        
+        // user exists          ??? when using new user($ID)
+        if ($events = $user->getEvents() and $EventID === NULL and $events['event1'] != NULL) {
+            $this->eventID = $events['event1'];
+        }
+
+        if ($EventID != NULL and ! isset($this->eventID)) {
+            $this->eventID = $EventID;
+        }
+
         // Event is not in Events table (new Event)
-        if ($EventName != NULL and $EventDate != NULL and $EventDate != NULL and $EventEmail != NULL and $EventPhone != NULL) {
+        elseif ($EventName != NULL and $EventDate != NULL and $EventEmail != NULL and $EventPhone != NULL) {
             // initiate Database with user Database
             // Make strings query safe
             $rootID = $user->getID();
@@ -43,12 +53,6 @@ class Event implements iEvent {
             $eventDate = self::$db->quote($EventDate);
             $eventEmail = self::$db->quote($EventEmail);
             $eventPhone = self::$db->quote($EventPhone);
-
-            echo "rootID is $rootID;";
-            echo "eventName is $eventName;";
-            echo "eventDate is $eventDate;";
-            echo "eventEmail is $eventEmail;";
-            echo "eventPhone is $eventPhone;";
 
             // Add new event to Events table
             $result = self::$db->query("INSERT INTO Events (EventName, EventDate, RootID, Email, Phone) VALUES
@@ -60,13 +64,15 @@ class Event implements iEvent {
             if (!isset($this->eventID)) {
                 $this->eventID = self::$db->insertID();
             }
+            
             // make new RSVP, Messages and RawData tables
-            echo "making rsvp";
             $this->rsvp = new RSVP($this);
             /*
               $this->messages = new Messages();
               $this->rawData = new RawData();
              */
+        } else {
+            //throw exeption
         }
         // Event is in Events table
         return;
@@ -81,30 +87,28 @@ class Event implements iEvent {
         // Check user permission for event
         $result = $user->getEvents();
         for ($i = 1; $i <= 3; $i++) {
-            if ($result["event$i"] === $this->eventID) {
-                $eventID = $this->eventID;
-                if ($result["permission$i"] === 'root') {
+            $eventID = $this->eventID;
+            if ($result["event$i"] === $this->eventID and $result["permission$i"] === 'root') {
+                
                     // delete event from Events table
                     $sql = self::$db->query("DELETE FROM Events WHERE ID=$eventID");
-                    if ($sql) {
-                        /*
-                          // delete RSVP[eventID] table
-                          $sqlRSVP = $this->rsvp->delete();
-                          // delete Messages[eventID] table
-                          $sqlMessages = $this->messages->delete();
-                          // delete RawData[eventID] table
-                          $sqlRawData = $this->rawData->delete();
-                          if ($sqlRSVP and $sqlMessages and $sqlRawData) {
-                         */
-                        self::$db->query("UPDATE Users SET Event$i=NULL, Permission$i=NULL
-                                            WHERE Event$i=$eventID");
-                        return true;
-                        //}
-                    }
-                }
+                    /*
+                      // delete RSVP[eventID] table
+                      $sqlRSVP = $this->rsvp->delete();
+                      // delete Messages[eventID] table
+                      $sqlMessages = $this->messages->delete();
+                      // delete RawData[eventID] table
+                      $sqlRawData = $this->rawData->delete();
+                      if ($sqlRSVP and $sqlMessages and $sqlRawData) {
+                     */
+                    
+                    //}
             }
+            $sql = self::$db->query("UPDATE Users SET Event$i=NULL, Permission$i=NULL
+                                            WHERE Event$i=$eventID");
+            // event deleted for user, shift all events left                    ??????
         }
-        return false;
+        return true;
     }
 
     /**

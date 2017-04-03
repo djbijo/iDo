@@ -53,10 +53,10 @@ class User implements iUser {
             }
 
             // construct an events with only events ID to it!!!!            $$$$$$$
-
             $events = $this->getEvents();
+            if ($events['event1']===NULL){return;} 
+
             self::$event = new Event($this);
-            self::$event->eventID = $events['event1'];
             return;
         }
 
@@ -70,9 +70,8 @@ class User implements iUser {
                 }
 
                 if (!isset($event)) {
-                    self::$event = new Event($this, $EventName, $EventDate, $EventPhone, $Email);
+                    self::$event = new Event($this, NULL,$EventName, $EventDate, $EventPhone, $Email);
                 }
-                echo "event is".self::$event->eventID;
                 $result = $this->addUser($ID, $Name, $Email, $Phone, self::$event->eventID, 'root');
                 if (!$result) {
                     return false;
@@ -96,7 +95,13 @@ class User implements iUser {
      * @param string $ID : user ID
      * @return bool: false = user not in database / true = user in database
      */
-    private function checkUserID($ID) {
+    static function checkUserID($ID) {
+        
+        // set database if not set yet
+        if (!isset(self::$db)) {
+            self::$db = new DB();
+        }
+
         // Make strings query safe
         $id = self::$db->quote($ID);
 
@@ -288,6 +293,7 @@ class User implements iUser {
 
         //check if user is root for this event
         $eventID = self::$event->eventID;
+                
         $result = self::$db->select("SELECT * FROM Events WHERE ID=$eventID");
         $rootID = self::$db->quote($result[0]['RootID']);
 
@@ -355,7 +361,7 @@ class User implements iUser {
      * @param string $ID : user ID
      * @return array[6]  array['event1'] = event1 id, array['permission1'] = event1 permission, 
      *                   array['event2'] = event2 id, array['permission2'] = event2 permission,
-     *                   array['event3'] = event3 id, array['permission3'] = event3 permission,
+     *                   array['event3'] = event3 id, array['permission3'] = event3 permission
      */
     public function getEvents() {
 
@@ -368,7 +374,7 @@ class User implements iUser {
         $out['permission2'] = $result[0]['Permission2'];
         $out['event3'] = $result[0]['Event3'];
         $out['permission3'] = $result[0]['Permission3'];
-        return $out;
+        return ($out['event1'] != 'NULL') ? $out : false;
     }
 
     /**

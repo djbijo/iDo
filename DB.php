@@ -117,5 +117,4 @@ class DB {
     public function insertID() {
         return mysqli_insert_id(self::$link) ;
     }
-
 }

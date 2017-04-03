@@ -2,31 +2,10 @@
 
 require_once ("DB_event.php");
 
-interface iTable {
-
-    public function destruct();
-
-    public function updateTable($tableType, $colName, $id, $value);
-
-    public function deleteFromTable($tableType, $id);
-
-    abstract function create();
-
-    abstract function destroy();
-
-    abstract function get();
-
-    abstract function update($colName, $id, $value);
-
-    abstract function add();
-
-    abstract function delete($id);
-}
-
 /**
  * Table class for different tables in the database [rsvp/messages/rawData]
  */
-abstract class Table implements iTable {
+abstract class Table {
 
     protected static $db;
     protected static $eventID;

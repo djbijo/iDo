@@ -117,7 +117,7 @@ class RSVP extends Table {
         // delete rsvp[eventID] table if exists
         $this->deleteRSVP();
         // create new (empty) rsvp[eventID] table
-        $this = new RSVP();
+        new RSVP();
         return $this->importPartExcel($excel);
     }
 
