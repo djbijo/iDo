@@ -100,7 +100,7 @@ class Event implements iEvent {
                     if ($sqlRSVP and $sqlMessages and $sqlRawData) {
                     
                     
-                    //}
+                    }
             }
             $sql = self::$db->query("UPDATE Users SET Event$i=NULL, Permission$i=NULL
                                             WHERE Event$i=$eventID");

@@ -368,13 +368,16 @@ class User implements iUser {
         $id = self::$id;
 
         $result = self::$db->select("SELECT * FROM Users WHERE ID=$id");
-        $out['event1'] = $result[0]['Event1'];
-        $out['permission1'] = $result[0]['Permission1'];
-        $out['event2'] = $result[0]['Event2'];
-        $out['permission2'] = $result[0]['Permission2'];
-        $out['event3'] = $result[0]['Event3'];
-        $out['permission3'] = $result[0]['Permission3'];
-        return ($out['event1'] != 'NULL') ? $out : false;
+        if ($result != null) {
+            $out['event1'] = $result[0]['Event1'];
+            $out['permission1'] = $result[0]['Permission1'];
+            $out['event2'] = $result[0]['Event2'];
+            $out['permission2'] = $result[0]['Permission2'];
+            $out['event3'] = $result[0]['Event3'];
+            $out['permission3'] = $result[0]['Permission3'];
+            return ($out['event1'] != 'NULL') ? $out : false;
+        }
+        return false;
     }
 
     /**
