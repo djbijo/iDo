@@ -59,15 +59,26 @@
 
 $(function () {
     $table.bootstrapTable({
-        idField: 'rsvp',
         url: 'json/rsvp.json',
         toolbar: '#toolbar',
         idField: 'id',
+        showColumns: true,
+        mobileResponsive: true,
+        resizable: true,
+        showToggle: true,
+        search: true,
         columns: [
+            {
+                formatter: function(value, row, index) {
+                                return index;
+                            },
+                title: "מס"
+            },
             {
                 field: 'id',
                 title: 'מס"ד',
-                visible: false
+                visible: false,
+                switchable: false
         },  {
             field: 'name',
             title: 'שם',
