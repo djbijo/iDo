@@ -37,6 +37,9 @@ if ($payload) {
     else {
         $user = new User($usrId);
     }
+    if (User::$event !== null){
+        $event = new Event($user,-1, "baa", 55, 121, "dd");
+    }
     $_SESSION['loggedin'] = true;
     $_SESSION['user'] = $user;
     $_SESSION['beenHere'] = isset($_SESSION['beenHere']) ? $_SESSION['beenHere'] + 1 : 0;

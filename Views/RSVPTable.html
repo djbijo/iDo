@@ -1,18 +1,72 @@
-<!--<body>-->
-<!--<!DOCTYPE html>-->
-<!--<html>-->
-<!--<body>-->
-<!--<div class="container">-->
-    <!--<h1>From data</h1>-->
-    <p></p>
+
+
+<div class="modal fade" id="addRowModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">הוסף רשומה חדשה</h4>
+            </div>
+            <form class="form-inline" id="addRsvpRowForm">
+                <div class="modal-body">
+                    <div id="name-group" class="form-group">
+                        <label for="InputName">שם</label>
+                        <input type="text" class="form-control" id="InputName" placeholder="Jane Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="InputSurName">שם משפחה</label>
+                        <input type="text" class="form-control" id="InputSurName" placeholder="Jane Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="InputNickName">כינוי</label>
+                        <input type="text" class="form-control" id="InputNickName" placeholder="Jane Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="InputInvitees">מוזמנים</label>
+                        <input type="text" class="form-control" id="InputInvitees" placeholder="Jane Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="InputPhone">טלפון</label>
+                        <input type="tel" class="form-control" id="InputPhone" placeholder="050-5555555">
+                    </div>
+                    <div class="form-group">
+                        <label for="InputEmail">אימייל</label>
+                        <input type="email" class="form-control" id="InputEmail" placeholder="jane.doe@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="InputGroups">קבוצות</label>
+                        <input type="text" class="form-control" id="InputGroups" placeholder="jane.doe@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="InputRsvp">אישרו הגעה</label>
+                        <input type="number" class="form-control" id="InputRsvp" placeholder="jane.doe@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="InputRide">הסעה</label>
+                        <input type="checkbox" class="form-control" id="InputRide" value="">
+                    </div>
+                </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">בטל</button>
+                        <button type="submit" class="btn btn-primary">שמור</button>
+                    </div>
+                    <!--<button type="submit" class="btn btn-default">Send invitation</button>-->
+                </form>
+
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <div id="toolbar">
-    <button id="button" class="btn btn-default">הוסף רשומה</button>
+    <button id="button" class="btn btn-default" data-toggle="modal" data-target="#addRowModal">הוסף רשומה</button>
     <select class="form-control">
         <option value="">Export Basic</option>
         <option value="all">Export All</option>
         <option value="selected">Export Selected</option>
     </select>
 </div>
+
 <table id="table">
     <!--data-toggle="table"-->
     <!--data-show-export="true"-->
@@ -45,132 +99,4 @@
     <!--</tr>-->
     <!--</thead>-->
 </table>
-<!--</div>-->
-<!--</body>-->
-<!--</html>-->
-<script>
-//    $.getJSON('json/rsvp.json', function(data) {
-//        console.log(data);
-//    });
-
-//    var rsvp = console.log(JSON.parse("rsvp.json"));
-    var $table = $('#table')
-        $button = $('#button');
-
-$(function () {
-    $table.bootstrapTable({
-        url: 'json/rsvp.json',
-        toolbar: '#toolbar',
-        idField: 'id',
-        showColumns: true,
-        mobileResponsive: true,
-        resizable: true,
-        showToggle: true,
-        search: true,
-        columns: [
-            {
-                formatter: function(value, row, index) {
-                                return index;
-                            },
-                title: "מס"
-            },
-            {
-                field: 'id',
-                title: 'מס"ד',
-                visible: false,
-                switchable: false
-        },  {
-            field: 'name',
-            title: 'שם',
-            editable: {
-                type: 'text',
-                url: 'tableUpdate.php',
-                title: 'name',
-                success: function (response, newValue) {
-                    console.log(response);
-                    respArr = JSON.parse(response);
-                    console.log(respArr);
-                    if (!respArr.success)
-                        return respArr.msg;
-                }
-            }
-        }, {
-            field: 'surname',
-            title: 'שם משפחה',
-            editable: {
-                type: 'text',
-                url: '/post',
-                title: 'surname'
-            }
-        }]
-    })
-});
-//    $(function () {
-//        var data = $.getJSON('json/rsvp.json');
-//        [
-//            {
-//                "id"       : 0,
-//                "name"     : "ישראל",
-//                "surname"  : "ישראלי",
-//                "nick"     : "שרול",
-//                "phone"    : "052-555",
-//                "email"    : "israel@israeli.com",
-//                "groups"   : "חברים",
-//                "invitees" : 7,
-//                "rsvp"     : 2,
-//                "maybe"    : 1,
-//                "ride"     : "כן"
-//            }
-//        ];
-//        $table.bootstrapTable({data: data});
-//    });
-    $(function () {
-        $('#toolbar').find('select').change(function () {
-            $table.bootstrapTable('destroy').bootstrapTable({
-                exportDataType: $(this).val()
-            });
-        });
-    })
-
-    $(function () {
-        $button.click(function () {
-            var randomId = 100 + ~~(Math.random() * 100);
-            $table.bootstrapTable('insertRow', {
-                index: 1,
-                row: {
-                    "id"       : 0,
-                    "name"     : "ישראל",
-                    "surname"  : "ישראלי",
-                    "nick"     : "שרול",
-                    "phone"    : "052-555",
-                    "email"    : "israel@israeli.com",
-                    "groups"   : "חברים",
-                    "invitees" : 7,
-                    "rsvp"     : 2,
-                    "maybe"    : 1,
-                    "ride"     : "כן"
-                }
-            });
-        });
-    });
-    $.mockjax({
-        url: '/post',
-        responseTime: 400,
-//        status: 200,
-        response: function(settings) {
-//            console.log(settings);
-            if(settings.data.value == 'err') {
-                this.status = 500;
-                this.responseText = {
-                    success: false,
-                    msg: "not good, not good"
-                }
-            } else {
-                this.responseText = {
-                    success: true
-                };
-            }
-            this.data = "something";
-        }
-    });
-</script>
+<script src="js/rsvpTable.js"></script>

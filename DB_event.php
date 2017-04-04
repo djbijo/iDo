@@ -40,7 +40,7 @@ class Event implements iEvent {
             $this->eventID = $events['event1'];
         }
 
-        if ($EventID != NULL and ! isset($this->eventID)) {
+        if ($EventID != NULL and $EventID != -1 and ! isset($this->eventID)) {
             $this->eventID = $EventID;
         }
 

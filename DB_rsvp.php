@@ -130,8 +130,8 @@ class RSVP extends Table {
         while (($emapData = fgetcsv($file, 10000, ",")) !== false) {
             $count++;
             if ($count > 1) {  // discard title
-                $resutl = Table::$db - query("INSERT INTO rsvp$eventID (Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Ride) VALUES
-                            ('$empData[0]','$empData[1]','$empData[2]','$empData[3]','$empData[4]','$empData[5]','$empData[6]','$empData[7]','$empData[8]')");
+                $result = Table::$db - query("INSERT INTO rsvp$eventID (Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Ride) VALUES
+                            ('$emapData[0]','$emapData[1]','$emapData[2]','$emapData[3]','$emapData[4]','$emapData[5]','$emapData[6]','$emapData[7]','$emapData[8]')");
                 if (!$result) {
                     return false;
                 }
