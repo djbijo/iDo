@@ -1,7 +1,7 @@
 <?php
 
-include ("DB.php");
-include ("DB_event.php");
+require_once ("DB.php");
+require_once ("DB_event.php");
 
 interface iUser {
 
@@ -46,7 +46,6 @@ class User implements iUser {
         if (!isset(self::$db)) {
             self::$db = new DB();
         }
-
         // user is in users table (registered to iDO)
         if ($this->checkUserID($ID)) {
             if (!isset(self::$id)) {
@@ -54,10 +53,10 @@ class User implements iUser {
             }
 
             // construct an events with only events ID to it!!!!            $$$$$$$
-
             $events = $this->getEvents();
+            if ($events['event1']===NULL){return;} 
+
             self::$event = new Event($this);
-            self::$event->eventID = $events['event1'];
             return;
         }
 
@@ -71,9 +70,8 @@ class User implements iUser {
                 }
 
                 if (!isset($event)) {
-                    self::$event = new Event($this, $EventName, $EventDate, $Email, $EventPhone);
+                    self::$event = new Event($this, NULL,$EventName, $EventDate, $EventPhone, $Email);
                 }
-
                 $result = $this->addUser($ID, $Name, $Email, $Phone, self::$event->eventID, 'root');
                 if (!$result) {
                     return false;
@@ -98,12 +96,15 @@ class User implements iUser {
      * @return bool: false = user not in database / true = user in database
      */
     static function checkUserID($ID) {
-
+        
+        // set database if not set yet
         if (!isset(self::$db)) {
             self::$db = new DB();
         }
+
         // Make strings query safe
         $id = self::$db->quote($ID);
+
         // Search for user ID in Users table
         if (!self::$db->select("SELECT * FROM Users WHERE ID=$id")) {
             return false;
@@ -180,15 +181,18 @@ class User implements iUser {
         $email = self::$db->quote($Email);
         $phone = self::$db->quote($Phone);
         $name = self::$db->quote($Name);
-        $Permission1 != 'NULL' ? $permission1 = self::$db->quote($Permission1) : $permission1 = 'NULL';
-        $Permission2 != 'NULL' ? $permission2 = self::$db->quote($Permission2) : $permission2 = 'NULL';
-        $Permission3 != 'NULL' ? $permission3 = self::$db->quote($Permission3) : $permission3 = 'NULL';
+        ($Permission1 != 'NULL') ? $permission1 = self::$db->quote($Permission1) : $permission1 = 'NULL';
+        ($Permission2 != 'NULL') ? $permission2 = self::$db->quote($Permission2) : $permission2 = 'NULL';
+        ($Permission3 != 'NULL') ? $permission3 = self::$db->quote($Permission3) : $permission3 = 'NULL';
 
         // save user ID
         if (!isset(self::$id)) {
             self::$id = self::$db->quote($ID);
         }
         $id = self::$id;
+        
+        //echo "id is $id;"; echo "email is $email;"; echo "phone is $phone;"; echo "name is $name;"; echo "Event1 is $Event1;";echo "Permission1 is $permission1;";
+        //echo "Event2 is $Event2;";echo "Permission2 is $permission2;";echo "Event3 is $Event3;";echo "Permission3 is $permission3;";
 
         //insert user to Users table
         $result = self::$db->query("INSERT INTO Users (ID, Name, Email, Phone, Event1, permission1, Event2, permission2, Event3, permission3) VALUES
@@ -289,6 +293,7 @@ class User implements iUser {
 
         //check if user is root for this event
         $eventID = self::$event->eventID;
+                
         $result = self::$db->select("SELECT * FROM Events WHERE ID=$eventID");
         $rootID = self::$db->quote($result[0]['RootID']);
 
@@ -356,7 +361,7 @@ class User implements iUser {
      * @param string $ID : user ID
      * @return array[6]  array['event1'] = event1 id, array['permission1'] = event1 permission, 
      *                   array['event2'] = event2 id, array['permission2'] = event2 permission,
-     *                   array['event3'] = event3 id, array['permission3'] = event3 permission,
+     *                   array['event3'] = event3 id, array['permission3'] = event3 permission
      */
     public function getEvents() {
 
@@ -369,7 +374,7 @@ class User implements iUser {
         $out['permission2'] = $result[0]['Permission2'];
         $out['event3'] = $result[0]['Event3'];
         $out['permission3'] = $result[0]['Permission3'];
-        return $out;
+        return ($out['event1'] != 'NULL') ? $out : false;
     }
 
     /**
@@ -385,7 +390,7 @@ class User implements iUser {
 
     /**
      * getDB:  get User ID
-     * @return int  User ID / false if ID yet initialized
+     * @return string  User ID / false if ID yet initialized
      */
     public function getID() {
         if (isset(self::$id)) {
