@@ -49,12 +49,13 @@ class Event implements iEvent {
         elseif ($EventName and $EventDate) {
             // initiate Database with user Database
             // Make strings query safe
+            /*
             $rootID = $user->getID();
             $eventName = DB::quote($EventName);
             $eventDate = DB::quote($EventDate);
             $eventEmail = DB::quote($EventEmail);
             $hebrewDate = "09-10-1989"; //$this->makeHebrewDate($EventDate);
-            ($EventTime != NULL) ? $eventTime = DB::qoute($EventTime) : $eventTime = NULL;
+            //($EventTime != NULL) ? $eventTime = DB::qoute($EventTime) : $eventTime = NULL;
             ($Venue != NULL) ? $venue = DB::qoute($Venue) : $venue = NULL;
             ($Address != NULL) ? $address = DB::qoute($Address) : $address = NULL;
             ($EventTime != NULL) ? $eventTime = DB::qoute($EventTime) : $eventTime = NULL;
@@ -63,11 +64,13 @@ class Event implements iEvent {
             ($Secret != NULL) ? $secret = DB::qoute($Secret) : $secret = NULL;
             ($DeviceID != NULL) ? $deviceID = DB::qoute($DeviceID) : $deviceID = NULL;
             
-            
+
+            $eventTime = '18:00';
+            $what = '19:00:00';
             echo "event Name: $eventName";
             echo "event Date: $eventDate";
             echo "Event ID: $EventID";
-            echo "Hebrew Date: $HebrewDate";
+            echo "Hebrew Date: $hebrewDate";
             echo "Event time: $eventTime";
             echo "Venue: $venue";
             echo "address: $address";
@@ -76,16 +79,15 @@ class Event implements iEvent {
             echo "password: $password";
             echo "secret: $secret";
             echo "Device ID: $deviceID";
-            echo "RootID: $rootID"; 
+            echo "RootID: $rootID";
+            */
 
             // Add new event to Events table
             //$result = DB::query("INSERT INTO Events (EventName, EventDate, HebrewDate, EventTime, Venue, Address, RootID, Email, Phone, Password, Secret, DeviceID) VALUES
             //                            ($eventName, $eventDate, $hebrewDate, $eventTime, $venue, $address, $rootID, $eventEmail, $eventPhone, $password, $secret, $deviceID)");
             $result = DB::query("INSERT INTO Events (EventName, EventDate, HebrewDate, EventTime, Venue, Address, RootID, Email, Phone, Password, Secret, DeviceID) VALUES
-                                        ($eventName, $eventDate,$hebrewDate, NULL, NULL, NULL, $rootID, $eventEmail, $eventPhone, NULL, NULL, NULL)");
-           
-            
-            
+                                        ('Dan and moshe', '2009-09-24', 'Tu Beav', '19:00','אולמי הנסיכה', '31 אורכידאה','123', 'oriah@gmail.com', '051-1111111', 'Bil123','79fhdasfAA', '76851Ad')");
+
             if (!$result) {
                 echo "why?!!?";
                 return false;

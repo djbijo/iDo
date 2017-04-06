@@ -55,34 +55,24 @@ class User implements iUser {
             return;
         }
 
+        //todo: add DB quote
+
         // user is not in users table (not registered to iDO)
-        if ($Name != 'NULL' and $Email != 'NULL') {
-
-            // user with new event
-            if ($EventName != 'NULL' and $EventDate != 'NULL') {
-                if (!isset($this->id)) {
-                    $this->id = DB::quote($ID);
-                }
-
-                if (!isset($this->event)) {
-                    $this->event = new Event($this, $EventName, $EventDate);
-                }
-                $result = $this->addUser($ID, $Name, $Email, $Phone, $this->event->eventID, 'root');
-                if (!$result) {
-                    return false;
-                }
-            }
-
-            // new user w/o new event
-            else {
-                $result = $this->addUser($ID, $Name, $Email, $Phone);
-                if (!$result) {
-                    return false;
-                }
-            }
-            return;
+        $result = $this->addUser($ID, $Name, $Email, $Phone);
+        if (!$result) {
+            return false;
         }
+
         return false;
+    }
+
+    public function addEvent($EventName, $EventDate, $EventPhone = 'NULL'){
+        $id = $this->id;
+        $this->event = new Event($this, $EventName, $EventDate);
+        $result = DB::select("SELECT * FROM USERS WHERE ID=$id");
+        if (!$result){return false;}
+        $this->addUserPermissions($result[0]['Email'], 'root');
+        return $this->event;
     }
 
     /**
@@ -283,7 +273,7 @@ class User implements iUser {
         }
         // Update relevant user in user table
         for ($i = 1; $i <= 3; $i++) {
-            DB::query("UPDATE Users SET Permission$i=$permission
+            DB::query("UPDATE Users SET Permission$i=$permission, Event$i=$eventID
 			WHERE Email=$email AND Event$i IS NULL");
 
             $rows = DB::affectedRows();
