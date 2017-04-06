@@ -1,0 +1,27 @@
+{
+  "name": "ezvite",
+  "homepage": "https://github.com/djbijo/iDo",
+  "description": "wedding rsvp by sms",
+  "main": "index.html",
+  "keywords": [
+    "wedding",
+    "sms"
+  ],
+  "authors": [
+    "oriah halamish",
+    "gil levy"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap-table": "^1.11.1",
+    "bootstrap-rtl": "^3.4.0"
+  }
+}
