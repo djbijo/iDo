@@ -7,27 +7,18 @@ require_once ("DB_event.php");
  */
 abstract class Table {
 
-    protected static $db;
-    protected static $eventID;
+    protected $eventID;
 
     /**
      * __construct: create new object.
      * "eventID" is of 1st event on list, until chosen otherwise.
      * @return object table[rsvp,messages,rawData]
      */
-    public function __construct(Event $Event = NULL) {
+    public function __construct($eventID) {
 
-        if (isset(self::$eventID) And isset(self::$db)) {
-            return;
-        }
-
-        // get DataBase from event (initially from user)
-        if (!isset(self::$db)) {
-            self::$db = $Event->getDB();
-        }
         // get EventID from event
-        if (!isset(self::$eventID)) {
-            self::$eventID = $Event->eventID;
+        if (!isset($this->eventID)) {
+            $this->eventID = $eventID;
         }
         // create table - this is an abstract method
         $this->create();
@@ -40,10 +31,10 @@ abstract class Table {
      */
     public function destruct() {
         // check that table is initiallised
-        if (!isset(self::$eventID) And ! isset(self::$db)) {
+        if (!isset($this->eventID)) {
             return false;
         }
-
+        // destroy table - this is an abstract method
         return $this->destroy();
     }
 
@@ -57,15 +48,12 @@ abstract class Table {
      */
     public function updateTable($tableType, $colName, $id, $value) {
         // handel data
-        ($value === "") ? $value = NULL : $value = self::$db->qoute($value);
-        $eventID = self::$eventID;
+        ($value === "") ? $value = NULL : $value = DB::qoute($value);
+        $eventID = $this->eventID;
 
         // generate mysql command
-        if ($stmt = self::$db->prepare("UPDATE " . $tableType . $eventID . " SET " . $colName . " = ? WHERE id = ?")) {
-            $stmt->bind_param("si", $value, $id);
-            $result = $stmt->execute();
-            $stmt->close();
-        }
+        $result = DB::query("UPDATE ".$tableType.$eventID." SET $colName = $value WHERE id = $id");
+
         return $result;
     }
 
@@ -76,14 +64,10 @@ abstract class Table {
      * @return bool true if row deleted / false otherwise
      */
     public function deleteFromTable($tableType, $id) {
-        $eventID = self::$eventID;
+        $eventID = $this->eventID;
 
         // generate mysql command
-        if ($stmt = self::$db->prepare("DELETE FROM ".$tableType.$eventID."  WHERE id = ?")) {
-            $stmt->bind_param("i", $id);
-            $result = $stmt->execute();
-            $stmt->close();
-        }
+        $result = DB::query("DELETE FROM ".$tableType.$eventID."  WHERE id = $id");
         return $result;
     }
 

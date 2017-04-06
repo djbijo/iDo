@@ -2,19 +2,18 @@
 
 require_once('DB_user.php');
 require_once('DB_rsvp.php');
+require_once('DB_message.php');
+require_once('DB_rawData.php');
 
 interface iEvent {
 
     public function deleteEvent(User $user);
 
     public function getEventID();
-
-    public function getDB();
 }
 
 class Event implements iEvent {
 
-    protected static $db;
     public $eventID;
     public $rsvp;
     public $messages;
@@ -29,48 +28,78 @@ class Event implements iEvent {
      * @param string $EventEmail : Email to use for sending and receiving Emails
      * @return object Event
      */
-    public function __construct(User $user, $EventID = NULL, $EventName = NULL, $EventDate = NULL, $EventPhone = NULL, $EventEmail = NULL) {
+    public function __construct(User $user, $EventName = NULL, $EventDate = NULL, $EventID = NULL, $HebrewDate = NULL, $EventTime = NULL, $Venue = NULL, $Address = NULL, $EventEmail = NULL, $EventPhone = NULL, $Password = NULL, $Secret = NULL, $DeviceID = NULL) {
 
-        if (!isset(self::$db)) {
-            self::$db = $user->getDB();
-        }
-        
         // user exists          ??? when using new user($ID)
         if ($events = $user->getEvents() and $EventID === NULL and $events['event1'] != NULL) {
             $this->eventID = $events['event1'];
+            $this->rsvp = new RSVP($this->eventID);
+            $this->messages = new Messages($this->eventID);
+            $this->rawData = new RawData($this->eventID);
         }
 
         if ($EventID != NULL and ! isset($this->eventID)) {
             $this->eventID = $EventID;
+            $this->rsvp = new RSVP($this->eventID);
+            $this->messages = new Messages($this->eventID);
+            $this->rawData = new RawData($this->eventID);
         }
 
-        // Event is not in Events table (new Event)
-        elseif ($EventName != NULL and $EventDate != NULL and $EventEmail != NULL and $EventPhone != NULL) {
+        // Event is not in Events table (new Event) 
+        elseif ($EventName and $EventDate) {
             // initiate Database with user Database
             // Make strings query safe
             $rootID = $user->getID();
-            $eventName = self::$db->quote($EventName);
-            $eventDate = self::$db->quote($EventDate);
-            $eventEmail = self::$db->quote($EventEmail);
-            $eventPhone = self::$db->quote($EventPhone);
+            $eventName = DB::quote($EventName);
+            $eventDate = DB::quote($EventDate);
+            $eventEmail = DB::quote($EventEmail);
+            $hebrewDate = "09-10-1989"; //$this->makeHebrewDate($EventDate);
+            ($EventTime != NULL) ? $eventTime = DB::qoute($EventTime) : $eventTime = NULL;
+            ($Venue != NULL) ? $venue = DB::qoute($Venue) : $venue = NULL;
+            ($Address != NULL) ? $address = DB::qoute($Address) : $address = NULL;
+            ($EventTime != NULL) ? $eventTime = DB::qoute($EventTime) : $eventTime = NULL;
+            ($EventPhone != NULL) ? $eventPhone = DB::qoute($EventPhone) : $eventPhone = NULL;
+            ($Password != NULL) ? $password = DB::qoute($Password) : $password = NULL;
+            ($Secret != NULL) ? $secret = DB::qoute($Secret) : $secret = NULL;
+            ($DeviceID != NULL) ? $deviceID = DB::qoute($DeviceID) : $deviceID = NULL;
+            
+            
+            echo "event Name: $eventName";
+            echo "event Date: $eventDate";
+            echo "Event ID: $EventID";
+            echo "Hebrew Date: $HebrewDate";
+            echo "Event time: $eventTime";
+            echo "Venue: $venue";
+            echo "address: $address";
+            echo "event email: $eventEmail";
+            echo "event phone: $eventPhone";
+            echo "password: $password";
+            echo "secret: $secret";
+            echo "Device ID: $deviceID";
+            echo "RootID: $rootID"; 
 
             // Add new event to Events table
-            $result = self::$db->query("INSERT INTO Events (EventName, EventDate, RootID, Email, Phone) VALUES
-                                        ($eventName, $eventDate, $rootID, $eventEmail, $eventPhone)");
+            //$result = DB::query("INSERT INTO Events (EventName, EventDate, HebrewDate, EventTime, Venue, Address, RootID, Email, Phone, Password, Secret, DeviceID) VALUES
+            //                            ($eventName, $eventDate, $hebrewDate, $eventTime, $venue, $address, $rootID, $eventEmail, $eventPhone, $password, $secret, $deviceID)");
+            $result = DB::query("INSERT INTO Events (EventName, EventDate, HebrewDate, EventTime, Venue, Address, RootID, Email, Phone, Password, Secret, DeviceID) VALUES
+                                        ($eventName, $eventDate,$hebrewDate, NULL, NULL, NULL, $rootID, $eventEmail, $eventPhone, NULL, NULL, NULL)");
+           
+            
+            
             if (!$result) {
+                echo "why?!!?";
                 return false;
             }
             // set eventID if not already set.
             if (!isset($this->eventID)) {
-                $this->eventID = self::$db->insertID();
+                
+                $this->eventID = DB::insertID();
             }
-            
+
             // make new RSVP, Messages and RawData tables
-            $this->rsvp = new RSVP($this);
-            /*
-              $this->messages = new Messages();
-              $this->rawData = new RawData();
-             */
+            $this->rsvp = new RSVP($this->eventID);
+            $this->messages = new Messages($this->eventID);
+            $this->rawData = new RawData($this->eventID);
         } else {
             //throw exeption
         }
@@ -89,37 +118,26 @@ class Event implements iEvent {
         for ($i = 1; $i <= 3; $i++) {
             $eventID = $this->eventID;
             if ($result["event$i"] === $this->eventID and $result["permission$i"] === 'root') {
-                
-                    // delete event from Events table
-                    $sql = self::$db->query("DELETE FROM Events WHERE ID=$eventID");
-                    /*
-                      // delete RSVP[eventID] table
-                      $sqlRSVP = $this->rsvp->delete();
-                      // delete Messages[eventID] table
-                      $sqlMessages = $this->messages->delete();
-                      // delete RawData[eventID] table
-                      $sqlRawData = $this->rawData->delete();
-                      if ($sqlRSVP and $sqlMessages and $sqlRawData) {
-                     */
-                    
-                    //}
-            }
-            $sql = self::$db->query("UPDATE Users SET Event$i=NULL, Permission$i=NULL
-                                            WHERE Event$i=$eventID");
-            // event deleted for user, shift all events left                    ??????
-        }
-        return true;
-    }
 
-    /**
-     * getDB:  get the DataBase
-     * @return type db (DataBase) / false if Database yet initialized
-     */
-    public function getDB() {
-        if (isset(self::$db)) {
-            return self::$db;
+                // delete event from Events table
+                $sql = DB::query("DELETE FROM Events WHERE ID=$eventID");
+                // delete RSVP[eventID] table
+                $sqlRSVP = $this->rsvp->delete();
+                // delete Messages[eventID] table
+                $sqlMessages = $this->messages->delete();
+                // delete RawData[eventID] table
+                $sqlRawData = $this->rawData->delete();
+                if ($sqlRSVP and $sqlMessages and $sqlRawData) {
+
+
+                    //}
+                }
+                $sql = DB::query("UPDATE Users SET Event$i=NULL, Permission$i=NULL
+                                            WHERE Event$i=$eventID");
+                // event deleted for user, shift all events left                    ??????
+            }
+            return true;
         }
-        return false;
     }
 
     /**
@@ -127,10 +145,14 @@ class Event implements iEvent {
      * @return int  Event ID / false if ID yet initialized
      */
     public function getEventID() {
-        if (isset(self::$eventID)) {
-            return self::$eventID;
+        if (isset($this->eventID)) {
+            return $this->eventID;
         }
         return false;
+    }
+
+    private function makeHebrewDate($Date) {
+        jdtojewish(gregoriantojd(10, 9, 1989), true, CAL_JEWISH_ADD_GERESHAYIM + CAL_JEWISH_ADD_ALAFIM + CAL_JEWISH_ADD_ALAFIM_GERESH);
     }
 
 }

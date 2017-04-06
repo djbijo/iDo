@@ -8,7 +8,7 @@
         <?php
         include ("DB_user.php");
 
-        $ID = '123';
+        $ID = '1111';
         $Name = 'Oriah';
         $Email = 'oriah@gmail.com';
         $Phone = '050-1111111';
@@ -20,9 +20,12 @@
         
         // checkUserID
         //$user = User::checkUserID($ID);
+        //echo $user;
         
         // new user with new event
-        //$user = new User($ID, $Name, $Email, $Phone, $EventName, $EventDate, $EventPhone);
+        $user = new User($ID);
+        $event = new Event($user, $EventName, $EventDate)
+        //var_dump($user);
         
         // new user w/o new event
         //$user = new User($ID, $Name, $Email);
@@ -56,16 +59,86 @@
         //$user::$event = new Event($user, NULL , $EventName, $EventDate, $EventPhone, $EventEmail)
         
         // before delete
-        
-        
-        //deleteEvent
         //$user = new User($ID, $Name, $Email, $Phone, $EventName, $EventDate, $EventPhone);
         //$Email = 'Dan@gmail.com';
         //$Permission = 'edit';
         //$user->addUserPermissions($Email, $Permission);
+        //deleteEvent
+        //$user = new User($ID);
+        //$user::$event->deleteEvent($user);
         
+        //rsvp add
+        /*
         $user = new User($ID);
-        $user::$event->deleteEvent($user);
+        $user->deleteUser();
+        
+        $user = new User($ID, $Name, $Email, $Phone, $EventName, $EventDate, $EventPhone);
+        
+        $Name = 'gil';
+        $SurName = 'levy';
+        $Invitees = 2;
+        $NickName = 'Bijo';
+        $Phone = '5555555555';
+        $Email = 'dj@gmail.com';
+        $Groups = 'Friends';
+        $RSVP = 1;
+        $Ride = true;
+        $user::$event->rsvp->add($Name, $SurName, $Invitees, $NickName, $Phone, $Email, $Groups, $RSVP, $Ride);
+        */
+        
+        //rsvp get
+        /*
+        $user = new User($ID);
+        $user->deleteUser();
+        
+        $user = new User($ID, $Name, $Email, $Phone, $EventName, $EventDate, $EventPhone);
+        $user::$event->rsvp->add('gil', 'levy', 2, 'Bijo', '0555555555', 'Gil@gmail.com', 'Friends', 3, true);
+        $user::$event->rsvp->add('mor', 'shalom', 1, '' , '0500000000', 'Mor@gmail.com', 'Friends', 0, false);
+        $user::$event->rsvp->add('Motti', 'bakish', 10, 'Bakbak' , '051111111', 'bak@gmail.com', 'Family', 12, true);
+        
+        var_dump($user::$event->rsvp->get());
+         */
+        
+        // RSVP getByGroups
+        /*
+        $eventID = 1;
+        $array = explode(',','dogs');
+        
+        // prepare query (append while array[i] is not null)
+        $i=1;
+        // make query safe
+        $query = "SELECT * FROM rsvp$eventID WHERE Groups=$array[0]";
+        
+        while ($array[$i] != NULL){
+            $query = $query . " OR Groups=$array[$i]";
+            $i++;
+        }
+        
+        echo $query;
+         */
+        
+        // messages append groups
+        /*
+        $Groups[0] = 'dogs';
+        //$Groups[1] = 'cats';
+        //$Groups[2] = 'mice';
+        
+        // prepare query (append while array[i] is not null)
+        $i=1;
+        // make query safe
+        $group = $Groups[0];
+        $string = "$group";
+        
+        while ($Groups[$i]){
+            $group = $Groups[$i];
+            $string = $string . ",$group";
+            $i++;
+        }
+        
+        echo $string;
+         */
+        
+        
         
         
         ?>

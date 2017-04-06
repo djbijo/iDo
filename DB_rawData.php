@@ -10,9 +10,10 @@ class rawData extends Table {
      */
     public function create() {
 
-        $eventID = Table::$eventID;
+        $eventID =$this->eventID;
+        echo $eventID;
 
-        $result = Table::$db->query("CREATE TABLE IF NOT EXISTS rawData$eventID ( 
+        $result = DB::query("CREATE TABLE IF NOT EXISTS rawData$eventID ( 
                 ID INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
                 Name VARCHAR(50) NOT NULL,
                 Surname VARCHAR(50) NOT NULL,
@@ -38,8 +39,8 @@ class rawData extends Table {
      */
     public function destroy() {
 
-        $eventID = Table::$eventID;
-        $result = Table::$db->query("DROP TABLE IF EXISTS rawData$eventID");
+        $eventID = $this->eventID;
+        $result = DB::query("DROP TABLE IF EXISTS rawData$eventID");
         return $result;
     }
 
@@ -48,8 +49,8 @@ class rawData extends Table {
      * @return result rawData[$eventID] table or false if not rawData[$eventID] exists
      */
     public function get() {
-        $eventID = self::$eventID;
-        $result = self::$db->query("SELECT * FROM rawData$eventID");
+        $eventID = $this->eventID;
+        $result = DB::select("SELECT * FROM rawData$eventID");
         return $result;
     }
 
@@ -76,25 +77,19 @@ class rawData extends Table {
     public function add($Name, $SurName, $Message, $Phone = NULL, $Email = NULL, $Groups = NULL, $RSVP = 0, $Ride = false) {
 
         // Make strings query safe
-        $name = Table::$db->qoute($Name);
-        $surName = Table::$db->qoute($SurName);
-        $message = Table::$db->qoute($Message);
-        ($Phone != NULL) ? $phone = Table::$db->qoute($Phone) : $phone = NULL;
-        ($Email != NULL ) ? $email = Table::$db->qoute($Email) : $email = NULL;
-        ($Groups != NULL) ? $groups = Table::$db->qoute($Groups) : $groups = NULL;
+        $name = DB::qoute($Name);
+        $surName = DB::qoute($SurName);
+        $message = DB::qoute($Message);
+        ($Phone != NULL) ? $phone = DB::qoute($Phone) : $phone = NULL;
+        ($Email != NULL ) ? $email = DB::qoute($Email) : $email = NULL;
+        ($Groups != NULL) ? $groups = DB::qoute($Groups) : $groups = NULL;
         
         //$RecivedDate, $RecivedTime;
 
-        $eventID = Table::$eventID;
+        $eventID = $this->eventID;
 
-        if ($stmt = $mysqli->prepare("INSERT INTO rawData" . $eventID . "  (Name, Surname, Phone, Email, Groups, RSVP, Ride, Message) VALUES
-                    (?, ?, ?, ?, ?, ?, ?, ?)")) {
-
-            $stmt->bind_param("sssssibs", $name, $surName, $phone, $email, $groups, $RSVP, $Ride, $message);
-            $result = $stmt->execute();
-            $stmt->close();
-        }
-
+        $result = DB::query("INSERT INTO rawData" . $eventID . "  (Name, Surname, Phone, Email, Groups, RSVP, Ride, Message) VALUES
+                    ( $name, $surName, $phone, $email, $groups, $RSVP, $Ride, $message)");
         return $result;
     }
 
@@ -105,6 +100,19 @@ class rawData extends Table {
      */
     public function delete($id) {
         return Table::deleteFromTable('rawData', $id);
+    }
+    
+    /**
+     * getByPhone:  get RawData table for specific event by phone number (one row)
+     * @param string $Phone : the phone number of the guest
+     * @return row of specific guest (specified by phone number)
+     */
+    public function getByPhone($Phone) {
+        $eventID = $this->eventID;
+        
+        $phone = DB::quote($Phone);
+        $result = DB::select("SELECT * FROM RawData$eventID WHERE Phone=$phone");
+        return $result;
     }
 
 }

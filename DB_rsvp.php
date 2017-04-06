@@ -10,9 +10,9 @@ class RSVP extends Table {
      */
     public function create() {
 
-        $eventID = Table::$eventID;
+        $eventID = $this->eventID;       
 
-        $result = Table::$db->query("CREATE TABLE IF NOT EXISTS RSVP$eventID (
+        $result = DB::query("CREATE TABLE IF NOT EXISTS RSVP$eventID (
                 ID INT(5) NOT NULL AUTO_INCREMENT PRIMARY KEY,
                 Name VARCHAR(50) NOT NULL,
                 Surname VARCHAR(50) NOT NULL,
@@ -22,6 +22,7 @@ class RSVP extends Table {
                 Email VARCHAR(50) DEFAULT NULL,
                 Groups VARCHAR(50) DEFAULT NULL,
                 RSVP INT(3) DEFAULT NULL,
+                Uncertin int(3) DEFAULT NULL,
                 Ride BOOLEAN DEFAULT FALSE
                 ) DEFAULT CHARACTER SET utf8");
 
@@ -39,8 +40,8 @@ class RSVP extends Table {
     public function destroy() {
         // check that rsvp is initiallised
 
-        $eventID = Table::$eventID;
-        $result = Table::$db->query("DROP TABLE IF EXISTS rsvp$eventID");
+        $eventID = $this->eventID;
+        $result = DB::query("DROP TABLE IF EXISTS rsvp$eventID");
 
         return $result;
     }
@@ -50,8 +51,52 @@ class RSVP extends Table {
      * @return result RSVP[$eventID] table
      */
     public function get() {
-        $eventID = Table::$eventID;
-        $result = Table::$db->query("SELECT * FROM rsvp$eventID");
+        $eventID = $this->eventID;
+        $result = DB::select("SELECT * FROM rsvp$eventID");
+        return $result;
+    }
+    
+    /**
+     * getByPhone:  get RSVP table for specific event by phone number (one row)
+     * @param string $Phone : the phone number of the guest
+     * @return row of specific guest (specified by phone number)
+     */
+    public function getByPhone($Phone) {
+        $eventID = $this->eventID;
+        
+        $phone = DB::quote($Phone);
+        $result = DB::select("SELECT * FROM rsvp$eventID WHERE Phone=$phone");
+        return $result;
+    }
+
+    /**
+     * getByGroups:  get RSVP table for specific event by Groups
+     * @param string $Group : groups separated by comma
+     * @return result RSVP[$eventID] table of guests from all the groups combined / false if group is empty
+     */
+    public function getByGroups($Groups) {
+        
+        $eventID = $this->eventID;
+        
+        // break groups into an array
+        $array = explode(',',$Groups);
+        
+        // if empty group
+        if ($array[0] === NULL){return false;}
+        
+        // prepare query (append while array[i] is not null)
+        $i=1;
+        // make query safe
+        $arrayI = DB::quote($array[0]);
+        $query = "SELECT * FROM rsvp$eventID WHERE Groups=$arrayI";
+        
+        while ($array[$i]){
+            $arrayI = DB::quote($array[$i]);
+            $query = $query . " OR Groups=$arrayI";
+            $i++;
+        }
+        
+        $result = DB::select($query);
         return $result;
     }
 
@@ -76,26 +121,20 @@ class RSVP extends Table {
      * @param bool $Ride : if the guest ordered a ride or not (default false)
      * @return bool true if row added / false otherwise
      */
-    public function add($Name, $SurName, $Invitees, $NickName = NULL, $Phone = NULL, $Email = NULL, $Groups = NULL, $RSVP = 0, $Ride = false) {
+    public function add($Name, $SurName, $Invitees, $NickName = NULL, $Phone = NULL, $Email = NULL, $Groups = NULL, $RSVP = 0, $Uncertin = 0,$Ride = false) {
 
         // Make strings query safe
-        $name = Table::$db->qoute($Name);
-        $surName = Table::$db->qoute($SurName);
-        ($NickName != NULL ) ? $nickName = Table::$db->qoute($NickName) : $nickName = NULL;
-        ($Phone != NULL) ? $phone = Table::$db->qoute($Phone) : $phone = NULL;
-        ($Email != NULL ) ? $email = Table::$db->qoute($Email) : $email = NULL;
-        ($Groups != NULL) ? $groups = Table::$db->qoute($Groups) : $groups = NULL;
+        $name = DB::quote($Name);
+        $surName = DB::quote($SurName);
+        ($NickName != NULL ) ? $nickName = DB::quote($NickName) : $nickName = NULL;
+        ($Phone != NULL) ? $phone = DB::quote($Phone) : $phone = NULL;
+        ($Email != NULL ) ? $email = DB::quote($Email) : $email = NULL;
+        ($Groups != NULL) ? $groups = DB::quote($Groups) : $groups = NULL;
 
-        $eventID = Table::$eventID;
+        $eventID = $this->eventID;
 
-        if ($stmt = $mysqli->prepare("INSERT INTO rsvp" . $eventID . "  (Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Ride) VALUES
-                    (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-
-            $stmt->bind_param("ssssisssib", $name, $surName, $nickName, $Invitees, $phone, $email, $groups, $RSVP, $Ride);
-            $result = $stmt->execute();
-            $stmt->close();
-        }
-
+        $result = DB::query("INSERT INTO rsvp$eventID (Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Uncertin, Ride) VALUES
+                    ($name, $surName, $nickName, $Invitees, $phone, $email, $groups, $RSVP, $Uncertin, $Ride)");
         return $result;
     }
 
@@ -130,14 +169,14 @@ class RSVP extends Table {
         // open excel file
         $file = fopen($excel, "r");
         $count = 0;
-        $eventID = Table::$eventID;
+        $eventID = $this->eventID;
 
         // insert data to relevant rsvp table
-        while (($emapData = fgetcsv($file, 10000, ",")) !== false) {
+        while (($empData = fgetcsv($file, 10000, ",")) !== false) {
             $count++;
             if ($count > 1) {  // discard title
-                $resutl = Table::$db - query("INSERT INTO rsvp$eventID (Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Ride) VALUES
-                            ('$empData[0]','$empData[1]','$empData[2]','$empData[3]','$empData[4]','$empData[5]','$empData[6]','$empData[7]','$empData[8]')");
+                $result = DB::query("INSERT INTO rsvp$eventID (Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Uncertin, Ride) VALUES
+                            ('$empData[0]','$empData[1]','$empData[2]','$empData[3]','$empData[4]','$empData[5]','$empData[6]','$empData[7]','$empData[8]','$empData[9]')");
                 if (!$result) {
                     return false;
                 }
@@ -151,9 +190,9 @@ class RSVP extends Table {
      * thanks John Peter for this solution: http://stackoverflow.com/questions/15699301/export-mysql-data-to-excel-in-php
      * @return bool true if excel imported / false if excel not imported
      */
-    public function exportExcel(bool $sample = false) {
+    public function exportExcel($sample = false) {
 
-        $eventID = Table::$eventID;
+        $eventID = $this->eventID;
 
         $DB_Server = "localhost"; //MySQL Server    
         $DB_Username = "root"; //MySQL Username     

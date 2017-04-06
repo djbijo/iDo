@@ -39,16 +39,23 @@ CREATE TABLE IF NOT EXISTS Events (
 	ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	EventName  VARCHAR(50) NOT NULL,
 	EventDate DATE NOT NULL,
+        HebrewDate VARCHAR(50) DEFAULT NULL,
+        EventTime TIME DEFAULT NULL,
+        Venue VARCHAR(50) DEFAULT NULL,
+        Address VARCHAR(75) DEFAULT NULL,
         RootID VARCHAR(20) NOT NULL,
-        Email VARCHAR(50) NOT NULL,
-	Phone VARCHAR(12) NOT NULL,
-        CreateDate datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+        Email VARCHAR(50) DEFAULT NULL,
+	Phone VARCHAR(12) DEFAULT NULL,
+        Password VARCHAR(50) DEFAULT NULL,
+        Secret VARCHAR(50) DEFAULT NULL,
+        DeviceID VARCHAR(50) DEFAULT NULL,
+        Created datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 	) DEFAULT CHARACTER SET utf8; 
 
 /* demo events */
-INSERT INTO Events (ID, EventName, EventDate, RootID, Email, Phone, CreateDate) VALUES
-	(1, 'Dan and moshe', "2009-09-24", '12345678', 'Dan@gmail.com', '051-1111111', "2008-09-24"),
-	(2, 'Dana and Yosi', "2010-10-10", '1111', 'yos@gmail.com', '0522222222', "2009-10-10");
+INSERT INTO Events (ID, EventName, EventDate, HebrewDate, EventTime, Venue, Address, RootID, Email, Phone, Password, Secret, DeviceID, Created) VALUES
+	(1, 'Dan and moshe', "2009-09-24", 'Tu Beav', '18:00', 'אולמי הנסיכה', '31 אורכידאה','12345678', 'Dan@gmail.com', '051-1111111', 'Bil123','79fhdasfAA', '76851Ad' ,"2008-09-24"),
+	(2, 'Dana and Yosi', "2010-10-10", 'Rosh Hashana', '19:00','מוסקט','פתח תקווה','1111', 'yos@gmail.com', '0522222222', 'cannotLie', 'iLikeBigButs', '3hgfskdu34', "2009-10-10");
 
 -----------------------------------------------------------
 
@@ -64,6 +71,7 @@ CREATE TABLE IF NOT EXISTS RSVP1 (
   Email VARCHAR(50) DEFAULT NULL,
   Groups VARCHAR(50) DEFAULT NULL,
   RSVP INT(3) DEFAULT NULL,
+  Uncertin int(3) DEFAULT NULL,
   Ride BOOLEAN DEFAULT FALSE
 ) DEFAULT CHARACTER SET utf8;
 
@@ -74,19 +82,19 @@ DROP TABLE IF EXISTS RSVPsample;
 CREATE TABLE RSVPsample AS SELECT * FROM RSVP1;
 
 /* demo RSVP */
-INSERT INTO RSVP1 (ID, Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Ride) VALUES
-	(1, 'Hoffman', 'Tatyana', 'Tat', 3, '054-1111111', 'Nam@quisdiamluctus.org', 'Friends', NULL, False),
-	(2, 'Atkins', 'Ishmael', NULL, 2, NULL, NULL, NULL, NULL, False),
-	(3, 'Hamilton', 'Mohammad', NULL, 22, '051-1111111', 'dui@duiCras.edu', 'Coligues', 11, True),
-	(4, 'Murray', 'Troy', 'the boy', 4, '055-5555555', 'mollis@eutellus.co.uk', NULL, NULL, False),
-	(5, 'Schwartz', 'Carla', NULL, 6, '056-6666666', NULL, NULL, 3,True);
+INSERT INTO RSVP1 (ID, Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Uncertin, Ride) VALUES
+	(1, 'Hoffman', 'Tatyana', 'Tat', 3, '054-1111111', 'Nam@quisdiamluctus.org', 'Friends', NULL, 2, False),
+	(2, 'Atkins', 'Ishmael', NULL, 2, NULL, NULL, NULL, NULL, 0, False),
+	(3, 'Hamilton', 'Mohammad', NULL, 22, '051-1111111', 'dui@duiCras.edu', 'Coligues', 11, 3, True),
+	(4, 'Murray', 'Troy', 'the boy', 4, '055-5555555', 'mollis@eutellus.co.uk', NULL, NULL, 0, False),
+	(5, 'Schwartz', 'Carla', NULL, 6, '056-6666666', NULL, NULL, 3, 0, True);
 
-INSERT INTO RSVP2 (ID, Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Ride) VALUES
+INSERT INTO RSVP2 (ID, Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Uncertin, Ride) VALUES
 	(1, 'Wilder', 'Chadwick', NULL, 3, NULL, NULL, NULL, NULL, False),
-	(2, 'Hardin', 'Audrey', 'DJ', 5, '000-0000000', 'commodo.tincidunt.nibh@seddictum.com', 'Friends', 7, True),
-	(3, 'Vaughn', 'Harlan', 'Bijo', 1, NULL , 'tempor.lorem@egestasDuisac.com', 'Tachat', 0, False),
-	(4, 'Mathis', 'Lareina', NULL , 1, '111111111', 'ac.turpis.egestas@Proin.com', 'Friends', 1, True),
-	(5, 'Barrera', 'Chiquita', 'Chiquita', 8, '099-985637932', 'ipsum@tempus.org', 'Friends', 10, False);
+	(2, 'Hardin', 'Audrey', 'DJ', 5, '000-0000000', 'commodo.tincidunt.nibh@seddictum.com', 'Friends', 7, 2, True),
+	(3, 'Vaughn', 'Harlan', 'Bijo', 1, NULL , 'tempor.lorem@egestasDuisac.com', 'Tachat', 0, 0, False),
+	(4, 'Mathis', 'Lareina', NULL , 1, '111111111', 'ac.turpis.egestas@Proin.com', 'Friends', 1, 1, True),
+	(5, 'Barrera', 'Chiquita', 'Chiquita', 8, '099-985637932', 'ipsum@tempus.org', 'Friends', 10, 2, False);
 
 INSERT INTO RSVPsample (Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Ride) VALUES
 	('John', 'Do', 'Johany', '3', '051-1111111', 'JohanDo@gmail.com', 'friends', '2', 'yes');
@@ -108,7 +116,7 @@ CREATE TABLE Messages2 AS SELECT * FROM Messages1;
 
 /* demo Messages */
 INSERT INTO Messages1 (ID, MessageType, Message, Groups, SendDate, SendTime) VALUES
-	(1, 'SaveTheDate', 'Come celebrate with us!', 'Friends', '2009-06-24', '10:10:00'  ),
+	(1, 'SaveTheDate', 'Come celebrate with us!', 'Friends, Family, Army', '2009-06-24', '10:10:00'  ),
 	(2, 'ThankYou', 'you are AWSOME!', 'Family', '2009-09-25', '12:00:00');
 
 INSERT INTO Messages2 (ID, MessageType, Message, Groups, SendDate, SendTime) VALUES
@@ -144,7 +152,10 @@ INSERT INTO RawData2 (ID, Name, Surname, Phone, Email, Groups, RSVP, Message, Re
 	(1, 'Oriah', 'Halamish','054-4444444', 'Nam@quisdiamluctus.org', 'Friends', 1, 'I will come solo', '2009-10-10 10:10:10'),
 	(2, 'Gil', 'levy', '051-1111111', 'dui@duiCras.edu', NULL, 2, 'two people', '2009-12-12 12:12:00');
 
-	
+
+
+
+COLLATE utf8_General_ci;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

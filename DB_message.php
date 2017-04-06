@@ -10,9 +10,9 @@ class Messages extends Table {
      */
     public function create() {
 
-        $eventID = Table::$eventID;
+        $eventID = $this->eventID;
 
-        $result = Table::$db->query("CREATE TABLE IF NOT EXISTS Messages$eventID ( 
+        $result = DB::query("CREATE TABLE IF NOT EXISTS Messages$eventID ( 
                 ID INT(2) NOT NULL AUTO_INCREMENT PRIMARY KEY,
                 MessageType VARCHAR(10) NOT NULL,
                 Message TEXT NOT NULL,
@@ -34,8 +34,8 @@ class Messages extends Table {
      */
     public function destroy() {
 
-        $eventID = Table::$eventID;
-        $result = Table::$db->query("DROP TABLE IF EXISTS messages$eventID");
+        $eventID = $this->eventID;
+        $result = DB::query("DROP TABLE IF EXISTS messages$eventID");
         return $result;
     }
 
@@ -44,8 +44,8 @@ class Messages extends Table {
      * @return result messages[$eventID] table or false if not messages[$eventID] exists
      */
     public function get() {
-        $eventID = self::$eventID;
-        $result = self::$db->query("SELECT * FROM messages$eventID");
+        $eventID = $this->eventID;
+        $result = DB::select("SELECT * FROM messages$eventID");
         return $result;
     }
 
@@ -69,20 +69,14 @@ class Messages extends Table {
     public function add($MessageType, $Message, $SendDate, $SendTime, $Groups = NULL) {
 
         // Make strings query safe
-        $messageType = Table::$db->qoute($MessageType);
-        $message = Table::$db->qoute($Message);
-        ($Groups != NULL) ? $groups = Table::$db->qoute($Groups) : $groups = NULL;
+        $messageType = DB::qoute($MessageType);
+        $message = DB::qoute($Message);
+        ($Groups != NULL) ? $groups = $this->appendGroups($Groups) : $groups = NULL;
 
-        $eventID = Table::$eventID;
+        $eventID = $this->eventID;
 
-        if ($stmt = $mysqli->prepare("INSERT INTO messages".$eventID . "  (MessageType, Message, Groups, SendDate, SendTime) VALUES
-                    ( ?, ?, ?, ?, ?)")) {
-
-            $stmt->bind_param("sssdt", $messageType, $message, $groups, $SendDate, $SendTime);
-            $result = $stmt->execute();
-            $stmt->close();
-        }
-
+        $result = DB::query("INSERT INTO messages$eventID (MessageType, Message, Groups, SendDate, SendTime) VALUES
+                    ( $messageType, $message, $groups, $SendDate, $SendTime)");
         return $result;
     }
 
@@ -94,7 +88,31 @@ class Messages extends Table {
     public function delete($id) {
         return Table::deleteFromTable('messages', $id);
     }
-
+    
+    
+    /**
+     * appendGroups:  append groups before inserting to groups column in messages table
+     * @param array $Groups : array of Groups to be inserted as string in messages table (Groups column)
+     * @return string groups separated by comma
+     */
+    private function appendGroups($Groups){
+        // if empty group
+        if ($Groups[0] === NULL){return false;}
+        
+        // prepare query (append while array[i] is not null)
+        $i=1;
+        // make query safe
+        $group = DB::quote($Groups[0]);
+        $string = "$group";
+        
+        while ($Groups[$i]){
+            $group = DB::quote($Groups[$i]);
+            $string = $string . ",$group";
+            $i++;
+        }
+        
+        return $string;
+    }
 }
 
 ?>

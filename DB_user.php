@@ -19,16 +19,13 @@ interface iUser {
 
     public function getEvents();
 
-    public function getDB();
-
     public function getID();
 }
 
 class User implements iUser {
 
-    protected static $id;
-    protected static $db;
-    public static $event;
+    protected $id;
+    public $event;
 
     /**
      * __construct: create new user object. if user not in Users table (name,email,phone,eventName,eventDate!=Null) add user to users list.
@@ -42,21 +39,19 @@ class User implements iUser {
      * @return object user  
      */
     public function __construct($ID, $Name = 'NULL', $Email = 'NULL', $Phone = 'NULL', $EventName = 'NULL', $EventDate = 'NULL', $EventPhone = 'NULL') {
-        // create new DB 
-        if (!isset(self::$db)) {
-            self::$db = new DB();
-        }
+
         // user is in users table (registered to iDO)
         if ($this->checkUserID($ID)) {
-            if (!isset(self::$id)) {
-                self::$id = self::$db->quote($ID);
+            if (!isset($this->id)) {
+                $this->id = DB::quote($ID);
             }
 
-            // construct an events with only events ID to it!!!!            $$$$$$$
+            // construct an events with only events ID to it
             $events = $this->getEvents();
-            if ($events['event1']===NULL){return;} 
-
-            self::$event = new Event($this);
+            if ($events['event1'] === NULL) {
+                return;
+            }
+            $this->event = new Event($this);
             return;
         }
 
@@ -65,14 +60,14 @@ class User implements iUser {
 
             // user with new event
             if ($EventName != 'NULL' and $EventDate != 'NULL') {
-                if (!isset(self::$id)) {
-                    self::$id = self::$db->quote($ID);
+                if (!isset($this->id)) {
+                    $this->id = DB::quote($ID);
                 }
 
-                if (!isset($event)) {
-                    self::$event = new Event($this, NULL,$EventName, $EventDate, $EventPhone, $Email);
+                if (!isset($this->event)) {
+                    $this->event = new Event($this, $EventName, $EventDate);
                 }
-                $result = $this->addUser($ID, $Name, $Email, $Phone, self::$event->eventID, 'root');
+                $result = $this->addUser($ID, $Name, $Email, $Phone, $this->event->eventID, 'root');
                 if (!$result) {
                     return false;
                 }
@@ -96,17 +91,12 @@ class User implements iUser {
      * @return bool: false = user not in database / true = user in database
      */
     static function checkUserID($ID) {
-        
-        // set database if not set yet
-        if (!isset(self::$db)) {
-            self::$db = new DB();
-        }
 
         // Make strings query safe
-        $id = self::$db->quote($ID);
+        $id = DB::quote($ID);
 
         // Search for user ID in Users table
-        if (!self::$db->select("SELECT * FROM Users WHERE ID=$id")) {
+        if (!DB::select("SELECT * FROM Users WHERE ID=$id")) {
             return false;
         }
         return true;
@@ -120,10 +110,10 @@ class User implements iUser {
      */
     private function checkUserEmail($Email) {
         // Make strings query safe
-        $email = self::$db->quote($Email);
+        $email = DB::quote($Email);
 
         // Search for user Email or phone in Users table
-        if (!self::$db->select("SELECT * FROM Users WHERE Email=$email")) {
+        if (!DB::select("SELECT * FROM Users WHERE Email=$email")) {
             return false;
         }
         return true;
@@ -137,10 +127,10 @@ class User implements iUser {
      */
     private function checkUserPhone($Phone) {
         // Make strings query safe
-        $phone = self::$db->quote($Phone);
+        $phone = DB::quote($Phone);
 
         // Search for user phone in Users table
-        if (!self::$db->select("SELECT * FROM Users WHERE Phone=$phone")) {
+        if (!DB::select("SELECT * FROM Users WHERE Phone=$phone")) {
             return false;
         }
         return true;
@@ -178,24 +168,23 @@ class User implements iUser {
          */
 
         // Make strings query safe
-        $email = self::$db->quote($Email);
-        $phone = self::$db->quote($Phone);
-        $name = self::$db->quote($Name);
-        ($Permission1 != 'NULL') ? $permission1 = self::$db->quote($Permission1) : $permission1 = 'NULL';
-        ($Permission2 != 'NULL') ? $permission2 = self::$db->quote($Permission2) : $permission2 = 'NULL';
-        ($Permission3 != 'NULL') ? $permission3 = self::$db->quote($Permission3) : $permission3 = 'NULL';
+        $email = DB::quote($Email);
+        $phone = DB::quote($Phone);
+        $name = DB::quote($Name);
+        ($Permission1 != 'NULL') ? $permission1 = DB::quote($Permission1) : $permission1 = 'NULL';
+        ($Permission2 != 'NULL') ? $permission2 = DB::quote($Permission2) : $permission2 = 'NULL';
+        ($Permission3 != 'NULL') ? $permission3 = DB::quote($Permission3) : $permission3 = 'NULL';
 
         // save user ID
-        if (!isset(self::$id)) {
-            self::$id = self::$db->quote($ID);
+        if (!isset($this->id)) {
+            $this->id = DB::quote($ID);
         }
-        $id = self::$id;
-        
+        $id = $this->id;
+
         //echo "id is $id;"; echo "email is $email;"; echo "phone is $phone;"; echo "name is $name;"; echo "Event1 is $Event1;";echo "Permission1 is $permission1;";
         //echo "Event2 is $Event2;";echo "Permission2 is $permission2;";echo "Event3 is $Event3;";echo "Permission3 is $permission3;";
-
         //insert user to Users table
-        $result = self::$db->query("INSERT INTO Users (ID, Name, Email, Phone, Event1, permission1, Event2, permission2, Event3, permission3) VALUES
+        $result = DB::query("INSERT INTO Users (ID, Name, Email, Phone, Event1, permission1, Event2, permission2, Event3, permission3) VALUES
 			($id, $name, $email, $phone, $Event1, $permission1, $Event2, $permission2, $Event3, $permission3)");
         if (!$result) {
             return false;
@@ -210,10 +199,10 @@ class User implements iUser {
      */
     public function deleteUser() {
         // Make strings query safe
-        $id = self::$id;
+        $id = $this->id;
 
         // Delete user from Users table
-        if (!self::$db->query("DELETE FROM Users WHERE ID=$id")) {
+        if (!DB::query("DELETE FROM Users WHERE ID=$id")) {
             return false;
         }
         return true;
@@ -234,43 +223,34 @@ class User implements iUser {
         }
 
         // Make strings query safe
-        $email = self::$db->quote($Email);
-        $permission = self::$db->quote($Permission);
+        $email = DB::quote($Email);
+        $permission = DB::quote($Permission);
 
         //check if user is root for this event
-        $eventID = self::$event->eventID;
-        $result = self::$db->select("SELECT * FROM Events WHERE ID=$eventID");
-        $rootID = self::$db->quote($result[0]['RootID']);
+        $eventID = $this->event->eventID;
+        $result = DB::select("SELECT * FROM Events WHERE ID=$eventID");
+        $rootID = DB::quote($result[0]['RootID']);
 
-        if ($rootID != self::$id) {
+        if ($rootID != $this->id) {
             echo "Only the user which created the event can change permissions to it.";
             return false;
         }
 
         // Update relevant user in user table
-        # Update Event1
-        self::$db->query("UPDATE Users SET Permission1=$permission
-			WHERE Email=$email AND Event1=$eventID");
+        for ($i = 1; $i <= 3; $i++) {
+            DB::query("UPDATE Users SET Permission$i=$permission
+			WHERE Email=$email AND Event$i=$eventID");
 
-        $rows = self::$db->affectedRows();
-        # If Event1 not updated, Update Event2
-        if ($rows <= 0) {
-            $result = self::$db->query("UPDATE Users SET Permission2=$permission
-				WHERE Email=$email AND Event2=$eventID");
-            $rows = self::$db->affectedRows();
-            # If Event1 and Event2 not updated, Update event3			
-            if ($rows <= 0) {
-                $result = self::$db->query("UPDATE Users SET Permission3=$permission
-					WHERE Email=$email AND Event3=$eventID");
-                $rows = self::$db->affectedRows();
-                # If no Event updated: error
-                if ($rows <= 0) {
-                    echo "user $email has is not registered to this event, please add user to event with relevant permission.";
-                    return false;
-                }
+            $rows = DB::affectedRows();
+
+            //if event updated
+            if (DB::affectedRows() > 0) {
+                return true;
             }
         }
-        return true;
+
+        echo "user $email has is not registered to this event, please add user to event with relevant permission.";
+        return false;
     }
 
     /**
@@ -288,49 +268,39 @@ class User implements iUser {
         }
 
         // Make strings query safe
-        $email = self::$db->quote($Email);
-        $permission = self::$db->quote($Permission);
+        $email = DB::quote($Email);
+        $permission = DB::quote($Permission);
 
         //check if user is root for this event
-        $eventID = self::$event->eventID;
-                
-        $result = self::$db->select("SELECT * FROM Events WHERE ID=$eventID");
-        $rootID = self::$db->quote($result[0]['RootID']);
+        $eventID = $this->event->eventID;
 
-        if ($rootID != self::$id) {
+        $result = DB::select("SELECT * FROM Events WHERE ID=$eventID");
+        $rootID = DB::quote($result[0]['RootID']);
+
+        if ($rootID != $this->id) {
             echo "Only the user which created the event can add permissions to it.";
             return false;
         }
         // Update relevant user in user table
-        # Update Event1
-        self::$db->query("UPDATE Users SET Event1=$eventID , Permission1=$permission
-			WHERE Email=$email AND Event1 IS NULL");
+        for ($i = 1; $i <= 3; $i++) {
+            DB::query("UPDATE Users SET Permission$i=$permission
+			WHERE Email=$email AND Event$i IS NULL");
 
-        $rows = self::$db->affectedRows();
-        # If Event1 not updated, Update Event2
-        if ($rows <= 0) {
-            $result = self::$db->query("UPDATE Users SET Event2=$eventID , Permission2=$permission
-				WHERE Email=$email AND Event2 IS NULL");
-            $rows = self::$db->affectedRows();
-            # If Event1 and Event2 not updated, Update event3			
-            if ($rows <= 0) {
-                $result = self::$db->query("UPDATE Users SET Event3=$eventID , Permission3=$permission
-					WHERE Email=$email AND Event3 IS NULL");
-                $rows = self::$db->affectedRows();
-                # If no Event updated: error
-                if ($rows <= 0) {
-                    echo "User $email has too many events registered (max 3 events per user)";
-                    return false;
-                }
+            $rows = DB::affectedRows();
+
+            //if event updated
+            if (DB::affectedRows() > 0) {
+                return true;
             }
         }
-        return true;
+        echo "User $email has too many events registered (max 3 events per user at a time)";
+        return false;    
     }
 
     public function addUserPhone($Phone) {
         // Make strings query safe
-        $phone = self::$db->quote($Phone);
-        $id = self::$id;
+        $phone = DB::quote($Phone);
+        $id = $this->id;
 
         //check if phone number already in iDO database
         if ($this->checkUserPhone($Phone)) {
@@ -339,21 +309,21 @@ class User implements iUser {
         }
 
         // update user with phone number
-        self::$db->query("UPDATE Users SET Phone=$phone WHERE ID=$id");
-        $rows = self::$db->affectedRows();
+        DB::query("UPDATE Users SET Phone=$phone WHERE ID=$id");
+        $rows = DB::affectedRows();
         if ($rows < 0) {
             return false;
         }
         return true;
     }
-    
+
     /**
      * selectEvent: select Event out of user possible events (call getEvents() function ahead of this function)
      * @param int $EventID : the event to change to, according to user choice
      * @return void
      */
     public function selectEvent($EventID) {
-        self::$event = $EventID;    
+        $this->event = $EventID;
     }
 
     /**
@@ -365,36 +335,27 @@ class User implements iUser {
      */
     public function getEvents() {
 
-        $id = self::$id;
+        $id = $this->id;
 
-        $result = self::$db->select("SELECT * FROM Users WHERE ID=$id");
-        $out['event1'] = $result[0]['Event1'];
-        $out['permission1'] = $result[0]['Permission1'];
-        $out['event2'] = $result[0]['Event2'];
-        $out['permission2'] = $result[0]['Permission2'];
-        $out['event3'] = $result[0]['Event3'];
-        $out['permission3'] = $result[0]['Permission3'];
-        return ($out['event1'] != 'NULL') ? $out : false;
-    }
-
-    /**
-     * getDB:  get the DataBase
-     * @return type db (DataBase) / false if Database yet initialized
-     */
-    public function getDB() {
-        if (isset(self::$db)) {
-            return self::$db;
+        $result = DB::select("SELECT * FROM Users WHERE ID=$id");
+        if ($result) {
+            $out['event1'] = $result[0]['Event1'];
+            $out['permission1'] = $result[0]['Permission1'];
+            $out['event2'] = $result[0]['Event2'];
+            $out['permission2'] = $result[0]['Permission2'];
+            $out['event3'] = $result[0]['Event3'];
+            $out['permission3'] = $result[0]['Permission3'];
+            return ($out['event1'] != 'NULL') ? $out : false;
         }
-        return false;
     }
 
     /**
-     * getDB:  get User ID
+     * getID:  get User ID
      * @return string  User ID / false if ID yet initialized
      */
     public function getID() {
-        if (isset(self::$id)) {
-            return self::$id;
+        if (isset($this->id)) {
+            return $this->id;
         }
         return false;
     }
