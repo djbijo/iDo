@@ -8,7 +8,7 @@ SET time_zone = "+02:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8 */;
 
-//-----------------------------------------------------------
+# -----------------------------------------------------------
 /* Users table */
 DROP TABLE IF EXISTS Users;
 CREATE TABLE IF NOT EXISTS Users (  
@@ -32,7 +32,7 @@ INSERT INTO Users (ID, Name, Email, Phone, Event1, Permission1, Event2, Permissi
 	('22', 'Yosefa', 'efa@gmail.com', '053-33333333', '1', 'review', NULL, NULL, NULL, NULL);
 
 
-//-----------------------------------------------------------
+# -----------------------------------------------------------
 /* Events table */
 DROP TABLE IF EXISTS Events;
 CREATE TABLE IF NOT EXISTS Events (
@@ -57,7 +57,7 @@ INSERT INTO Events (ID, EventName, EventDate, HebrewDate, EventTime, Venue, Addr
 	(1, 'Dan and moshe', "2009-09-24", 'Tu Beav', '18:00', 'אולמי הנסיכה', '31 אורכידאה','12345678', 'Dan@gmail.com', '051-1111111', 'Bil123','79fhdasfAA', '76851Ad' ,"2008-09-24"),
 	(2, 'Dana and Yosi', "2010-10-10", 'Rosh Hashana', '19:00','מוסקט','פתח תקווה','1111', 'yos@gmail.com', '0522222222', 'cannotLie', 'iLikeBigButs', '3hgfskdu34', "2009-10-10");
 
-//-----------------------------------------------------------
+# -----------------------------------------------------------
 
 /* RSVP table */
 DROP TABLE IF EXISTS RSVP1;
@@ -90,7 +90,7 @@ INSERT INTO RSVP1 (ID, Name, Surname, Nickname, Invitees, Phone, Email, Groups, 
 	(5, 'Schwartz', 'Carla', NULL, 6, '056-6666666', NULL, NULL, 3, 0, True);
 
 INSERT INTO RSVP2 (ID, Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Uncertin, Ride) VALUES
-	(1, 'Wilder', 'Chadwick', NULL, 3, NULL, NULL, NULL, NULL, False),
+	(1, 'Wilder', 'Chadwick', NULL, 3, NULL, NULL, NULL, NULL, NULL, False),
 	(2, 'Hardin', 'Audrey', 'DJ', 5, '000-0000000', 'commodo.tincidunt.nibh@seddictum.com', 'Friends', 7, 2, True),
 	(3, 'Vaughn', 'Harlan', 'Bijo', 1, NULL , 'tempor.lorem@egestasDuisac.com', 'Tachat', 0, 0, False),
 	(4, 'Mathis', 'Lareina', NULL , 1, '111111111', 'ac.turpis.egestas@Proin.com', 'Friends', 1, 1, True),
@@ -99,7 +99,7 @@ INSERT INTO RSVP2 (ID, Name, Surname, Nickname, Invitees, Phone, Email, Groups, 
 INSERT INTO RSVPsample (Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Ride) VALUES
 	('John', 'Do', 'Johany', '3', '051-1111111', 'JohanDo@gmail.com', 'friends', '2', 'yes');
 
-//-----------------------------------------------------------
+# -----------------------------------------------------------
 /* Message table */
 DROP TABLE IF EXISTS Messages1;
 CREATE TABLE IF NOT EXISTS Messages1 (
@@ -123,7 +123,7 @@ INSERT INTO Messages2 (ID, MessageType, Message, Groups, SendDate, SendTime) VAL
 	(1, 'SaveTheDate', 'Come celebrate with us!', NULL, '2009-10-10', '05:10:00'),
 	(2, 'ThankYou', 'you are AWSOME!', NULL, '2009-09-25', '06:23:12');
 
-//-----------------------------------------------------------
+# -----------------------------------------------------------
 /* Message RawData */
 DROP TABLE IF EXISTS RawData1;
 CREATE TABLE IF NOT EXISTS RawData1 (
@@ -152,6 +152,10 @@ INSERT INTO RawData2 (ID, Name, Surname, Phone, Email, Groups, RSVP, Message, Re
 	(1, 'Oriah', 'Halamish','054-4444444', 'Nam@quisdiamluctus.org', 'Friends', 1, 'I will come solo', '2009-10-10 10:10:10'),
 	(2, 'Gil', 'levy', '051-1111111', 'dui@duiCras.edu', NULL, 2, 'two people', '2009-12-12 12:12:00');
 
+
+
+
+# COLLATE utf8_General_ci;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

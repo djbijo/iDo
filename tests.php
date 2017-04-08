@@ -19,11 +19,12 @@
         $EventEmail = 'oriah@gmail.com';
         
         // checkUserID
-        //$user = User::checkUserID($ID);
+//        $user = User::checkUserID($ID);
         
         // new user with new event
-        //$user = new User($ID, $Name, $Email, $Phone, $EventName, $EventDate, $EventPhone);
-        
+        $user = new User($ID, $Name, $Email);
+        $event = $user->addEvent("h&h","10-10-1997");
+//        $user = new User($usrId, $payload['name'], $payload['email'], 0, 'test', "2008-09-24");
         // new user w/o new event
         //$user = new User($ID, $Name, $Email);
         
@@ -33,7 +34,9 @@
         
         // getEevents
         //$user = new User($ID);
-        //var_dump($user->getEvents());
+        var_dump($user->getEvents());
+        var_dump($user);
+//        echo $user.->();
         
         // add user phone
         //$user = new User($ID);

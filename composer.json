@@ -1,5 +1,11 @@
 {
+    "autoload": {
+        "psr-4": {
+            "EzVite\\": "src/"
+        }
+    },
     "require": {
-        "google/apiclient": "^2.1"
+        "google/apiclient": "^2.1",
+        "cboden/ratchet": "^0.3.*"
     }
 }

@@ -67,7 +67,7 @@ class DB {
         $rows = array();
         $result = self::query($query);
         if ($result === false) {
-            echo 'false';
+            throw new Exception("select function failed");
             return false;
         }
         while ($row = $result->fetch_assoc()) {
