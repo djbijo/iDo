@@ -54,12 +54,12 @@ if ($payload) {
         $response['status'] = 'error';
         $response['reason'] = "couldnt create user";
     }
-//    if ($user->event === null){
-//        $event = $user->addEvent("h&h","10-10-1997");
-//    }
-//    if ($user->event === null){
-//        throw new ErrorException("event is null");
-//    }
+    if ($user->event === null){
+        $event = $user->addEvent("h&h","10-10-1997");
+    }
+    if ($user->event === null){
+        throw new ErrorException("event is null");
+    }
     $_SESSION['loggedin'] = true;
     $_SESSION['userId'] = $user->getID();
     $_SESSION['eventId'] = $user->event->getEventID();

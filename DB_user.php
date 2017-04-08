@@ -50,7 +50,7 @@ class User implements iUser {
             // construct an events with only events ID to it
             $events = $this->getEvents();
             if ($events['event1'] === NULL) {
-                throw new Exception("New User: users 1st event is null");
+//                throw new Exception("New User: users 1st event is null");
                 return;
             }
             $this->event = new Event($this);
