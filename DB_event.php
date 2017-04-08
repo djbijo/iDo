@@ -35,6 +35,7 @@ class Event implements iEvent
 
         $events = $user->getEvents();
         // user exists
+
         if (!$addEvent and $events['event1'] != NULL) {
             $this->eventID = $events['event1'];
             $this->rsvp = new RSVP($this->eventID);
@@ -133,7 +134,7 @@ class Event implements iEvent
         return false;
     }
 
-    
+
 
     private function makeHebrewDate($Date)              // todo: make this work
     {

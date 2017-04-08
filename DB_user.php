@@ -374,7 +374,7 @@ class User implements iUser {
      */
     public function getEvents() {
 
-        $id = $this->id;
+        $id = DB::quote($this->id);
 
         $result = DB::select("SELECT * FROM Users WHERE ID=$id");
         if ($result) {
