@@ -49,7 +49,7 @@ abstract class Table {
      */
     public function updateTable($tableType, $colName, $id, $Value) {
         // handel data
-        $value = DB::qoute($Value);
+        $value = DB::quote($Value);
         $eventID = $this->eventID;
 
         // generate mysql command

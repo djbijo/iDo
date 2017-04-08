@@ -5,15 +5,15 @@ require_once ("../DB_user.php");
 $errors         = array();      // array to hold validation errors
 $response           = array();      // array to pass back data
 $response['success'] = true;
-$name     = $_POST['name'];
-$surname  = $_POST['surname'];
-$nickname = $_POST['nickName'];
-$invitees = $_POST['invitees'];
-$phone    = $_POST['phone'];
-$email    = $_POST['email'];
-$groups   = $_POST['groups'];
-$rsvp     = $_POST['rsvp'];
-$ride     = $_POST['ride'];
+$name     = $_POST['Name'];
+$surname  = $_POST['Surname'];
+$nickname = $_POST['NickName'];
+$invitees = $_POST['Invitees'];
+$phone    = $_POST['Phone'];
+$email    = $_POST['Email'];
+$groups   = $_POST['Groups'];
+$rsvp     = $_POST['Rsvp'];
+$ride     = $_POST['Ride'];
 
 $response;
 if (empty($name)) {

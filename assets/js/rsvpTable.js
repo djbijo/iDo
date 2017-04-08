@@ -5,7 +5,7 @@ $(function () {
     $table.bootstrapTable({
         // url: 'post/rsvpGet.php',
         toolbar: '#toolbar',
-        idField: 'id',
+        idField: 'ID',
         showColumns: true,
         mobileResponsive: true,
         resizable: true,
@@ -19,9 +19,9 @@ $(function () {
                 title: "מס"
             },
             {
-                field: 'Id',
-                title: 'מס"ד',
-                visible: false,
+                field: 'ID',
+                title: 'ID',
+                visible: true,
                 switchable: false
             },  {
                 field: 'Name',
@@ -145,17 +145,20 @@ $("#addRsvpRowForm").submit(function(event){
 });
 
 function submitForm(){
+    $('.form-group').removeClass('has-error'); // remove the error class
+    $('.help-block').remove(); // remove the error text
+    $('.alert-success').remove(); //remove the success text
     // Initiate Variables With Form Content
     var formData = {
-        'name'     : $("#InputName").val(),
-        'surname'  : $("#InputSurName").val(),
-        'nickName' : $("#InputNickName").val(),
-        'invitees' : $("#InputInvitees").val(),
-        'phone'    : $("#InputPhone").val(),
-        'email'    : $("#InputEmail").val(),
-        'groups'   : $("#InputGroups").val(),
-        'rsvp'     : $("#InputRsvp").val(),
-        'ride'     : $("#InputRide").val(),
+        'Name'     : $("#InputName").val(),
+        'Surname'  : $("#InputSurName").val(),
+        'NickName' : $("#InputNickName").val(),
+        'Invitees' : $("#InputInvitees").val(),
+        'Phone'    : $("#InputPhone").val(),
+        'Email'    : $("#InputEmail").val(),
+        'Groups'   : $("#InputGroups").val(),
+        'Rsvp'     : $("#InputRsvp").val(),
+        'Ride'     : $("#InputRide").val(),
     }
 
     $.ajax({
@@ -191,9 +194,12 @@ function submitForm(){
             // }
         } else {
             // ALL GOOD! just show the success message!
-            console.log("in submit success");
-            $('#addRsvpRowForm').append('<div class="alert alert-success">' + data.message + '</div>');
+            // console.log("in submit success");
+            // $('#addRsvpRowForm').append('<div class="alert alert-success">' + data.message + '</div>');
+            //TODO: let the user not he succeded
             $("#addRsvpRowForm")[0].reset();
+            $("#addRowModal").modal('toggle');
+            $table.bootstrapTable('append', formData);
             // usually after form submission, you'll want to redirect
             // window.location = '/thank-you'; // redirect a user to another page
             // alert('success'); // for now we'll just alert the user
