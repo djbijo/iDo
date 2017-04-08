@@ -1,9 +1,10 @@
 <?php
-require_once ("../DB_user.php");
 session_start();
+require_once ("../DB_user.php");
+
 $errors         = array();      // array to hold validation errors
 $response           = array();      // array to pass back data
-
+$response['success'] = true;
 $name     = $_POST['name'];
 $surname  = $_POST['surname'];
 $nickname = $_POST['nickName'];
@@ -18,24 +19,30 @@ $response;
 if (empty($name)) {
     $errors["name"] = "name field shouldn't be empty";
 }
-if (!empty($errors)) {
+//if (!isset ($_SESSION['event'])){
+//    $errors['event'] = "לא נבחר אירוע עדיין";
+//}
+if (empty($errors)) {
     //validation succeeded
-    if (isset($_SESSION['user'])) {
-        if ($_SESSION['user'] :: $event . $rsvp !== null) {
-            $rsvp = User:: $event . $rsvp;
-            $createdRow =  $rsvp.add($name, $surname, $invitees);
-            $response["sqlData"] = $createdRow;
-            $response['success'] = true;
-            $response['message'] = "סבבה";
+    if (isset($_SESSION['userId']) and isset($_SESSION['eventId'])) {
+        $user = new User($_SESSION['userId']);
+        $event = new Event($user, NULL, NULL,$_SESSION['eventId']);
+        if ($event !== null) {
+            $rsvp = $event->rsvp;
+            $createdRow =  $rsvp->add($name, $surname, $invitees);
+            if (!empty($createdRow)) {
+                $response["sqlData"] = $createdRow;
+                $response['success'] = true;
+            } else {
+                throw new ErrorException("add row to rsvp doesn't work");
+            }
         }
-
     } else {
-        $response['errors']['usr'] = "user not defined";
-        $response['success'] = false;
+        $errors['usr'] = "user not defined";
     }
-} else {
+}
+if (!empty($errors)){
     $response['errors'] = $errors;
     $response['success'] = false;
 }
-
 echo json_encode($response);

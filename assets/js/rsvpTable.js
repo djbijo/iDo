@@ -3,7 +3,7 @@ $button = $('#button');
 
 $(function () {
     $table.bootstrapTable({
-        url: 'json/rsvp.json',
+        // url: 'post/rsvpGet.php',
         toolbar: '#toolbar',
         idField: 'id',
         showColumns: true,
@@ -19,27 +19,36 @@ $(function () {
                 title: "מס"
             },
             {
-                field: 'id',
+                field: 'Id',
                 title: 'מס"ד',
                 visible: false,
                 switchable: false
             },  {
-                field: 'name',
+                field: 'Name',
                 title: 'שם',
                 editable: {
                     type: 'text',
-                    url: 'tableUpdate.php',
+                    url: 'post/rsvpCellUpdate.php',
                     title: 'name',
+                    dataType: "json",
                     success: function (response, newValue) {
                         console.log(response);
-                        respArr = JSON.parse(response);
+                        try {
+                            respArr = JSON.parse(response);
+                        } catch (err) {
+                            document.getElementById("errMsg").innerHTML = response;
+                            $("#error_modal").modal();
+                        }
                         console.log(respArr);
-                        if (!respArr.success)
+                        if (respArr.success == false)
                             return respArr.msg;
+                    },
+                    fail: function (data){
+                        console.log("failed");
                     }
                 }
             }, {
-                field: 'surname',
+                field: 'Surname',
                 title: 'שם משפחה',
                 editable: {
                     type: 'text',
@@ -49,25 +58,34 @@ $(function () {
             }]
     })
 });
-//    $(function () {
-//        var data = $.getJSON('json/rsvp.json');
-//        [
-//            {
-//                "id"       : 0,
-//                "name"     : "ישראל",
-//                "surname"  : "ישראלי",
-//                "nick"     : "שרול",
-//                "phone"    : "052-555",
-//                "email"    : "israel@israeli.com",
-//                "groups"   : "חברים",
-//                "invitees" : 7,
-//                "rsvp"     : 2,
-//                "maybe"    : 1,
-//                "ride"     : "כן"
-//            }
-//        ];
-//        $table.bootstrapTable({data: data});
-//    });
+   $(function () {
+       $.ajax({
+           type        : "POST",
+           url         : "post/rsvpGet.php",
+           data        : {},
+           contentType: "application/json; charset=utf-8",
+           dataType    : 'json', // what type of data do we expect back from the server
+           encode      : true
+       })
+       .done(function(data) {
+           // here we will handle errors and validation messages
+           console.log(data);
+           if ( ! data.success) {
+               document.getElementById("errMsg").innerHTML = data.error;
+               $("#error_modal").modal();
+           }
+           else {
+               console.log("got table data success");
+               $table.bootstrapTable('load', (data.table));
+           }
+       })
+       .fail(function(data) {
+           // log data to the console so we can see
+           document.getElementById("errMsg").innerHTML = data.responseText;
+           $("#error_modal").modal();
+           console.log(data);
+       });
+   });
 $(function () {
     $('#toolbar').find('select').change(function () {
         $table.bootstrapTable('destroy').bootstrapTable({
@@ -97,26 +115,26 @@ $(function () {
 //         });
 //     });
 // });
-$.mockjax({
-    url: '/post',
-    responseTime: 400,
-//        status: 200,
-    response: function(settings) {
-//            console.log(settings);
-        if(settings.data.value == 'err') {
-            this.status = 500;
-            this.responseText = {
-                success: false,
-                msg: "not good, not good"
-            }
-        } else {
-            this.responseText = {
-                success: true
-            };
-        }
-        this.data = "something";
-    }
-});
+// $.mockjax({
+//     url: '/post',
+//     responseTime: 400,
+// //        status: 200,
+//     response: function(settings) {
+// //            console.log(settings);
+//         if(settings.data.value == 'err') {
+//             this.status = 500;
+//             this.responseText = {
+//                 success: false,
+//                 msg: "not good, not good"
+//             }
+//         } else {
+//             this.responseText = {
+//                 success: true
+//             };
+//         }
+//         this.data = "something";
+//     }
+// });
 
 
 $("#addRsvpRowForm").submit(function(event){
@@ -145,11 +163,12 @@ function submitForm(){
         url         : "post/rsvpAddRow.php",
         data        : formData,
         dataType    : 'json', // what type of data do we expect back from the server
-        encode      : true,
+        encode      : true
     })
 
     .done(function(data) {
         // here we will handle errors and validation messages
+        console.log(data);
         if ( ! data.success) {
             // handle errors for name ---------------
             if (data.errors.name) {

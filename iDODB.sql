@@ -12,7 +12,7 @@ SET time_zone = "+02:00";
 /* Users table */
 DROP TABLE IF EXISTS Users;
 CREATE TABLE IF NOT EXISTS Users (  
-	ID VARCHAR(20) NOT NULL,
+	ID VARCHAR(50) NOT NULL,
 	Name VARCHAR(50) NOT NULL,
 	Email VARCHAR(50) NOT NULL,
 	Phone VARCHAR(12)  DEFAULT NULL,
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS Events (
         EventTime TIME DEFAULT NULL,
         Venue VARCHAR(50) DEFAULT NULL,
         Address VARCHAR(75) DEFAULT NULL,
-        RootID VARCHAR(20) NOT NULL,
+        RootID VARCHAR(50) NOT NULL,
         Email VARCHAR(50) DEFAULT NULL,
 	Phone VARCHAR(12) DEFAULT NULL,
         Password VARCHAR(50) DEFAULT NULL,
@@ -89,8 +89,8 @@ INSERT INTO RSVP1 (ID, Name, Surname, Nickname, Invitees, Phone, Email, Groups, 
 	(4, 'Murray', 'Troy', 'the boy', 4, '055-5555555', 'mollis@eutellus.co.uk', NULL, NULL, 0, False),
 	(5, 'Schwartz', 'Carla', NULL, 6, '056-6666666', NULL, NULL, 3, 0, True);
 
-INSERT INTO RSVP2 (ID, Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Uncertin, Ride) VALUES
-	(1, 'Wilder', 'Chadwick', NULL, 3, NULL, NULL, NULL, NULL, False),
+INSERT INTO RSVP5 (ID, Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Uncertin, Ride) VALUES
+	(1, 'Wilder', 'Chadwick', NULL, 3, NULL, NULL, NULL, NULL, NULL, False),
 	(2, 'Hardin', 'Audrey', 'DJ', 5, '000-0000000', 'commodo.tincidunt.nibh@seddictum.com', 'Friends', 7, 2, True),
 	(3, 'Vaughn', 'Harlan', 'Bijo', 1, NULL , 'tempor.lorem@egestasDuisac.com', 'Tachat', 0, 0, False),
 	(4, 'Mathis', 'Lareina', NULL , 1, '111111111', 'ac.turpis.egestas@Proin.com', 'Friends', 1, 1, True),

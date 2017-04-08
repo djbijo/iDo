@@ -69,6 +69,7 @@ class User implements iUser {
     public function addEvent($EventName, $EventDate, $EventPhone = 'NULL'){
         $id = $this->id;
         $this->event = new Event($this, $EventName, $EventDate);
+        if (!$this->event) throw new ErrorException("user can't create new event!!");
         $result = DB::select("SELECT * FROM USERS WHERE ID=$id");
         if (!$result){return false;}
         $this->addUserPermissions($result[0]['Email'], 'root');

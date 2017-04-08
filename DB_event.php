@@ -85,11 +85,14 @@ class Event implements iEvent {
             // Add new event to Events table
             //$result = DB::query("INSERT INTO Events (EventName, EventDate, HebrewDate, EventTime, Venue, Address, RootID, Email, Phone, Password, Secret, DeviceID) VALUES
             //                            ($eventName, $eventDate, $hebrewDate, $eventTime, $venue, $address, $rootID, $eventEmail, $eventPhone, $password, $secret, $deviceID)");
+//            $result = DB::query("DELETE FROM Events WHERE RootID=1111");
             $result = DB::query("INSERT INTO Events (EventName, EventDate, HebrewDate, EventTime, Venue, Address, RootID, Email, Phone, Password, Secret, DeviceID) VALUES
-                                        ('Dan and moshe', '2009-09-24', 'Tu Beav', '19:00','אולמי הנסיכה', '31 אורכידאה','123', 'oriah@gmail.com', '051-1111111', 'Bil123','79fhdasfAA', '76851Ad')");
-
+                                        ('Dan and moshe', '2009-09-24', 'Tu Beav', '19:00','white','31t','104933219733586405635', 'dj.bijo@gmail.com', '051-1111111', 'Bil123','79fhdasfAA', '76851Ad')");
+//            $result = DB::query("INSERT INTO Events (EventName, EventDate,  RootID, Email) VALUES
+//                                        ('Dan and moshe', '2009-09-24', 'Tu Beav', '19:00','white','31t','104933219733586405635', 'dj.bijo@gmail.com', '051-1111111', 'Bil123','79fhdasfAA', '76851Ad')");
             if (!$result) {
                 echo "why?!!?";
+                throw new ErrorException("couldn't create new event table (in event construct");
                 return false;
             }
             // set eventID if not already set.
