@@ -137,7 +137,7 @@ class RSVP extends Table {
 
         $eventID = $this->eventID;
 
-        echo "EventID is: $eventID; name is: $name; surname is: $surName; nickname is: $nickName; phone is: $phone; email is: $email; group is: $groups; invitees is: $Invitees";
+//        echo "EventID is: $eventID; name is: $name; surname is: $surName; nickname is: $nickName; phone is: $phone; email is: $email; group is: $groups; invitees is: $Invitees";
 
         $result = DB::query("INSERT INTO rsvp$eventID (Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Uncertin, Ride) VALUES
                     ($name, $surName, $nickName, $Invitees, $phone, $email, $groups, $RSVP, $Uncertin, $Ride)");
