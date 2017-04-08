@@ -37,14 +37,15 @@ class User implements iUser {
      * @return object user  
      */
     public function __construct($ID, $Name = 'NULL', $Email = 'NULL', $Phone = 'NULL') {
-        //shift user events left
-        $this->shiftEvents();
+
 
         // user is in users table (registered to iDO)
         if ($this->checkUserID($ID)) {
             if (!isset($this->id)) {
                 $this->id = DB::quote($ID);
             }
+            //shift user events left
+            $this->shiftEvents();
 
             // construct an events with only events ID to it
             $events = $this->getEvents();
