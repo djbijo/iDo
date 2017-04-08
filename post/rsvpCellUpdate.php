@@ -9,13 +9,11 @@ $value = $_POST['value'];
 
 $errors         = array();      // array to hold validation errors
 $response           = array();      // array to pass back data
-$response['success'] = false;
-if (!isset($value)){
-    $errors["value"] = "השם ריק";
+$response['status'] = 'error';
+if (!isset($value) or empty($value)){
+    $errors["value"] = "השם לא יכול להיות ריק";
 }
 if (is_null($pk) or !isset($pk)){
-    echo ("id is undefined");
-    $errors["id"] = "pk is null";
     return;
 }
 if (empty($errors)) {
@@ -33,7 +31,7 @@ if (empty($errors)) {
             }
 
             if ($createdRow) {
-                $response['success'] = true;
+                $response['status'] = 'success';
             } else {
                 throw new ErrorException("add row to rsvp doesn't work");
             }
@@ -43,7 +41,7 @@ if (empty($errors)) {
     }
 }
 if (!empty($errors)){
-    $response['errors'] = $errors;
-    $response['success'] = false;
+    $response['error'] = $errors['value'];
+    $response['status'] = 'error';
 }
 echo json_encode($response);

@@ -11,6 +11,7 @@ $(function () {
         resizable: true,
         showToggle: true,
         search: true,
+        striped: true,
         columns: [
             {
                 formatter: function(value, row, index) {
@@ -21,43 +22,105 @@ $(function () {
             {
                 field: 'ID',
                 title: 'ID',
-                visible: true,
+                visible: false,
                 switchable: false
             },  {
                 field: 'Name',
                 title: 'שם',
-                editable: {
-                    type: 'text',
-                    url: 'post/rsvpCellUpdate.php',
-                    title: 'name',
-                    dataType: "json",
-                    success: function (response, newValue) {
-                        console.log(response);
-                        try {
-                            respArr = JSON.parse(response);
-                        } catch (err) {
-                            document.getElementById("errMsg").innerHTML = response;
-                            $("#error_modal").modal();
-                        }
-                        console.log(respArr);
-                        if (respArr.success == false)
-                            return respArr.msg;
-                    },
-                    fail: function (data){
-                        console.log("failed");
-                    }
-                }
+                editable: ezMakeEditable('text', 'שם')
             }, {
                 field: 'Surname',
                 title: 'שם משפחה',
-                editable: {
-                    type: 'text',
-                    url: '/post',
-                    title: 'surname'
-                }
-            }]
+                editable: ezMakeEditable('text', 'שם משפחה')
+            },
+            {
+                field: 'Email',
+                title: 'email',
+                editable: ezMakeEditable('email', 'email')
+            },
+            {
+                field: 'Groups',
+                title: 'קבוצות',
+                editable: ezMakeEditable('checklist', 'קבוצות')
+            },
+            {
+                field: 'Invitees',
+                title: 'מוזמנים',
+                editable: ezMakeEditable('select', 'מוזמנים')
+            },
+            {
+                field: 'Surname',
+                title: 'שם משפחה',
+                editable: ezMakeEditable('text', 'שם משפחה')
+            },
+            {
+                field: 'Nickname',
+                title: 'כינוי',
+                editable: ezMakeEditable('text', 'כינוי')
+            },
+            {
+                field: 'Phone',
+                title: 'טלפון',
+                editable: ezMakeEditable('tel', 'טלפון')
+            },
+            {
+                field: 'RSVP',
+                title: 'אישרו הגעה',
+                editable: ezMakeEditable('select', 'אישרו הגעה')
+            },
+            {
+                field: 'Ride',
+                title: 'הסעה',
+                checkbox: true
+                // editable: { //FIXME: need to find a way to make it simple checkbox
+                //     type: 'checklist',
+                //     value: 0,
+                //     source: [
+                //         // {value: false, text: 'אין הסעה'},
+                //         {value: 1, text: 'יש הסעה'}
+                //     ],
+                //     mode: 'inline',
+                //     url: 'post/rsvpCellUpdate.php',
+                //     dataType: "json",
+                //     success: cellUpdateSuccess,
+                //     highlight: '#8400F1',
+                //
+                //     // toggle: 'mouseenter'
+                // }
+            },
+            {
+                field: 'Uncertain',
+                title: 'מתלבטים',
+                editable: ezMakeEditable('text', 'מתלבטים')
+            }
+            ]
     })
 });
+
+function cellUpdateSuccess(response, newValue){
+    var respArr;
+    try {
+        respArr = JSON.parse(response);
+    } catch (err) {
+        document.getElementById("errMsg").innerHTML = response;
+        $("#error_modal").modal();
+    }
+    if (respArr.status === 'error'){
+        return respArr.error;
+    }
+}
+
+function ezMakeEditable(type, title){
+    return {
+        type: type,
+        url: 'post/rsvpCellUpdate.php',
+        title: title,
+        dataType: "json",
+        success: cellUpdateSuccess,
+        highlight: '#8400F1'
+        // toggle: 'mouseenter'
+    }
+}
    $(function () {
        $.ajax({
            type        : "POST",

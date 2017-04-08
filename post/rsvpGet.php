@@ -5,8 +5,15 @@ require_once("../DB_user.php");
 $errors         = array();      // array to hold validation errors
 $response           = array();      // array to pass back data
 $response['success'] = false;
-$response['user'] = $_SESSION['userId'];
-$response['event'] = $_SESSION['eventId'];
+$secsWaited = 0;
+//$response['user'] = $_SESSION['userId'];
+//$response['event'] = $_SESSION['eventId'];
+while (!isset($_SESSION['userId'])){
+    sleep(1); //fixme: need to wait for user to log in
+    $secsWaited += 1;
+    if ($secsWaited > 30)
+        return;
+}
 
 if (isset($_SESSION['userId']) and isset($_SESSION['eventId']) and isset($_SESSION['loggedin'])) {
     try {
