@@ -41,9 +41,6 @@ class User implements iUser {
         // user is in users table (registered to iDO)
         if ($this->checkUserID($ID)) {
 
-            //shift user events left
-            $this->shiftEvents();
-
             if (!isset($this->id)) {
                 $this->id = DB::quote($ID);
             }
