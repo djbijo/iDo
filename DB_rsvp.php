@@ -27,7 +27,7 @@ class RSVP extends Table {
                 ) DEFAULT CHARACTER SET utf8");
 
         if (!$result) {
-            echo "Error adding RSVP$eventID to Database";
+            throw new Exception("RSVP create: Error adding RSVP$eventID to Database");
             return false;
         }
         return true;
@@ -43,7 +43,11 @@ class RSVP extends Table {
         $eventID = $this->eventID;
         $result = DB::query("DROP TABLE IF EXISTS rsvp$eventID");
 
-        return $result;
+        if (!$result) {
+            throw new Exception("RSVP destroy: Error deleting RSVP$eventID table from Database");
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -126,16 +130,21 @@ class RSVP extends Table {
         // Make strings query safe
         $name = DB::quote($Name);
         $surName = DB::quote($SurName);
-        ($NickName != NULL ) ? $nickName = DB::quote($NickName) : $nickName = NULL;
-        ($Phone != NULL) ? $phone = DB::quote($Phone) : $phone = NULL;
-        ($Email != NULL ) ? $email = DB::quote($Email) : $email = NULL;
-        ($Groups != NULL) ? $groups = DB::quote($Groups) : $groups = NULL;
+        $nickName = DB::quote($NickName);
+        $phone = DB::quote($Phone);
+        $email = DB::quote($Email);
+        $groups = DB::quote($Groups);
 
         $eventID = $this->eventID;
 
         $result = DB::query("INSERT INTO rsvp$eventID (Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Uncertin, Ride) VALUES
                     ($name, $surName, $nickName, $Invitees, $phone, $email, $groups, $RSVP, $Uncertin, $Ride)");
-        return $result;
+
+        if (!$result) {
+            throw new Exception("RSVP add: Error adding guest $name $surName to RSVP$eventID table");
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -154,9 +163,9 @@ class RSVP extends Table {
      */
     public function importFullExcel($excel) {
         // delete rsvp[eventID] table if exists
-        $this->deleteRSVP();
+        $this->destruct();
         // create new (empty) rsvp[eventID] table
-        new RSVP();
+        new RSVP();                                         //todo: should we de new rsvp?! gil...
         return $this->importPartExcel($excel);
     }
 

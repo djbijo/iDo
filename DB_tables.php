@@ -32,6 +32,7 @@ abstract class Table {
     public function destruct() {
         // check that table is initiallised
         if (!isset($this->eventID)) {
+            throw new Exception("Table destruct: eventID not initiallized");
             return false;
         }
         // destroy table - this is an abstract method
@@ -46,15 +47,19 @@ abstract class Table {
      * @param string/int value : value to be inserted to the table
      * @return bool true if table updated / false if table not updated
      */
-    public function updateTable($tableType, $colName, $id, $value) {
+    public function updateTable($tableType, $colName, $id, $Value) {
         // handel data
-        ($value === "") ? $value = NULL : $value = DB::qoute($value);
+        $value = DB::qoute($Value);
         $eventID = $this->eventID;
 
         // generate mysql command
-        $result = DB::query("UPDATE ".$tableType.$eventID." SET $colName = $value WHERE id = $id");
+        DB::query("UPDATE ".$tableType.$eventID." SET $colName = $value WHERE id = $id");
 
-        return $result;
+        if (DB::affectedRows() < 0) {
+            throw new Exception("Table $tableType updateTable: couldn't update table ".$tableType.$eventID." with $colName = $value for row $id");
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -68,7 +73,12 @@ abstract class Table {
 
         // generate mysql command
         $result = DB::query("DELETE FROM ".$tableType.$eventID."  WHERE id = $id");
-        return $result;
+
+        if (!$result) {
+            throw new Exception("Table deleteFromTable: couldn't delete row $id from table ".$tableType.$eventID);
+            return false;
+        }
+        return true;
     }
 
 }

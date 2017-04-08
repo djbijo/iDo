@@ -37,11 +37,13 @@ class User implements iUser {
      * @return object user  
      */
     public function __construct($ID, $Name = 'NULL', $Email = 'NULL', $Phone = 'NULL') {
-        //shift user events left
-        $this->shiftEvents();
 
         // user is in users table (registered to iDO)
         if ($this->checkUserID($ID)) {
+
+            //shift user events left
+            $this->shiftEvents();
+
             if (!isset($this->id)) {
                 $this->id = DB::quote($ID);
             }
@@ -49,7 +51,6 @@ class User implements iUser {
             // construct an events with only events ID to it
             $events = $this->getEvents();
             if ($events['event1'] === NULL) {
-                throw new Exception("New User: users 1st event is null");
                 return;
             }
             $this->event = new Event($this);
@@ -59,7 +60,7 @@ class User implements iUser {
         // user is not in users table (not registered to iDO)
         $result = $this->addUser($ID, $Name, $Email, $Phone);
         if (!$result) {
-            throw new Exception("New User: addUser function error");
+            throw new Exception("User New: addUser function error");
             return false;
         }
         return true;
@@ -70,7 +71,7 @@ class User implements iUser {
         $this->event = new Event($this,1 ,$EventName, $EventDate, $EventTime, $Venue, $Address, $EventEmail, $EventPhone, $Password, $Secret, $DeviceID);
         $result = DB::select("SELECT * FROM USERS WHERE ID=$id");
         if (!$result){
-            throw new Exception("addEvent: couldn't get user $id from users  table");
+            throw new Exception("User addEvent: couldn't get user $id from users  table");
             return false;
         }
         $this->addUserPermissions($result[0]['Email'], 'root');
@@ -145,11 +146,11 @@ class User implements iUser {
     public function addUser($ID, $Name, $Email, $Phone = 'NULL', $Event1 = 'NULL', $Permission1 = 'NULL', $Event2 = 'NULL', $Permission2 = 'NULL', $Event3 = 'NULL', $Permission3 = 'NULL') {
         //check if ID/Phone/Email already in Users table
         if ($this->checkUserID($ID)) {
-            throw new Exception("User already registered to iDO");
+            throw new Exception("User addUser: User already registered to iDO");
             return false;
         }
         if ($this->checkUserEmail($Email)) {
-            throw new Exception("the Email adress: '$Email' is already registered to iDO");
+            throw new Exception("User addUser: the Email address: '$Email' is already registered to iDO");
             return false;
         }
 
@@ -171,7 +172,7 @@ class User implements iUser {
         $result = DB::query("INSERT INTO Users (ID, Name, Email, Phone, Event1, permission1, Event2, permission2, Event3, permission3) VALUES
 			($id, $name, $email, $phone, $Event1, $permission1, $Event2, $permission2, $Event3, $permission3)");
         if (!$result) {
-            throw new Exception("addUser: couldn't add user $this->id to users table");
+            throw new Exception("User addUser: couldn't add user $this->id to users table");
             return false;
         }
         return true;
@@ -187,7 +188,7 @@ class User implements iUser {
 
         // Delete user from Users table
         if (!DB::query("DELETE FROM Users WHERE ID=$id")) {
-            throw new Exception("deleteUser: user not deleted from users table");
+            throw new Exception("User deleteUser: user not deleted from users table");
             return false;
         }
         return true;
@@ -204,7 +205,7 @@ class User implements iUser {
 
         //check that the user is already registered to iDO services
         if (!$this->checkUserEmail($Email)) {
-            throw new Exception("editUserPermissions: the user with Email adress:'$Email' is not registered to iDO. please register the user before granting permissions.");
+            throw new Exception("User editUserPermissions: the user with Email adress:'$Email' is not registered to iDO. please register the user before granting permissions.");
             return false;
         }
 
@@ -218,7 +219,7 @@ class User implements iUser {
         $rootID = DB::quote($result[0]['RootID']);
 
         if ($rootID != $this->id) {
-            throw new Exception("editUserPermissions: Only the user which created the event can change permissions to it");
+            throw new Exception("User editUserPermissions: Only the user which created the event can change permissions to it");
             return false;
         }
 
@@ -232,7 +233,7 @@ class User implements iUser {
             }
         }
 
-        throw new Exception("editUserPermissions: user $email has is not registered to this event, please add user to event with relevant permission");
+        throw new Exception("User editUserPermissions: user $email has is not registered to this event, please add user to event with relevant permission");
         return false;
     }
 
@@ -246,7 +247,7 @@ class User implements iUser {
 
         //check that the user is already registered to iDO services
         if (!$this->checkUserEmail($Email)) {
-            throw new Exception("addUserPermissions: the user with Email adress:'$Email' is not registered to iDO. please register the user before granting permissions.");
+            throw new Exception("User addUserPermissions: the user with Email adress:'$Email' is not registered to iDO. please register the user before granting permissions.");
             return false;
         }
 
@@ -261,7 +262,7 @@ class User implements iUser {
         $rootID = DB::quote($result[0]['RootID']);
 
         if ($rootID != $this->id) {
-            throw new Exception("addUserPermissions: Only the user which created the event can change permissions to it");
+            throw new Exception("User addUserPermissions: Only the user which created the event can change permissions to it");
             return false;
         }
         // Update relevant user in user table
@@ -274,7 +275,7 @@ class User implements iUser {
                 return true;
             }
         }
-        throw new Exception("addUserPermissions:User $email has too many events registered (max 3 events per user at a time)");
+        throw new Exception("User addUserPermissions:User $email has too many events registered (max 3 events per user at a time)");
         return false;    
     }
 
@@ -285,7 +286,7 @@ class User implements iUser {
 
         //check if phone number already in iDO database
         if ($this->checkUserPhone($Phone)) {
-            throw new Exception("addUserPhone: the Phone number $phone is already registered to iDO");
+            throw new Exception("User addUserPhone: the Phone number $phone is already registered to iDO");
             return false;
         }
 
@@ -293,7 +294,7 @@ class User implements iUser {
         DB::query("UPDATE Users SET Phone=$phone WHERE ID=$id");
 
         if (DB::affectedRows() < 0) {
-            throw new Exception("addUserPhone: the Phone number $phone could not be added to iDO");
+            throw new Exception("User addUserPhone: the Phone number $phone could not be added to iDO");
             return false;
         }
         return true;
@@ -319,7 +320,7 @@ class User implements iUser {
                 $j = $i;
             }
         }
-        if($permission === NULL) throw new Exception("selectEvent: error inserting event as event1");
+        if($permission === NULL) throw new Exception("User selectEvent: error inserting event as event1");
         // clear 1st event in user record
 
         // switch event1 with relevant event
@@ -328,7 +329,7 @@ class User implements iUser {
 
         DB::query("UPDATE Users SET Event1=$eventID, Permission1=$permission, Event$j=$event1, Permission$j=$permission1 WHERE ID=$id");
         if (DB::affectedRows() < 0) {
-            throw new Exception("selectEvent: couldn't switch event$EventID and event$event1 in users records");
+            throw new Exception("User selectEvent: couldn't switch event$EventID and event$event1 in users records");
             return false;
         }
     }
@@ -357,7 +358,7 @@ class User implements iUser {
                 $sql2 = DB::affectedRows();
 
                 if ($sql1 < 0 or $sql2 < 0) {
-                    throw new Exception("selectEvent: couldn't shift events left for user $id");
+                    throw new Exception(" User shiftEvents: couldn't shift events left for user $id");
                     return false;
                 }
             }

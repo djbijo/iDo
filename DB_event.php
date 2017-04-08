@@ -61,7 +61,7 @@ class Event implements iEvent
             $result = DB::query("INSERT INTO Events (EventName, EventDate, HebrewDate, EventTime, Venue, Address, RootID, Email, Phone, Password, Secret, DeviceID) VALUES
                                         ($eventName, $eventDate, $hebrewDate, $eventTime, $venue, $address, $rootID, $eventEmail, $eventPhone, $password, $secret, $deviceID)");
             if (!$result) {
-                throw new Exception("New Event : Event not inserted to Events table");
+                throw new Exception("Event New : Event not inserted to Events table");
                 return false;
             }
             // set eventID if not already set.
@@ -72,7 +72,7 @@ class Event implements iEvent
             $this->messages = new Messages($this->eventID);
             $this->rawData = new RawData($this->eventID);
         } else {
-            throw new Exception("New Event : Couldn't construct new event");
+            throw new Exception("Event New : Couldn't construct new event");
         }
         // Event is in Events table
         return;
@@ -100,13 +100,13 @@ class Event implements iEvent
                 // delete RawData[eventID] table
                 $sqlRawData = $this->rawData->destruct();
                 if (!$sql or !$sqlRSVP or !$sqlMessages or !$sqlRawData) {
-                    throw new Exception("deleteEvent: couldn't delete event tables");
+                    throw new Exception("Event deleteEvent: couldn't delete event tables");
                     return false;
                 }
                 DB::query("UPDATE Users SET Event$i=NULL, Permission$i=NULL WHERE Event$i=$eventID");
                 //if event updated
                 if (DB::affectedRows() < 0) {
-                    throw new Exception("deleteEvent: couldn't delete event$eventID from Users table");
+                    throw new Exception("Event deleteEvent: couldn't delete event$eventID from Users table");
                     return false;
                 }
             }
@@ -115,7 +115,7 @@ class Event implements iEvent
             return true;
         }
 
-        throw new Exception("deleteEvent: only root user can delete event$eventID");
+        throw new Exception("Event deleteEvent: only root user can delete event$eventID");
         return false;
 
     }
@@ -133,7 +133,9 @@ class Event implements iEvent
         return false;
     }
 
-    private function makeHebrewDate($Date)
+    
+
+    private function makeHebrewDate($Date)              // todo: make this work
     {
         jdtojewish(gregoriantojd(10, 9, 1989), true, CAL_JEWISH_ADD_GERESHAYIM + CAL_JEWISH_ADD_ALAFIM + CAL_JEWISH_ADD_ALAFIM_GERESH);
     }

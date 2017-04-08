@@ -22,10 +22,10 @@ class Messages extends Table {
               ) DEFAULT CHARACTER SET utf8");
 
         if (!$result) {
-            echo "Error adding message$eventID to Database";
+            throw new Exception("Messages create: Error adding Messages$eventID to Database");
             return false;
         }
-        return;
+        return true;
     }
 
     /**
@@ -36,7 +36,11 @@ class Messages extends Table {
 
         $eventID = $this->eventID;
         $result = DB::query("DROP TABLE IF EXISTS messages$eventID");
-        return $result;
+        if (!$result) {
+            throw new Exception("RSVP destroy: Error deleting Messages$eventID table from Database");
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -77,7 +81,11 @@ class Messages extends Table {
 
         $result = DB::query("INSERT INTO messages$eventID (MessageType, Message, Groups, SendDate, SendTime) VALUES
                     ( $messageType, $message, $groups, $SendDate, $SendTime)");
-        return $result;
+        if (!$result) {
+            throw new Exception("Messages add: Error adding guest $message to Messages$eventID table");
+            return false;
+        }
+        return true;
     }
 
     /**
