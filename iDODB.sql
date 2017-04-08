@@ -124,7 +124,7 @@ INSERT INTO Messages2 (ID, MessageType, Message, Groups, SendDate, SendTime) VAL
 	(2, 'ThankYou', 'you are AWSOME!', NULL, '2009-09-25', '06:23:12');
 
 # -----------------------------------------------------------
-/* Message RawData */
+/* RawData table */
 DROP TABLE IF EXISTS RawData1;
 CREATE TABLE IF NOT EXISTS RawData1 (
 	ID INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -153,6 +153,26 @@ INSERT INTO RawData2 (ID, Name, Surname, Phone, Email, Groups, RSVP, Message, Re
 	(2, 'Gil', 'levy', '051-1111111', 'dui@duiCras.edu', NULL, 2, 'two people', '2009-12-12 12:12:00');
 
 
+# -----------------------------------------------------------
+/* Groups table */
+DROP TABLE IF EXISTS Groups1;
+
+CREATE TABLE IF NOT EXISTS Groups1 (
+                ID INT(5) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                GroupName VARCHAR(50) NOT NULL
+                ) DEFAULT CHARACTER SET utf8;
+
+DROP TABLE IF EXISTS Groups2;
+CREATE TABLE Groups2 AS SELECT * FROM Groups1;
+
+/* demo Groups */
+INSERT INTO Groups1 (GroupName) VALUES
+  ('Friends'),
+  ('Coligues');
+
+INSERT INTO Groups2 (GroupName) VALUES
+  ('Friends'),
+  ('Tachat');
 
 
 # COLLATE utf8_General_ci;

@@ -134,6 +134,21 @@ class Event implements iEvent
         return false;
     }
 
+    /**
+     * get:  get Event row for specific event
+     * @return array of event[$eventID]
+     */
+    public function get() {
+        $eventID = $this->eventID;
+        $result = DB::select("SELECT * FROM Events WHERE ID=$eventID ");
+
+        if (!$result) {
+            throw new Exception("Event get: couldn't get row for event$eventID from Events table ");
+            return false;
+        }
+
+        return $result;
+    }
 
 
     private function makeHebrewDate($Date)              // todo: make this work
