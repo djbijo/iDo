@@ -26,7 +26,7 @@ class rawData extends Table {
                 ) DEFAULT CHARACTER SET utf8;");
 
         if (!$result) {
-            echo "Error adding rawData$eventID to Database";
+            throw new Exception("Rawdata create: Error adding RawData$eventID to Database");
             return false;
         }
         return;
@@ -40,7 +40,12 @@ class rawData extends Table {
 
         $eventID = $this->eventID;
         $result = DB::query("DROP TABLE IF EXISTS rawData$eventID");
-        return $result;
+
+        if (!$result) {
+            throw new Exception("RawData destroy: Error deleting RawData$eventID table from Database");
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -79,17 +84,20 @@ class rawData extends Table {
         $name = DB::qoute($Name);
         $surName = DB::qoute($SurName);
         $message = DB::qoute($Message);
-        ($Phone != NULL) ? $phone = DB::qoute($Phone) : $phone = NULL;
-        ($Email != NULL ) ? $email = DB::qoute($Email) : $email = NULL;
-        ($Groups != NULL) ? $groups = DB::qoute($Groups) : $groups = NULL;
-        
-        //$RecivedDate, $RecivedTime;
+        $phone = DB::qoute($Phone);
+        $email = DB::qoute($Email);
+        $groups = DB::qoute($Groups);
 
         $eventID = $this->eventID;
 
         $result = DB::query("INSERT INTO rawData" . $eventID . "  (Name, Surname, Phone, Email, Groups, RSVP, Ride, Message) VALUES
                     ( $name, $surName, $phone, $email, $groups, $RSVP, $Ride, $message)");
-        return $result;
+
+        if (!$result) {
+            throw new Exception("RawData add: Error adding rawData from $name $surName to RawData$eventID table");
+            return false;
+        }
+        return true;
     }
 
     /**

@@ -37,7 +37,7 @@ class Messages extends Table {
         $eventID = $this->eventID;
         $result = DB::query("DROP TABLE IF EXISTS messages$eventID");
         if (!$result) {
-            throw new Exception("RSVP destroy: Error deleting Messages$eventID table from Database");
+            throw new Exception("Messages destroy: Error deleting Messages$eventID table from Database");
             return false;
         }
         return true;
@@ -75,7 +75,7 @@ class Messages extends Table {
         // Make strings query safe
         $messageType = DB::qoute($MessageType);
         $message = DB::qoute($Message);
-        ($Groups != NULL) ? $groups = $this->appendGroups($Groups) : $groups = NULL;
+        $groups = $this->appendGroups($Groups);
 
         $eventID = $this->eventID;
 

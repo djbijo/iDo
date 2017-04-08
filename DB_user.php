@@ -47,6 +47,9 @@ class User implements iUser {
             if (!isset($this->id)) {
                 $this->id = DB::quote($ID);
             }
+            //shift user events left
+            $this->shiftEvents();
+
 
             // construct an events with only events ID to it
             $events = $this->getEvents();
@@ -348,6 +351,7 @@ class User implements iUser {
     public function shiftEvents() {
 
         $result = $this->getEvents();
+        if(!$result) return false;
         $id = $this->id;
 
         for ($i = 1; $i <= 2; $i++) {
@@ -380,8 +384,7 @@ class User implements iUser {
      *                   array['event3'] = event3 id, array['permission3'] = event3 permission
      */
     public function getEvents() {
-
-        $id = DB::quote($this->id);
+        $id = $this->id;
 
         $result = DB::select("SELECT * FROM Users WHERE ID=$id");
         if ($result) {
@@ -393,7 +396,9 @@ class User implements iUser {
             $out['permission3'] = $result[0]['Permission3'];
             return ($out['event1'] != 'NULL') ? $out : false;
         }
-        throw new Exception("couldn't find user ");
+
+        throw new Exception("User getEvents: couldn't find user is users table");
+        return false;
     }
 
     /**
