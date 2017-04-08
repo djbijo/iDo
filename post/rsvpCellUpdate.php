@@ -2,6 +2,7 @@
 session_start();
 require_once ("../DB_user.php");
 
+$pk = 0;//$_POST['pk'];
 $pk = $_POST['pk'];
 $name = $_POST['name'];
 $value = $_POST['value'];
@@ -9,11 +10,14 @@ $value = $_POST['value'];
 $errors         = array();      // array to hold validation errors
 $response           = array();      // array to pass back data
 $response['success'] = false;
-
 if (!isset($value)){
     $errors["value"] = "השם ריק";
 }
-
+if (is_null($pk) or !isset($pk)){
+    echo ("id is undefined");
+    $errors["id"] = "pk is null";
+    return;
+}
 if (empty($errors)) {
     //validation succeeded
     if (isset($_SESSION['userId']) and isset($_SESSION['eventId'])) {
@@ -21,7 +25,13 @@ if (empty($errors)) {
         $event = new Event($user, NULL, NULL,$_SESSION['eventId']);
         if ($event !== null) {
             $rsvp = $event->rsvp;
-            $createdRow =  $rsvp->update($name, $pk, $value);
+            try{
+                $createdRow =  $rsvp->update($name, $pk, $value);
+            } catch (Exception $e) {
+                echo ($e);
+                return;
+            }
+
             if ($createdRow) {
                 $response['success'] = true;
             } else {
