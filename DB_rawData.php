@@ -11,7 +11,6 @@ class rawData extends Table {
     public function create() {
 
         $eventID =$this->eventID;
-        echo $eventID;
 
         $result = DB::query("CREATE TABLE IF NOT EXISTS rawData$eventID ( 
                 ID INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
