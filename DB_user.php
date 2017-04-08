@@ -394,7 +394,7 @@ class User implements iUser {
             $out['permission2'] = $result[0]['Permission2'];
             $out['event3'] = $result[0]['Event3'];
             $out['permission3'] = $result[0]['Permission3'];
-            return ($out['event1'] != 'NULL') ? $out : false;
+            return ($out['event1'] != NULL) ? $out : false;
         }
 
         throw new Exception("User getEvents: couldn't find user is users table");
