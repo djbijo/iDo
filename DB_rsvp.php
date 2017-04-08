@@ -137,16 +137,22 @@ class RSVP extends Table {
 
         $eventID = $this->eventID;
 
-//        echo "EventID is: $eventID; name is: $name; surname is: $surName; nickname is: $nickName; phone is: $phone; email is: $email; group is: $groups; invitees is: $Invitees";
+        //check that phone and email are not already in rsvp table
+        if (NULL !== $email and DB::select("SELECT * FROM rsvp$eventID WHERE Email=$email")) {
+            throw new Exception("RSVP add: Email $email already in RSVP table");
+        }
+        if (NULL !== $phone and DB::select("SELECT * FROM rsvp$eventID WHERE Phone=$phone")) {
+            throw new Exception("RSVP add: Phone $phone already in RSVP table");
+        }
 
+        //insert guest to RSVP table
         $result = DB::query("INSERT INTO rsvp$eventID (Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Uncertin, Ride) VALUES
                     ($name, $surName, $nickName, $Invitees, $phone, $email, $groups, $RSVP, $Uncertin, $Ride)");
 
         if (!$result) {
             throw new Exception("RSVP add: Error adding guest $name $surName to RSVP$eventID table");
-            return false;
         }
-        return true;
+        return DB::insertID();
     }
 
     /**
