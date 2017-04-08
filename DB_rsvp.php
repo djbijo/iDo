@@ -125,7 +125,7 @@ class RSVP extends Table {
      * @param bool $Ride : if the guest ordered a ride or not (default false)
      * @return bool true if row added / false otherwise
      */
-    public function add($Name, $SurName, $Invitees, $NickName = NULL, $Phone = NULL, $Email = NULL, $Groups = NULL, $RSVP = 0, $Uncertin = 0,$Ride = false) {
+    public function add($Name, $SurName, $Invitees, $NickName = 'NULL', $Phone = 'NULL', $Email = 'NULL', $Groups = 'NULL', $RSVP = 0, $Uncertin = 0,$Ride = 0) {
 
         // Make strings query safe
         $name = DB::quote($Name);
@@ -136,6 +136,8 @@ class RSVP extends Table {
         $groups = DB::quote($Groups);
 
         $eventID = $this->eventID;
+
+        echo "EventID is: $eventID; name is: $name; surname is: $surName; nickname is: $nickName; phone is: $phone; email is: $email; group is: $groups; invitees is: $Invitees";
 
         $result = DB::query("INSERT INTO rsvp$eventID (Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Uncertin, Ride) VALUES
                     ($name, $surName, $nickName, $Invitees, $phone, $email, $groups, $RSVP, $Uncertin, $Ride)");

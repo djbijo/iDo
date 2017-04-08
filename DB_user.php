@@ -5,7 +5,7 @@ require_once ("DB_event.php");
 
 interface iUser {
 
-    public function addUser($ID, $Name, $Email, $Phone = 'NULL', $Event1 = 'NULL', $Permission1 = 'NULL', $Event2 = 'NULL', $Permission2 = 'NULL', $Event3 = 'NULL', $Permission3 = 'NULL');
+    public function addUser($ID, $Name, $Email, $Phone = NULL, $Event1 = NULL, $Permission1 = NULL, $Event2 = NULL, $Permission2 = NULL, $Event3 = NULL, $Permission3 = NULL);
 
     public function deleteUser();
 
@@ -36,7 +36,7 @@ class User implements iUser {
      * @param string $Phone : user cell phone number , DEFAULT=NULL
      * @return object user  
      */
-    public function __construct($ID, $Name = 'NULL', $Email = 'NULL', $Phone = 'NULL') {
+    public function __construct($ID, $Name = NULL, $Email = NULL, $Phone = NULL) {
 
         // user is in users table (registered to iDO)
         if ($this->checkUserID($ID)) {
@@ -143,7 +143,7 @@ class User implements iUser {
      * @param string $Permission3 : user permission type for event3(root/edit/review)
      * @return bool false = user already in Users table / true = user added to Users table
      */
-    public function addUser($ID, $Name, $Email, $Phone = 'NULL', $Event1 = 'NULL', $Permission1 = 'NULL', $Event2 = 'NULL', $Permission2 = 'NULL', $Event3 = 'NULL', $Permission3 = 'NULL') {
+    public function addUser($ID, $Name, $Email, $Phone = NULL, $Event1 = NULL, $Permission1 = NULL, $Event2 = NULL, $Permission2 = NULL, $Event3 = NULL, $Permission3 = NULL) {
         //check if ID/Phone/Email already in Users table
         if ($this->checkUserID($ID)) {
             throw new Exception("User addUser: User already registered to iDO");
