@@ -5,9 +5,17 @@ require_once("../DB_user.php");
 $errors         = array();      // array to hold validation errors
 $response           = array();      // array to pass back data
 $response['success'] = false;
+$response['user'] = $_SESSION['userId'];
+$response['event'] = $_SESSION['eventId'];
 
 if (isset($_SESSION['userId']) and isset($_SESSION['eventId']) and isset($_SESSION['loggedin'])) {
-    $user = new User($_SESSION['userId']);
+    try {
+        $user = new User($_SESSION['userId']);
+    } catch (Exeption $e){
+        echo ("userid = ".$_SESSION['userId']);
+        echo $e;
+        return;
+    }
     $event = new Event($user, NULL, NULL, $_SESSION['eventId']);
     if ($event !== null) {
         $rsvp = $event->rsvp;

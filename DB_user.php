@@ -153,7 +153,14 @@ class User implements iUser {
             throw new Exception("User addUser: the Email address: '$Email' is already registered to iDO");
             return false;
         }
-
+        if (!$Name) {
+            throw new Exception("Name field in null");
+            return;
+        }
+        if (!$Email) {
+            throw new Exception("Email field in null");
+            return;
+        }
         // Make strings query safe
         $email = DB::quote($Email);
         $phone = DB::quote($Phone);
@@ -386,6 +393,7 @@ class User implements iUser {
             $out['permission3'] = $result[0]['Permission3'];
             return ($out['event1'] != 'NULL') ? $out : false;
         }
+        throw new Exception("couldn't find user ");
     }
 
     /**
