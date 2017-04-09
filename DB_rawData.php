@@ -7,6 +7,7 @@ class rawData extends Table {
     /**
      * create: create new rawData table named rawData[$eventID] in the database 
      * @return bool true if table created / false if table not created
+     * @throws Exception "Rawdata create: Error adding RawData$eventID to Database"
      */
     public function create() {
 
@@ -22,19 +23,19 @@ class rawData extends Table {
                 RSVP INT(3) DEFAULT NULL,
                 Ride BOOLEAN DEFAULT FALSE,
                 Message TEXT NOT NULL,
-                Recived datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+                Received datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
                 ) DEFAULT CHARACTER SET utf8;");
 
         if (!$result) {
             throw new Exception("Rawdata create: Error adding RawData$eventID to Database");
-            return false;
         }
-        return;
+        return true;
     }
 
     /**
      * destroy:  delete rawData table from database ($messages[eventID])
      * @return bool true if messages[$eventID] table deleted / false if table wasn't
+     * @throws Exception "RawData destroy: Error deleting RawData$eventID table from Database"
      */
     public function destroy() {
 
@@ -43,7 +44,6 @@ class rawData extends Table {
 
         if (!$result) {
             throw new Exception("RawData destroy: Error deleting RawData$eventID table from Database");
-            return false;
         }
         return true;
     }
@@ -60,6 +60,9 @@ class rawData extends Table {
 
     /**
      * update:  update rawData[$eventID] table in database
+     * @param string $colName : column which value should be updated in
+     * @param string $id : id of row to be updated
+     * @param $value : value to be inserted to the colName column
      * @return bool true if table updated / false if table not updated
      */
     public function update($colName, $id, $value) {
@@ -77,16 +80,17 @@ class rawData extends Table {
      * @param int $RSVP : amount of guests coming (default 0)
      * @param bool $Ride : if the guest ordered a ride or not (default false)
      * @return bool true if row added / false otherwise
+     * @throws Exception "RawData add: Error adding rawData from $name $surName to RawData$eventID table"
      */
     public function add($Name, $SurName, $Message, $Phone = NULL, $Email = NULL, $Groups = NULL, $RSVP = 0, $Ride = false) {
 
         // Make strings query safe
-        $name = DB::qoute($Name);
-        $surName = DB::qoute($SurName);
-        $message = DB::qoute($Message);
-        $phone = DB::qoute($Phone);
-        $email = DB::qoute($Email);
-        $groups = DB::qoute($Groups);
+        $name = DB::quote($Name);
+        $surName = DB::quote($SurName);
+        $message = DB::quote($Message);
+        $phone = DB::quote($Phone);
+        $email = DB::quote($Email);
+        $groups = DB::quote($Groups);
 
         $eventID = $this->eventID;
 
@@ -95,7 +99,6 @@ class rawData extends Table {
 
         if (!$result) {
             throw new Exception("RawData add: Error adding rawData from $name $surName to RawData$eventID table");
-            return false;
         }
         return true;
     }

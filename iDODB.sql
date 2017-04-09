@@ -40,16 +40,16 @@ CREATE TABLE IF NOT EXISTS Events (
 	EventName  VARCHAR(50) NOT NULL,
 	EventDate DATE NOT NULL,
   HebrewDate VARCHAR(50) DEFAULT NULL,
-        EventTime TIME DEFAULT NULL,
-        Venue VARCHAR(50) DEFAULT NULL,
-        Address VARCHAR(75) DEFAULT NULL,
-        RootID VARCHAR(50) NOT NULL,
-        Email VARCHAR(50) DEFAULT NULL,
+  EventTime TIME DEFAULT NULL,
+  Venue VARCHAR(50) DEFAULT NULL,
+  Address VARCHAR(75) DEFAULT NULL,
+  RootID VARCHAR(50) NOT NULL,
+  Email VARCHAR(50) DEFAULT NULL,
 	Phone VARCHAR(12) DEFAULT NULL,
-        Password VARCHAR(50) DEFAULT NULL,
-        Secret VARCHAR(50) DEFAULT NULL,
-        DeviceID VARCHAR(50) DEFAULT NULL,
-        Created datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+  Password VARCHAR(50) DEFAULT NULL,
+  Secret VARCHAR(50) DEFAULT NULL,
+  DeviceID VARCHAR(50) DEFAULT NULL,
+  Created datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 	) DEFAULT CHARACTER SET utf8; 
 
 /* demo events */
@@ -136,9 +136,9 @@ CREATE TABLE IF NOT EXISTS RawData1 (
 	Email VARCHAR(50) DEFAULT NULL,
 	Groups VARCHAR(50) DEFAULT NULL,
 	RSVP INT(3) DEFAULT NULL,
-        Ride BOOLEAN DEFAULT FALSE,
+  Ride BOOLEAN DEFAULT FALSE,
 	Message TEXT NOT NULL,
-        Recived datetime NOT NULL DEFAULT CURRENT_TIMESTAMP  
+  Received datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) DEFAULT CHARACTER SET utf8;
 
 DROP TABLE IF EXISTS RawData2;
@@ -146,11 +146,11 @@ CREATE TABLE RawData2 AS SELECT * FROM RawData1;
 
 
 /* demo RawData */
-INSERT INTO RawData1 (ID, Name, Surname, Phone, Email, Groups, RSVP, Message, Recived) VALUES
+INSERT INTO RawData1 (ID, Name, Surname, Phone, Email, Groups, RSVP, Message, Received) VALUES
 	(1, 'Hoffman', 'Tatyana','054-1111111', 'Nam@quisdiamluctus.org', 'Friends', 5, 'we are 5 people', '2009-10-10 10:10:10'),
 	(2, 'Hamilton', 'Mohammad', '051-2222222', 'dui@duiCras.edu', 'Coligues', 11, '11', '2009-12-12 12:12:00');
 
-INSERT INTO RawData2 (ID, Name, Surname, Phone, Email, Groups, RSVP, Message, Recived) VALUES
+INSERT INTO RawData2 (ID, Name, Surname, Phone, Email, Groups, RSVP, Message, Received) VALUES
 	(1, 'Oriah', 'Halamish','054-4444444', 'Nam@quisdiamluctus.org', 'Friends', 1, 'I will come solo', '2009-10-10 10:10:10'),
 	(2, 'Gil', 'levy', '051-1111111', 'dui@duiCras.edu', NULL, 2, 'two people', '2009-12-12 12:12:00');
 
@@ -160,9 +160,9 @@ INSERT INTO RawData2 (ID, Name, Surname, Phone, Email, Groups, RSVP, Message, Re
 DROP TABLE IF EXISTS Groups1;
 
 CREATE TABLE IF NOT EXISTS Groups1 (
-                ID INT(5) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                GroupName VARCHAR(50) NOT NULL
-                ) DEFAULT CHARACTER SET utf8;
+  ID INT(5) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  GroupName VARCHAR(50) NOT NULL
+  ) DEFAULT CHARACTER SET utf8;
 
 DROP TABLE IF EXISTS Groups2;
 CREATE TABLE Groups2 AS SELECT * FROM Groups1;

@@ -44,7 +44,7 @@ class DB {
 
     /**
      * query: Query the database
-     * $query string: The query string
+     * @param string $query string: The query string
      * @return mixed The result of the mysqli query() function
      */
 
@@ -59,7 +59,7 @@ class DB {
 
     /**
      * select: Fetch rows from database
-     * @query The query string
+     * @param string $query The query string
      * @return bool: Failure=False / Success=array database rows
      */
 
@@ -68,7 +68,6 @@ class DB {
         $result = self::query($query);
         if ($result === false) {
             throw new Exception("select function failed");
-            return false;
         }
         while ($row = $result->fetch_assoc()) {
             $rows[] = $row;

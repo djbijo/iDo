@@ -7,6 +7,7 @@ class RSVP extends Table {
     /**
      * create: create new RSVP table named rsvp[$eventID] in the database
      * @return bool true if table created / false if table not created
+     * @throws Exception "RSVP create: Error adding RSVP$eventID to Database"
      */
     public function create() {
 
@@ -28,7 +29,6 @@ class RSVP extends Table {
 
         if (!$result) {
             throw new Exception("RSVP create: Error adding RSVP$eventID to Database");
-            return false;
         }
         return true;
     }
@@ -36,23 +36,23 @@ class RSVP extends Table {
     /**
      * destroy:  delete RSVP table from database ($rsvp[eventID])
      * @return bool true if rsvp[$eventID] table deleted / false if table wasn't
+     * @throws Exception "RSVP destroy: Error deleting RSVP$eventID table from Database"
      */
     public function destroy() {
-        // check that rsvp is initiallised
+        // check that rsvp is initialised
 
         $eventID = $this->eventID;
         $result = DB::query("DROP TABLE IF EXISTS rsvp$eventID");
 
         if (!$result) {
             throw new Exception("RSVP destroy: Error deleting RSVP$eventID table from Database");
-            return false;
         }
         return true;
     }
 
     /**
      * get:  get RSVP table for specific event
-     * @return result RSVP[$eventID] table
+     * @return RSVP table
      */
     public function get() {
         $eventID = $this->eventID;
@@ -63,7 +63,7 @@ class RSVP extends Table {
     /**
      * getByPhone:  get RSVP table for specific event by phone number (one row)
      * @param string $Phone : the phone number of the guest
-     * @return row of specific guest (specified by phone number)
+     * @return string row of specific guest (specified by phone number)
      */
     public function getByPhone($Phone) {
         $eventID = $this->eventID;
@@ -75,8 +75,8 @@ class RSVP extends Table {
 
     /**
      * getByGroups:  get RSVP table for specific event by Groups
-     * @param string $Group : groups separated by comma
-     * @return result RSVP[$eventID] table of guests from all the groups combined / false if group is empty
+     * @param string $Groups : groups separated by a comma
+     * @return RSVP table of guests from all the groups combined / false if group is empty
      */
     public function getByGroups($Groups) {
         
@@ -106,6 +106,9 @@ class RSVP extends Table {
 
     /**
      * update:  update rsvp[$eventID] table in database
+     * @param string $colName : column which value should be updated in
+     * @param string $id : id of row to be updated
+     * @param $value : value to be inserted to the colName column
      * @return bool true if table updated / false if table not updated
      */
     public function update($colName, $id, $value) {
@@ -116,14 +119,18 @@ class RSVP extends Table {
      * add:  add row to rsvp[$eventID] table in database
      * @param string $Name : guest name
      * @param string $SurName : guest surname
-     * @param int invitees : number of people invited with guest
+     * @param int $Invitees : the number of people invited
      * @param string $NickName : guest nickname (default null)
      * @param string $Phone : guest phone (default null)
      * @param string $Email : guest email (default null)
      * @param string $Groups : group in which the guest is categorised (default null)
      * @param int $RSVP : amount of guests coming (default 0)
-     * @param bool $Ride : if the guest ordered a ride or not (default false)
+     * @param int $Uncertin : amount of people not sure if coming
+     * @param bool|int $Ride : if the guest ordered a ride or not (default false)
      * @return bool true if row added / false otherwise
+     * @throws Exception "RSVP add: Email $email already in RSVP table"
+     * @throws Exception "RSVP add: Phone $phone already in RSVP table"
+     * @throws Exception "RSVP add: Error adding guest $name $surName to RSVP$eventID table"
      */
     public function add($Name, $SurName, $Invitees, $NickName = 'NULL', $Phone = 'NULL', $Email = 'NULL', $Groups = 'NULL', $RSVP = 0, $Uncertin = 0,$Ride = 0) {
 
@@ -171,15 +178,15 @@ class RSVP extends Table {
      */
     public function importFullExcel($excel) {
         // delete rsvp[eventID] table if exists
-        $this->destruct();
+        $this->destroy();
         // create new (empty) rsvp[eventID] table
-        new RSVP();                                         //todo: should we de new rsvp?! gil...
+        $this->create();
         return $this->importPartExcel($excel);
     }
 
     /**
      * importPartExcel:  import RSVP table from excel file (deleting previous rsvp table)
-     * @param file $excel : excel file
+     * @param $excel : excel file
      * @return bool true if excel imported / false if excel not imported
      */
     public function importPartExcel($excel) {
@@ -205,6 +212,7 @@ class RSVP extends Table {
     /**
      * exportExcel:  export rsvp table to csv format
      * thanks John Peter for this solution: http://stackoverflow.com/questions/15699301/export-mysql-data-to-excel-in-php
+     * @param bool $sample : choose if sample file or actual table from database
      * @return bool true if excel imported / false if excel not imported
      */
     public function exportExcel($sample = false) {
@@ -271,6 +279,7 @@ class RSVP extends Table {
      */
     public function getSampleExcel() {
         $this->exportExcel(true);
+        return true;
     }
 
 }

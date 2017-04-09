@@ -11,8 +11,8 @@ abstract class Table {
 
     /**
      * __construct: create new object.
-     * "eventID" is of 1st event on list, until chosen otherwise.
-     * @return object table[rsvp,messages,rawData]
+     * @param int $eventID : 1st event on list, until chosen otherwise.
+     * @return Table object table[rsvp,messages,rawData,groups]
      */
     public function __construct($eventID) {
 
@@ -28,12 +28,12 @@ abstract class Table {
     /**
      * delete:  delete table for specific event
      * @return bool true if table deleted / false if table wasn't deleted
+     * @throws Exception "Table destruct: eventID not initialized"
      */
     public function destruct() {
-        // check that table is initiallised
+        // check that table is initialised
         if (!isset($this->eventID)) {
-            throw new Exception("Table destruct: eventID not initiallized");
-            return false;
+            throw new Exception("Table destruct: eventID not initialized");
         }
         // destroy table - this is an abstract method
         return $this->destroy();
@@ -46,6 +46,7 @@ abstract class Table {
      * @param string $id : table id column (table id not user id)
      * @param string/int value : value to be inserted to the table
      * @return bool true if table updated / false if table not updated
+     * @throws Exception "Table $tableType updateTable: couldn't update table ".$tableType.$eventID." with $colName = $value for row $id"
      */
     public function updateTable($tableType, $colName, $id, $Value) {
         // handel data
@@ -57,7 +58,6 @@ abstract class Table {
 
         if (DB::affectedRows() < 0) {
             throw new Exception("Table $tableType updateTable: couldn't update table ".$tableType.$eventID." with $colName = $value for row $id");
-            return false;
         }
         return true;
     }
@@ -67,6 +67,7 @@ abstract class Table {
      * @param string $tableType : the type of the table [rsvp/messages/rawData]
      * @param string $id : table id column (table id not user id)
      * @return bool true if row deleted / false otherwise
+     * @throws Exception "Table deleteFromTable: couldn't delete row $id from table ".$tableType.$eventID
      */
     public function deleteFromTable($tableType, $id) {
         $eventID = $this->eventID;
@@ -76,7 +77,6 @@ abstract class Table {
 
         if (!$result) {
             throw new Exception("Table deleteFromTable: couldn't delete row $id from table ".$tableType.$eventID);
-            return false;
         }
         return true;
     }
