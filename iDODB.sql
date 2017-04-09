@@ -146,11 +146,11 @@ CREATE TABLE RawData2 AS SELECT * FROM RawData1;
 
 
 /* demo RawData */
-INSERT INTO RawData1 (ID, Name, Surname, Phone, Email, Groups, RSVP, Message, Recived) VALUES
+INSERT INTO RawData1 (ID, Name, Surname, Phone, Email, Groups, RSVP, Message, Received) VALUES
 	(1, 'Hoffman', 'Tatyana','054-1111111', 'Nam@quisdiamluctus.org', 'Friends', 5, 'we are 5 people', '2009-10-10 10:10:10'),
 	(2, 'Hamilton', 'Mohammad', '051-2222222', 'dui@duiCras.edu', 'Coligues', 11, '11', '2009-12-12 12:12:00');
 
-INSERT INTO RawData2 (ID, Name, Surname, Phone, Email, Groups, RSVP, Message, Recived) VALUES
+INSERT INTO RawData2 (ID, Name, Surname, Phone, Email, Groups, RSVP, Message, Received) VALUES
 	(1, 'Oriah', 'Halamish','054-4444444', 'Nam@quisdiamluctus.org', 'Friends', 1, 'I will come solo', '2009-10-10 10:10:10'),
 	(2, 'Gil', 'levy', '051-1111111', 'dui@duiCras.edu', NULL, 2, 'two people', '2009-12-12 12:12:00');
 
