@@ -7,6 +7,7 @@ class Messages extends Table {
     /**
      * create: create new messages table named messages[$eventID] in the database 
      * @return bool true if table created / false if table not created
+     * @throws Exception "Messages create: Error adding Messages$eventID to Database"
      */
     public function create() {
 
@@ -25,7 +26,6 @@ class Messages extends Table {
 
         if (!$result) {
             throw new Exception("Messages create: Error adding Messages$eventID to Database");
-            return false;
         }
         return true;
     }
@@ -33,6 +33,7 @@ class Messages extends Table {
     /**
      * destroy:  delete messages table from database ($messages[eventID])
      * @return bool true if messages[$eventID] table deleted / false if table wasn't
+     * @throws Exception "Messages destroy: Error deleting Messages$eventID table from Database"
      */
     public function destroy() {
 
@@ -40,7 +41,6 @@ class Messages extends Table {
         $result = DB::query("DROP TABLE IF EXISTS messages$eventID");
         if (!$result) {
             throw new Exception("Messages destroy: Error deleting Messages$eventID table from Database");
-            return false;
         }
         return true;
     }
@@ -57,6 +57,9 @@ class Messages extends Table {
 
     /**
      * update:  update messages[$eventID] table in database
+     * @param string $colName : column which value should be updated in
+     * @param string $id : id of row to be updated
+     * @param $value : value to be inserted to the colName column
      * @return bool true if table updated / false if table not updated
      */
     public function update($colName, $id, $value) {
@@ -71,12 +74,13 @@ class Messages extends Table {
      * @param $SendTime : time of day to send the message
      * @param $Groups: group that message should be sent to (default null)
      * @return bool true if row added / false otherwise
+     * @throws Exception "Messages add: Error adding guest $message to Messages$eventID table"
      */
     public function add($MessageType, $Message, $SendDate, $SendTime, $Groups = NULL) {
 
         // Make strings query safe
-        $messageType = DB::qoute($MessageType);
-        $message = DB::qoute($Message);
+        $messageType = DB::quote($MessageType);
+        $message = DB::quote($Message);
         $groups = $this->appendGroups($Groups);
 
         $eventID = $this->eventID;
@@ -85,7 +89,6 @@ class Messages extends Table {
                     ( $messageType, $message, $groups, $SendDate, $SendTime, $eventID)");
         if (!$result) {
             throw new Exception("Messages add: Error adding guest $message to Messages$eventID table");
-            return false;
         }
         return true;
     }
@@ -130,13 +133,13 @@ class Messages extends Table {
      * @param int $messageID : the row id of the message to be marked as sent
      * @param int $eventID : the id of the event the message was sent from
      * @return bool true if message marked as sent / false otherwise
+     * @throws Exception "Messages markAsSent: Error marking Message$messageID in Event$eventID as sent"
      */
     public function markAsSent($eventID ,$messageID){
 
         $result = DB::query("INSERT INTO messages$eventID (Sent) VALUES (true) WHERE ID=$messageID");
         if (!$result) {
             throw new Exception("Messages markAsSent: Error marking Message$messageID in Event$eventID as sent");
-            return false;
         }
         return true;
     }

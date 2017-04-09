@@ -1,7 +1,7 @@
 <?php
 
 require_once ("DB.php");
-// database preperation
+// database preparation
 /*
  * use utf8 for hebrew:
  set character_set_server=utf8;

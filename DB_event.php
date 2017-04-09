@@ -15,7 +15,7 @@ interface iEvent
 class Event implements iEvent
 {
 
-    public $eventID;
+    private $eventID;
     public $rsvp;
     public $messages;
     public $rawData;
@@ -23,19 +23,26 @@ class Event implements iEvent
     /**
      * __construct: create new Event object. if Event not in Events table (eventName,eventDate!=Null) add Event to Events table (do not make any change to Users Table!)
      * @param User $user : user element connected to this instance of event
-     * @param string $EventName : name of event owner/owners or name of event
-     * @param date $EventDate : date of event
-     * @param string $EventPhone : Phone to use for sending and receiving messages
-     * @param string $EventEmail : Email to use for sending and receiving Emails
-     * @return object Event
+     * @param bool|int $addEvent : choose if this constructor was called from an addEvent function (Default 0)
+     * @param string $EventName : name of event owner/owners or name of event (Default 'NULL')
+     * @param date|string $EventDate : date of event (Default 'NULL')
+     * @param string $EventTime : time the event should start (Default 'NULL')
+     * @param string $Venue : place of the event (Default 'NULL')
+     * @param string $Address : event address (Default 'NULL')
+     * @param string $EventEmail : Email to use for sending and receiving Emails (Default 'NULL')
+     * @param string $EventPhone : Phone to use for sending and receiving messages (Default 'NULL')
+     * @param string $Password : pasword from sms site (Default 'NULL')
+     * @param string $Secret : secret from sms site (Default 'NULL')
+     * @param string $DeviceID : device id from sms site (Default 'NULL')
+     * @return Event object
+     * @throws Exception "Event New : Event not inserted to Events table"
+     * @throws Exception "Event New : Couldn't construct new event"
      */
-    public function __construct(User $user, $addEvent = 0, $EventName = 'NULL', $EventDate = 'NULL', $EventID = 'NULL', $EventTime = 'NULL',
+    public function __construct(User $user, $addEvent = 0, $EventName = 'NULL', $EventDate = 'NULL', $EventTime = 'NULL',
                                 $Venue = 'NULL', $Address = 'NULL', $EventEmail = 'NULL', $EventPhone = 'NULL', $Password = 'NULL', $Secret = 'NULL', $DeviceID = 'NULL')
     {
-
         $events = $user->getEvents();
         // user exists
-
         if (!$addEvent and $events['event1'] != NULL) {
             $this->eventID = $events['event1'];
             $this->rsvp = new RSVP($this->eventID);
@@ -63,7 +70,6 @@ class Event implements iEvent
                                         ($eventName, $eventDate, $hebrewDate, $eventTime, $venue, $address, $rootID, $eventEmail, $eventPhone, $password, $secret, $deviceID)");
             if (!$result) {
                 throw new Exception("Event New : Event not inserted to Events table");
-                return false;
             }
             // set eventID if not already set.
             $this->eventID = DB::insertID();
@@ -83,6 +89,9 @@ class Event implements iEvent
      * deleteEvent: delete relevant event from events table, delete also RSVP table, Messages table and RawData table
      * @param User $user : user object related to this event
      * @return bool false = event not erased or no 'root' permission for user, true = event erased successfully
+     * @throws Exception "Event deleteEvent: couldn't delete event tables"
+     * @throws Exception "Event deleteEvent: couldn't delete event$eventID from Users table"
+     * @throws Exception "Event deleteEvent: only root user can delete event$eventID"
      */
     public function deleteEvent(User $user)
     {
@@ -102,32 +111,35 @@ class Event implements iEvent
                 $sqlRawData = $this->rawData->destruct();
                 if (!$sql or !$sqlRSVP or !$sqlMessages or !$sqlRawData) {
                     throw new Exception("Event deleteEvent: couldn't delete event tables");
-                    return false;
                 }
                 DB::query("UPDATE Users SET Event$i=NULL, Permission$i=NULL WHERE Event$i=$eventID");
                 //if event updated
                 if (DB::affectedRows() < 0) {
                     throw new Exception("Event deleteEvent: couldn't delete event$eventID from Users table");
-                    return false;
                 }
             }
             // event deleted for user, shift all events left
-            $user->shiftAllEvents();
+            $user->shiftEvents();
             return true;
         }
-
         throw new Exception("Event deleteEvent: only root user can delete event$eventID");
-        return false;
-
     }
 
+    /**
+     * changeEventID: change the event id
+     * @param int $EventID : the EventID that we would like to change to
+     * @return bool true if eventID changed / false otherwise
+     */
+    public function changeEventID($EventID) {
+        $this->eventID = $EventID;
+        return true;
+    }
 
     /**
      * getEventID:  get Event ID
      * @return int  Event ID / false if ID yet initialized
      */
-    public function getEventID()
-    {
+    public function getEventID() {
         if (isset($this->eventID)) {
             return $this->eventID;
         }
@@ -137,6 +149,7 @@ class Event implements iEvent
     /**
      * get:  get Event row for specific event
      * @return array of event[$eventID]
+     * @throws Exception "Event get: couldn't get row for event$eventID from Events table "
      */
     public function get() {
         $eventID = $this->eventID;
@@ -144,15 +157,16 @@ class Event implements iEvent
 
         if (!$result) {
             throw new Exception("Event get: couldn't get row for event$eventID from Events table ");
-            return false;
         }
 
         return $result;
     }
 
     /**
-     * makeHebrewDate:  chenge date to heberw date
+     * makeHebrewDate:  change date to Heberw date
+     * @param Date $Date : the date to be converted to hebrew date
      * @return Date hebrew date
+     * @throws Exception "Event makeHebrewDate: date template is YEAR-MONTH-DAY (XXXX-XX-XX), $Date doesn't comply with this format"
      */
     private function makeHebrewDate($Date){              // todo: Working, but gibrish and not hebrew
         // break date into an array
