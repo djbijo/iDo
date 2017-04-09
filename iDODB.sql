@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS RSVP1 (
   Email VARCHAR(50) DEFAULT NULL,
   Groups VARCHAR(50) DEFAULT NULL,
   RSVP INT(3) DEFAULT NULL,
-  Uncertin int(3) DEFAULT NULL,
+  Uncertin INT(3) DEFAULT NULL,
   Ride BOOLEAN DEFAULT FALSE
 ) DEFAULT CHARACTER SET utf8;
 
@@ -108,20 +108,22 @@ CREATE TABLE IF NOT EXISTS Messages1 (
   Message TEXT NOT NULL,
   Groups VARCHAR(100) DEFAULT NULL,
   SendDate DATE NOT NULL,
-  SendTime TIME NOT NULL
+  SendTime TIME NOT NULL,
+  EventID INT(100) NOT NULL,
+  Sent BOOLEAN DEFAULT FALSE
 ) DEFAULT CHARACTER SET utf8;
 
 DROP TABLE IF EXISTS Messages2;
 CREATE TABLE Messages2 AS SELECT * FROM Messages1;
 
 /* demo Messages */
-INSERT INTO Messages1 (ID, MessageType, Message, Groups, SendDate, SendTime) VALUES
-	(1, 'SaveTheDate', 'Come celebrate with us!', 'Friends, Family, Army', '2009-06-24', '10:10:00'  ),
-	(2, 'ThankYou', 'you are AWSOME!', 'Family', '2009-09-25', '12:00:00');
+INSERT INTO Messages1 (ID, MessageType, Message, Groups, SendDate, SendTime, EventID) VALUES
+	(1, 'SaveTheDate', 'Come celebrate with us!', 'Friends, Family, Army', '2009-06-24', '10:10:00', 1),
+	(2, 'ThankYou', 'you are AWSOME!', 'Family', '2009-09-25', '12:00:00',1);
 
-INSERT INTO Messages2 (ID, MessageType, Message, Groups, SendDate, SendTime) VALUES
-	(1, 'SaveTheDate', 'Come celebrate with us!', NULL, '2009-10-10', '05:10:00'),
-	(2, 'ThankYou', 'you are AWSOME!', NULL, '2009-09-25', '06:23:12');
+INSERT INTO Messages2 (ID, MessageType, Message, Groups, SendDate, SendTime, EventID) VALUES
+	(1, 'SaveTheDate', 'Come celebrate with us!', NULL, '2009-10-10', '05:10:00',2),
+	(2, 'ThankYou', 'you are AWSOME!', NULL, '2009-09-25', '06:23:12',2);
 
 # -----------------------------------------------------------
 /* RawData table */

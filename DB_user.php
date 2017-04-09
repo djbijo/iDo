@@ -36,7 +36,7 @@ class User implements iUser {
      * @param string $Phone : user cell phone number , DEFAULT=NULL
      * @return object user  
      */
-    public function __construct($ID, $Name = NULL, $Email = NULL, $Phone = NULL) {
+    public function __construct($ID, $Name = 'NULL', $Email = 'NULL', $Phone = 'NULL') {
 
         // user is in users table (registered to iDO)
         if ($this->checkUserID($ID)) {
@@ -66,9 +66,9 @@ class User implements iUser {
         return true;
     }
 
-    public function addEvent($EventName, $EventDate, $EventTime=NULL, $Venue=NULL, $Address=NULL, $EventEmail=NULL, $EventPhone=NULL, $Password=NULL, $Secret=NULL, $DeviceID=NULL){
+    public function addEvent($EventName, $EventDate, $EventTime='NULL', $Venue='NULL', $Address='NULL', $EventEmail='NULL', $EventPhone='NULL', $Password='NULL', $Secret='NULL', $DeviceID='NULL'){
         $id = $this->id;
-        $this->event = new Event($this,1 ,$EventName, $EventDate, $EventTime, $Venue, $Address, $EventEmail, $EventPhone, $Password, $Secret, $DeviceID);
+        $this->event = new Event($this,1 ,$EventName, $EventDate, 'NULL',$EventTime, $Venue, $Address, $EventEmail, $EventPhone, $Password, $Secret, $DeviceID);
         $result = DB::select("SELECT * FROM USERS WHERE ID=$id");
         if (!$result){
             throw new Exception("User addEvent: couldn't get user $id from users  table");
@@ -143,7 +143,7 @@ class User implements iUser {
      * @param string $Permission3 : user permission type for event3(root/edit/review)
      * @return bool false = user already in Users table / true = user added to Users table
      */
-    public function addUser($ID, $Name, $Email, $Phone = NULL, $Event1 = NULL, $Permission1 = NULL, $Event2 = NULL, $Permission2 = NULL, $Event3 = NULL, $Permission3 = NULL) {
+    public function addUser($ID, $Name, $Email, $Phone = 'NULL', $Event1 = 'NULL', $Permission1 = 'NULL', $Event2 = 'NULL', $Permission2 = 'NULL', $Event3 = 'NULL', $Permission3 = 'NULL') {
         //check if ID/Phone/Email already in Users table
         if ($this->checkUserID($ID)) {
             throw new Exception("User addUser: User already registered to iDO");
@@ -174,6 +174,8 @@ class User implements iUser {
             $this->id = DB::quote($ID);
         }
         $id = $this->id;
+
+        echo "id is: $id; name is $name; email is: $email, phone is: $phone; Phone is: $Phone; Event1 is: $Event1; Permission1 is: $permission1";
 
         //insert user to Users table
         $result = DB::query("INSERT INTO Users (ID, Name, Email, Phone, Event1, permission1, Event2, permission2, Event3, permission3) VALUES

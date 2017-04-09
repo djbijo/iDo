@@ -15,7 +15,7 @@ class DB {
 
     static function connect() {
         
-        if(self::$initialized){ return;}
+        if(self::$initialized) return;
 
         $config = array(
             "db_name" => "iDODB",
@@ -93,7 +93,7 @@ class DB {
     static function quote($value) {
         self::connect();
         if($value === NULL) return NULL;
-
+        if($value === 'NULL') return 'NULL';
         return "'" . self::$link->real_escape_string(strip_tags($value)) . "'";
     }
     

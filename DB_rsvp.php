@@ -86,7 +86,7 @@ class RSVP extends Table {
         $array = explode(',',$Groups);
         
         // if empty group
-        if ($array[0] === NULL){return false;}
+        if ($array[0] === NULL) return false;
         
         // prepare query (append while array[i] is not null)
         $i=1;

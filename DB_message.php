@@ -18,8 +18,10 @@ class Messages extends Table {
                 Message TEXT NOT NULL,
                 Groups VARCHAR(100) DEFAULT NULL,
                 SendDate DATE NOT NULL,
-                SendTime TIME NOT NULL
-              ) DEFAULT CHARACTER SET utf8");
+                SendTime TIME NOT NULL,
+                EventID INT(100) NOT NULL,
+                Sent BOOLEAN DEFAULT FALSE
+                ) DEFAULT CHARACTER SET utf8");
 
         if (!$result) {
             throw new Exception("Messages create: Error adding Messages$eventID to Database");
@@ -79,8 +81,8 @@ class Messages extends Table {
 
         $eventID = $this->eventID;
 
-        $result = DB::query("INSERT INTO messages$eventID (MessageType, Message, Groups, SendDate, SendTime) VALUES
-                    ( $messageType, $message, $groups, $SendDate, $SendTime)");
+        $result = DB::query("INSERT INTO messages$eventID (MessageType, Message, Groups, SendDate, SendTime, EventID) VALUES
+                    ( $messageType, $message, $groups, $SendDate, $SendTime, $eventID)");
         if (!$result) {
             throw new Exception("Messages add: Error adding guest $message to Messages$eventID table");
             return false;
@@ -121,6 +123,24 @@ class Messages extends Table {
         
         return $string;
     }
+
+    /**
+     * markAsSent:  mark message as sent (after sending to the sms-site)
+     *              this function is for using with the united messages table in order to update each message[$eventID] table
+     * @param int $messageID : the row id of the message to be marked as sent
+     * @param int $eventID : the id of the event the message was sent from
+     * @return bool true if message marked as sent / false otherwise
+     */
+    public function markAsSent($eventID ,$messageID){
+
+        $result = DB::query("INSERT INTO messages$eventID (Sent) VALUES (true) WHERE ID=$messageID");
+        if (!$result) {
+            throw new Exception("Messages markAsSent: Error marking Message$messageID in Event$eventID as sent");
+            return false;
+        }
+        return true;
+    }
+
 }
 
 ?>

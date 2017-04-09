@@ -29,8 +29,8 @@ class Event implements iEvent
      * @param string $EventEmail : Email to use for sending and receiving Emails
      * @return object Event
      */
-    public function __construct(User $user, $addEvent = 0, $EventName = NULL, $EventDate = NULL, $EventID = NULL, $HebrewDate = NULL, $EventTime = NULL,
-                                $Venue = NULL, $Address = NULL, $EventEmail = NULL, $EventPhone = NULL, $Password = NULL, $Secret = NULL, $DeviceID = NULL)
+    public function __construct(User $user, $addEvent = 0, $EventName = 'NULL', $EventDate = 'NULL', $EventID = 'NULL', $EventTime = 'NULL',
+                                $Venue = 'NULL', $Address = 'NULL', $EventEmail = 'NULL', $EventPhone = 'NULL', $Password = 'NULL', $Secret = 'NULL', $DeviceID = 'NULL')
     {
 
         $events = $user->getEvents();
@@ -49,7 +49,7 @@ class Event implements iEvent
             $eventName = DB::quote($EventName);
             $eventDate = DB::quote($EventDate);
             $eventEmail = DB::quote($EventEmail);
-            $hebrewDate = "09-10-1989"; //todo: $this->makeHebrewDate($EventDate);
+            $hebrewDate = DB::quote($this->makeHebrewDate($EventDate));
             $venue = DB::quote($Venue);
             $address = DB::quote($Address);
             $eventTime = DB::quote($EventTime);
@@ -150,10 +150,20 @@ class Event implements iEvent
         return $result;
     }
 
+    /**
+     * makeHebrewDate:  chenge date to heberw date
+     * @return Date hebrew date
+     */
+    private function makeHebrewDate($Date){              // todo: Working, but gibrish and not hebrew
+        // break date into an array
+        $date = explode('-',$Date);
 
-    private function makeHebrewDate($Date)              // todo: make this work
-    {
-        jdtojewish(gregoriantojd(10, 9, 1989), true, CAL_JEWISH_ADD_GERESHAYIM + CAL_JEWISH_ADD_ALAFIM + CAL_JEWISH_ADD_ALAFIM_GERESH);
+        // if empty group
+        if (!$date[0] or !$date[1] or !$date[2]) throw new Exception("Event makeHebrewDate: date template is YEAR-MONTH-DAY (XXXX-XX-XX), $Date doesn't comply with this format");
+
+        $result = jdtojewish(gregoriantojd($date[2], $date[1], $date[0]), true, CAL_JEWISH_ADD_GERESHAYIM + CAL_JEWISH_ADD_ALAFIM + CAL_JEWISH_ADD_ALAFIM_GERESH);
+
+        return $result;
     }
 
 }
