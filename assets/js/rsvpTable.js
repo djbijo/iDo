@@ -1,5 +1,5 @@
 var $table = $('#table')
-$button = $('#button');
+$removeButton = $('#RemoveButton');
 
 $(function () {
     $table.bootstrapTable({
@@ -24,7 +24,10 @@ $(function () {
                 title: 'ID',
                 visible: false,
                 switchable: false
-            },  {
+            }, {
+                field: 'check',
+                checkbox: true
+            }, {
                 field: 'Name',
                 title: 'שם',
                 editable: ezMakeEditable('text', 'שם')
@@ -46,7 +49,7 @@ $(function () {
             {
                 field: 'Invitees',
                 title: 'מוזמנים',
-                editable: ezMakeEditable('select', 'מוזמנים')
+                editable: ezMakeEditable('number', 'מוזמנים')
             },
             {
                 field: 'Surname',
@@ -66,27 +69,26 @@ $(function () {
             {
                 field: 'RSVP',
                 title: 'אישרו הגעה',
-                editable: ezMakeEditable('select', 'אישרו הגעה')
+                editable: ezMakeEditable('number', 'אישרו הגעה')
             },
             {
                 field: 'Ride',
                 title: 'הסעה',
-                checkbox: true
-                // editable: { //FIXME: need to find a way to make it simple checkbox
-                //     type: 'checklist',
-                //     value: 0,
-                //     source: [
-                //         // {value: false, text: 'אין הסעה'},
-                //         {value: 1, text: 'יש הסעה'}
-                //     ],
-                //     mode: 'inline',
-                //     url: 'post/rsvpCellUpdate.php',
-                //     dataType: "json",
-                //     success: cellUpdateSuccess,
-                //     highlight: '#8400F1',
-                //
-                //     // toggle: 'mouseenter'
-                // }
+                editable: { //FIXME: need to find a way to make it simple checkbox
+                    type: 'checklist',
+                    value: 0,
+                    source: [
+                        // {value: false, text: 'אין הסעה'},
+                        {value: 1, text: 'יש הסעה'}
+                    ],
+                    mode: 'inline',
+                    url: 'post/rsvpCellUpdate.php',
+                    dataType: "json",
+                    success: cellUpdateSuccess,
+                    highlight: '#8400F1',
+
+                    // toggle: 'mouseenter'
+                }
             },
             {
                 field: 'Uncertain',
@@ -157,49 +159,6 @@ $(function () {
     });
 })
 
-// $(function () {
-//     $button.click(function () {
-//         var randomId = 100 + ~~(Math.random() * 100);
-//         $table.bootstrapTable('insertRow', {
-//             index: 1,
-//             row: {
-//                 "id"       : 0,
-//                 "name"     : "ישראל",
-//                 "surname"  : "ישראלי",
-//                 "nick"     : "שרול",
-//                 "phone"    : "052-555",
-//                 "email"    : "israel@israeli.com",
-//                 "groups"   : "חברים",
-//                 "invitees" : 7,
-//                 "rsvp"     : 2,
-//                 "maybe"    : 1,
-//                 "ride"     : "כן"
-//             }
-//         });
-//     });
-// });
-// $.mockjax({
-//     url: '/post',
-//     responseTime: 400,
-// //        status: 200,
-//     response: function(settings) {
-// //            console.log(settings);
-//         if(settings.data.value == 'err') {
-//             this.status = 500;
-//             this.responseText = {
-//                 success: false,
-//                 msg: "not good, not good"
-//             }
-//         } else {
-//             this.responseText = {
-//                 success: true
-//             };
-//         }
-//         this.data = "something";
-//     }
-// });
-
-
 $("#addRsvpRowForm").submit(function(event){
     // cancels the form submission
     event.preventDefault();
@@ -227,7 +186,7 @@ function submitForm(){
     $.ajax({
         type        : "POST",
         url         : "post/rsvpAddRow.php",
-        data        : formData,
+        data        : {action: 'addRow', data: formData},
         dataType    : 'json', // what type of data do we expect back from the server
         encode      : true
     })
@@ -235,7 +194,7 @@ function submitForm(){
     .done(function(data) {
         // here we will handle errors and validation messages
         console.log(data);
-        if ( ! data.success) {
+        if ( data.status !== "success") {
             // handle errors for name ---------------
             if (data.errors.name) {
                 $('#name-group').addClass('has-error'); // add the error class to show red input
@@ -276,6 +235,52 @@ function submitForm(){
             console.log(data);
         });
 }
-function formSuccess(){
-    $("#addRsvpRowForm")[0].reset();
-}
+
+//handle remove button:
+$(function () {
+    $removeButton.click(function () {
+
+        var ids = $.map($table.bootstrapTable('getSelections'), function (row) {
+            return row.ID;
+        });
+        if (ids.length == 0){
+            //todo: tell the user he needs to choose somthing
+            bootbox.alert("צריך לבחור שורות למחיקה");
+            return;
+        }
+        bootbox.confirm("את/ה עומד/ת למחוק את השורות לצמיתות, האם את/ה רוצה להמשיך?",function(result){
+            if (result) {
+                $.ajax({
+                    type: "POST",
+                    url: "post/rsvpAddRow.php",
+                    data: {action: 'deleteRows', ids: ids},
+                    dataType: 'json', // what type of data do we expect back from the server
+                    encode: true,
+                    error: function(jqXHR, status){
+                        console.log(status);
+                        bootbox.alert(status);
+                    },
+                    success: (function (data) {
+                        // here we will handle errors and validation messages
+                        console.log(data);
+                        if (data.status === "success") {
+                            $table.bootstrapTable('remove',
+                                {
+                                    field: 'ID',
+                                    values: ids
+                                });
+                        }
+                        else {
+
+                        }
+                    })
+                })
+
+            }
+        });
+        $table.bootstrapTable('remove', {
+            field: 'id',
+            values: ids
+        });
+    });
+});

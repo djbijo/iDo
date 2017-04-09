@@ -43,7 +43,7 @@
                     </div>
                     <div class="form-group">
                         <label for="InputRide">הסעה</label>
-                        <input type="checkbox" class="form-control" id="InputRide" value="">
+                        <input type="number" class="form-control" id="InputRide" value="">
                     </div>
                 </div>
                     <div class="modal-footer">
@@ -59,7 +59,8 @@
 </div><!-- /.modal -->
 
 <div id="toolbar">
-    <button id="button" class="btn btn-default" data-toggle="modal" data-target="#addRowModal">הוסף רשומה</button>
+    <button id="addRowButton" class="btn btn-default" data-toggle="modal" data-target="#addRowModal">הוסף רשומה</button>
+    <button id="RemoveButton" class="btn btn-default">remove</button>
     <!--<select class="form-control">-->
         <!--<option value="">Export Basic</option>-->
         <!--<option value="all">Export All</option>-->
@@ -67,36 +68,6 @@
     <!--</select>-->
 </div>
 
-<table id="table">
-    <!--data-toggle="table"-->
-    <!--data-show-export="true"-->
-    <!--data-pagination="true"-->
-    <!--data-show-export="true"-->
-    <!--data-search="true"-->
-    <!--data-toolbar="#toolbar"-->
-    <!--data-mobile-responsive="true"-->
-    <!--data-show-columns="true"-->
-    <!--data-show-pagination-switch="true"-->
-    <!--data-show-refresh="true"-->
-    <!--data-key-events="true"-->
-    <!--data-cookie="true"-->
-    <!--data-cookie-id-table="saveId"-->
-    <!--data-url="json/rsvp.json">-->
-    <!--<thead>-->
-    <!--<tr>-->
-        <!--<th data-field="id">מס"ד</th>-->
-        <!--<th data-field="name"       id="name">שם פרטי</th>-->
-        <!--<th data-field="surname"    data-editable="true">שם משפחה</th>-->
-        <!--<th data-field="nick"       data-editable="true">כינוי</th>-->
-        <!--<th data-field="phone"      data-editable="true">טלפון</th>-->
-        <!--<th data-field="email"      data-editable="true">מייל</th>-->
-        <!--<th data-field="groups"     data-editable="true" data-sortable="true">קבוצות</th>-->
-        <!--<th data-field="invitees"   data-editable="true" data-sortable="true">מוזמנים</th>-->
-        <!--<th data-field="rsvp"       data-editable="true" data-sortable="true">אישרו הגעה</th>-->
-        <!--<th data-field="maybe"      data-editable="true">מתלבטים</th>-->
-        <!--<th data-field="ride"       data-editable="true">הסעה</th>-->
-        <!--<th data-field="del"         >מחק</th>-->
-    <!--</tr>-->
-    <!--</thead>-->
-</table>
+<table id="table"></table>
+
 <script src="assets/js/rsvpTable.js"></script>

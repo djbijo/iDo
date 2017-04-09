@@ -4,21 +4,38 @@ require_once ("../DB_user.php");
 
 $errors         = array();      // array to hold validation errors
 $response           = array();      // array to pass back data
-$response['success'] = true;
-$name     = $_POST['Name'];
-$surname  = $_POST['Surname'];
-$nickname = $_POST['NickName'];
-$invitees = $_POST['Invitees'];
-$phone    = $_POST['Phone'];
-$email    = $_POST['Email'];
-$groups   = $_POST['Groups'];
-$rsvp     = $_POST['Rsvp'];
-$ride     = $_POST['Ride'];
+$response['status'] = "error";
 
-$response;
-if (empty($name)) {
-    $errors["name"] = "name field shouldn't be empty";
+$action = isset($_POST['action']) ? $_POST['action'] : "error";
+switch ($action){
+    case 'addRow':
+        $name     = $_POST['data']['Name'];
+        $surname  = $_POST['data']['Surname'];
+        $nickname = $_POST['data']['NickName'];
+        $invitees = $_POST['data']['Invitees'];
+        $phone    = $_POST['data']['Phone'];
+        $email    = $_POST['data']['Email'];
+        $groups   = $_POST['data']['Groups'];
+        $rsvp     = $_POST['data']['Rsvp'];
+        $ride     = $_POST['data']['Ride'];
+        if (empty($name)) {
+            $errors["name"] = "name field shouldn't be empty";
+        }
+        break;
+    case 'deleteRows' :
+        if (empty($_POST['ids'])){
+            $errors["ids"] = "לא נבחרו שורות למחיקה";
+            break;
+        }
+        $ids      = $_POST['ids'];
+        break;
+    default:
+        $errors["action"] = "no action was set";
 }
+//echo json_encode($response);
+//return;
+
+
 //if (!isset ($_SESSION['event'])){
 //    $errors['event'] = "לא נבחר אירוע עדיין";
 //}
@@ -29,13 +46,31 @@ if (empty($errors)) {
         $event = new Event($user, NULL, NULL,$_SESSION['eventId']);
         if ($event !== null) {
             $rsvp = $event->rsvp;
-            $createdRow =  $rsvp->add($name, $surname, $invitees);
-            if (!empty($createdRow)) {
-                $response["sqlData"] = $createdRow;
-                $response['success'] = true;
-            } else {
-                throw new ErrorException("add row to rsvp doesn't work");
+            switch ($action) {
+                case 'addRow':
+                    $success = $rsvp->add($name, $surname, $invitees);
+                    break;
+                case 'deleteRows':
+                    foreach ($ids as &$id){
+                        if (!$rsvp->delete($id)){
+                            $success = false;
+                            $errors['remove'] = "המחיקה נכשלה";
+                            break;
+                        }
+                    }
+                    break;
+                default:
+                    $errors["action"] = "no action was set";
+                    $success = false;
             }
+            if ($success) {
+                $response['status'] = "success";
+            } else {
+//                throw new ErrorException("add row to rsvp doesn't work");
+                $errors['addRow'] = "הפעולה נכשלה";
+            }
+        } else {
+            $errors['event'] = "event don't exist";
         }
     } else {
         $errors['usr'] = "user not defined";
@@ -43,6 +78,6 @@ if (empty($errors)) {
 }
 if (!empty($errors)){
     $response['errors'] = $errors;
-    $response['success'] = false;
+    $response['status'] = 'error';
 }
 echo json_encode($response);
