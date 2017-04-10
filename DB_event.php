@@ -168,6 +168,7 @@ class Event implements iEvent
      * @return String hebrew date
      * @throws Exception "Event makeHebrewDate: date template is YEAR-MONTH-DAY (XXXX-XX-XX), $Date doesn't comply with this format"
      */
+    //FIXME: doesn't work well, the returned event row can't be converted with json_encode (have to edit the sql for it to work)
     private function makeHebrewDate($Date){              // todo: Working, but gibrish and not hebrew
         // break date into an array
         $date = explode('-',$Date);
