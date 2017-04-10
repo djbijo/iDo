@@ -10,6 +10,9 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
             break;
         case "#home":
             break;
+        case "#event-Settings":
+            $(target).load("Views/EventSettings.html");
+            break;
         default:
             $("#error_modal").modal();
     }

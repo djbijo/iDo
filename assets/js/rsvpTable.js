@@ -82,6 +82,12 @@ $(function () {
                 editable: ezMakeEditable('number', 'אישרו הגעה')
             },
             {
+                field: 'Uncertain',
+                title: 'מתלבטים',
+                sortable: true,
+                editable: ezMakeEditable('text', 'מתלבטים')
+            },
+            {
                 field: 'Ride',
                 title: 'הסעה',
                 sortable: true,
@@ -100,12 +106,6 @@ $(function () {
 
                     // toggle: 'mouseenter'
                 }
-            },
-            {
-                field: 'Uncertain',
-                title: 'מתלבטים',
-                sortable: true,
-                editable: ezMakeEditable('text', 'מתלבטים')
             }
             ]
     })
@@ -127,7 +127,8 @@ function cellUpdateSuccess(response, newValue){
 function ezMakeEditable(type, title){
     return {
         type: type,
-        url: 'post/rsvpCellUpdate.php',
+        url: 'post/rsvpHandler.php',
+        params: {action: 'cellUpdate'},
         title: title,
         dataType: "json",
         success: cellUpdateSuccess,
@@ -140,16 +141,16 @@ var loadRsvpTableData = function () {
         return;
    $.ajax({
        type        : "POST",
-       url         : "post/rsvpGet.php",
-       data        : {},
-       contentType: "application/json; charset=utf-8",
+       url         : "post/rsvpHandler.php",
+       data        : {action: 'getTable'},
+       // contentType: "application/json; charset=utf-8",
        dataType    : 'json', // what type of data do we expect back from the server
        encode      : true
    })
    .done(function(data) {
        // here we will handle errors and validation messages
        console.log(data);
-       if ( ! data.success) {
+       if (data.status !== 'success') {
            document.getElementById("errMsg").innerHTML = data.error;
            $("#error_modal").modal();
        }
@@ -207,7 +208,7 @@ function submitForm(){
 
     $.ajax({
         type        : "POST",
-        url         : "post/rsvpAddRow.php",
+        url         : "post/rsvpHandler.php",
         data        : {action: 'addRow', data: formData},
         dataType    : 'json', // what type of data do we expect back from the server
         encode      : true
@@ -218,13 +219,17 @@ function submitForm(){
         console.log(data);
         if ( data.status !== "success") {
             // handle errors for name ---------------
-            if (data.errors.name) {
+            if (data.errors.Name) {
                 $('#name-group').addClass('has-error'); // add the error class to show red input
-                $('#name-group').append('<div class="help-block">' + data.errors.name + '</div>'); // add the actual error message under our input
+                $('#name-group').append('<div class="help-block">' + data.errors.Name + '</div>'); // add the actual error message under our input
             }
-            if (data.errors.usr) {
-                $('#addRsvpRowForm').addClass('has-error'); // add the error class to show red input
-                $('#addRsvpRowForm').append('<div class="help-block">' + data.errors.usr + '</div>'); // add the actual error message under our input
+            if (data.errors.Surname) {
+                $('#surname-group').addClass('has-error'); // add the error class to show red input
+                $('#surname-group').append('<div class="help-block">' + data.errors.Surname + '</div>'); // add the actual error message under our input
+            }
+            if (data.errors.Invitees) {
+                $('#invitees-group').addClass('has-error'); // add the error class to show red input
+                $('#invitees-group').append('<div class="help-block">' + data.errors.Invitees + '</div>'); // add the actual error message under our input
             }
             // handle errors for email ---------------
             // if (data.errors.phone) {
@@ -243,6 +248,7 @@ function submitForm(){
             //TODO: let the user not he succeded
             $("#addRsvpRowForm")[0].reset();
             $("#addRowModal").modal('toggle');
+            formData.ID = data.ID;
             $rsvpTable.bootstrapTable('append', formData);
             // usually after form submission, you'll want to redirect
             // window.location = '/thank-you'; // redirect a user to another page
@@ -274,7 +280,7 @@ $(function () {
             if (result) {
                 $.ajax({
                     type: "POST",
-                    url: "post/rsvpAddRow.php",
+                    url: "post/rsvpHandler.php",
                     data: {action: 'deleteRows', ids: ids},
                     dataType: 'json', // what type of data do we expect back from the server
                     encode: true,
@@ -294,20 +300,16 @@ $(function () {
                                 });
                         }
                         else {
-
+                            //TODO: error
                         }
                     })
                 })
 
             }
         });
-        $rsvpTable.bootstrapTable('remove', {
-            field: 'id',
-            values: ids
-        });
+        // $rsvpTable.bootstrapTable('remove', {
+        //     field: 'id',
+        //     values: ids
+        // });
     });
-});
-
-$($refreshButton).on('click', function(){
-
 });
