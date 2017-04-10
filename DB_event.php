@@ -29,7 +29,8 @@ class Event implements iEvent
 
     /**
      * __construct: create new Event object. if Event not in Events table (eventName,eventDate!=Null) add Event to Events table (do not make any change to Users Table!)
-     * @param User $user : user element connected to this instance of event
+     * @param string $UserID : the id of the user creating this event
+     * @param int $EventID : Id of event (if event already created - use getEvents)
      * @param bool|int $addEvent : choose if this constructor was called from an addEvent function (Default 0)
      * @param string $EventName : name of event owner/owners or name of event (Default 'NULL')
      * @param date|string $EventDate : date of event (Default 'NULL')
@@ -41,17 +42,19 @@ class Event implements iEvent
      * @param string $Password : pasword from sms site (Default 'NULL')
      * @param string $Secret : secret from sms site (Default 'NULL')
      * @param string $DeviceID : device id from sms site (Default 'NULL')
-     * @return Event object
-     * @throws Exception "Event New : Event not inserted to Events table"
      * @throws Exception "Event New : Couldn't construct new event"
+     * @throws Exception "Event New : this function requires EventID and UserID if not called throw user->addEvent"
      */
-    public function __construct(User $user, $addEvent = 0, $EventName = 'NULL', $EventDate = 'NULL', $EventTime = 'NULL',
-                                $Venue = 'NULL', $Address = 'NULL', $EventEmail = 'NULL', $EventPhone = 'NULL', $Password = 'NULL', $Secret = 'NULL', $DeviceID = 'NULL')
+    public function __construct($UserID, $EventID = NULL ,$addEvent = 0, $EventName = 'NULL', $EventDate = 'NULL', $EventTime = 'NULL', $Venue = 'NULL',
+                                $Address = 'NULL', $EventEmail = 'NULL', $EventPhone = 'NULL', $Password = 'NULL', $Secret = 'NULL', $DeviceID = 'NULL')
     {
-        $events = $user->getEvents();
+        if ((!$addEvent and $EventID===NULL) or !$UserID){
+            throw new Exception("Event New : this function requires EventID and UserID if not called throw user->addEvent");
+        }
+
         // user exists
-        if (!$addEvent and $events['event1'] != NULL) {
-            $this->eventID = $events['event1'];
+        if (!$addEvent and $EventID !== NULL) {
+            $this->eventID = $EventID;
             $this->rsvp = new RSVP($this->eventID);
             $this->messages = new Messages($this->eventID);
             $this->rawData = new RawData($this->eventID);
@@ -59,7 +62,7 @@ class Event implements iEvent
         elseif (($EventName and $EventDate) or $addEvent) {
             // initiate Database with user Database
             // Make strings query safe
-            $rootID = $user->getID();
+            $userID = DB::quote($UserID);
             $eventName = DB::quote($EventName);
             $eventDate = DB::quote($EventDate);
             $eventEmail = DB::quote($EventEmail);
@@ -74,7 +77,7 @@ class Event implements iEvent
 
             // Add new event to Events table
             $result = DB::query("INSERT INTO Events (EventName, EventDate, HebrewDate, EventTime, Venue, Address, RootID, Email, Phone, Password, Secret, DeviceID) VALUES
-                                        ($eventName, $eventDate, $hebrewDate, $eventTime, $venue, $address, $rootID, $eventEmail, $eventPhone, $password, $secret, $deviceID)");
+                                        ($eventName, $eventDate, $hebrewDate, $eventTime, $venue, $address, $UserID, $eventEmail, $eventPhone, $password, $secret, $deviceID)");
             if (!$result) {
                 throw new Exception("Event New : Event not inserted to Events table");
             }

@@ -197,8 +197,6 @@ class User implements iUser
         }
         $id = $this->id;
 
-        echo "id is: $id; name is $name; email is: $email, phone is: $phone; Phone is: $Phone; Event1 is: $Event1; Permission1 is: $permission1";
-
         //insert user to Users table
         $result = DB::query("INSERT INTO Users (ID, Name, Email, Phone, Event1, permission1, Event2, permission2, Event3, permission3) VALUES
 			($id, $name, $email, $phone, $Event1, $permission1, $Event2, $permission2, $Event3, $permission3)");
@@ -347,7 +345,7 @@ class User implements iUser
     public function addEvent($EventName, $EventDate, $EventTime = 'NULL', $Venue = 'NULL', $Address = 'NULL', $EventEmail = 'NULL', $EventPhone = 'NULL', $Password = 'NULL', $Secret = 'NULL', $DeviceID = 'NULL')
     {
         $id = $this->id;
-        $this->event = new Event($this, 1, $EventName, $EventDate, 'NULL', $EventTime, $Venue, $Address, $EventEmail, $EventPhone, $Password, $Secret, $DeviceID);
+        $this->event = new Event($id, NULL,1, $EventName, $EventDate, 'NULL', $EventTime, $Venue, $Address, $EventEmail, $EventPhone, $Password, $Secret, $DeviceID);
         $result = DB::select("SELECT * FROM USERS WHERE ID=$id");
         if (!$result) {
             throw new Exception("User addEvent: couldn't get user $id from users table");
