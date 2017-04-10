@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once ("../DB_user.php");
+require_once("../common.php");
 
 $errors         = array();      // array to hold validation errors
 $response           = array();      // array to pass back data
@@ -46,14 +47,14 @@ if (empty($errors)) {
         $event = new Event($user, NULL, NULL,$_SESSION['eventId']);
         if ($event !== null) {
             $rsvp = $event->rsvp;
+            $success = false;
             switch ($action) {
                 case 'addRow':
                     $success = $rsvp->add($name, $surname, $invitees);
                     break;
                 case 'deleteRows':
                     foreach ($ids as &$id){
-                        if (!$rsvp->delete($id)){
-                            $success = false;
+                        if (!($success = $rsvp->delete($id))){
                             $errors['remove'] = "המחיקה נכשלה";
                             break;
                         }

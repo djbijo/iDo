@@ -1,11 +1,13 @@
 var auth2; // The Sign-In object.
 var googleUser; // The current user.
+var isSignedIn;
 
 /**
  * Calls startAuth after Sign in V2 finishes setting up.
  */
 var appStart = function() {
-  gapi.load('auth2', initSigninV2);
+    isSignedIn = false;
+    gapi.load('auth2', initSigninV2);
 };
 
 /**
@@ -47,6 +49,8 @@ var initSigninV2 = function() {
  */
 var signinChanged = function (val) {
   console.log('Signin state changed to ', val);
+  isSignedIn = val;
+  if (val) $(document).triggerHandler("signedIn");
 
   //document.getElementById('signed-in-cell').innerText = val;
 };

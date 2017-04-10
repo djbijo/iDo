@@ -1,8 +1,10 @@
-var $table = $('#table')
-$removeButton = $('#RemoveButton');
+var $rsvpTable = $('#table')
+$removeButton = $('#RemoveButton')
+$refreshButton = $('#RefreshButton')
+$rsvpTableLoaded = false;
 
 $(function () {
-    $table.bootstrapTable({
+    $rsvpTable.bootstrapTable({
         // url: 'post/rsvpGet.php',
         toolbar: '#toolbar',
         idField: 'ID',
@@ -12,6 +14,11 @@ $(function () {
         showToggle: true,
         search: true,
         striped: true,
+        showRefresh: true,
+        onRefresh: function () {
+            $rsvpTableLoaded = false;
+            loadRsvpTableData();
+        },
         columns: [
             {
                 formatter: function(value, row, index) {
@@ -30,50 +37,54 @@ $(function () {
             }, {
                 field: 'Name',
                 title: 'שם',
+                sortable: true,
                 editable: ezMakeEditable('text', 'שם')
             }, {
                 field: 'Surname',
                 title: 'שם משפחה',
+                sortable: true,
                 editable: ezMakeEditable('text', 'שם משפחה')
             },
             {
                 field: 'Email',
                 title: 'email',
+                sortable: true,
                 editable: ezMakeEditable('email', 'email')
             },
             {
                 field: 'Groups',
                 title: 'קבוצות',
+                sortable: true,
                 editable: ezMakeEditable('checklist', 'קבוצות')
             },
             {
                 field: 'Invitees',
                 title: 'מוזמנים',
+                sortable: true,
                 editable: ezMakeEditable('number', 'מוזמנים')
-            },
-            {
-                field: 'Surname',
-                title: 'שם משפחה',
-                editable: ezMakeEditable('text', 'שם משפחה')
             },
             {
                 field: 'Nickname',
                 title: 'כינוי',
+                sortable: true,
                 editable: ezMakeEditable('text', 'כינוי')
             },
             {
                 field: 'Phone',
                 title: 'טלפון',
+                sortable: true,
                 editable: ezMakeEditable('tel', 'טלפון')
             },
             {
                 field: 'RSVP',
                 title: 'אישרו הגעה',
+                sortable: true,
                 editable: ezMakeEditable('number', 'אישרו הגעה')
             },
             {
                 field: 'Ride',
                 title: 'הסעה',
+                sortable: true,
                 editable: { //FIXME: need to find a way to make it simple checkbox
                     type: 'checklist',
                     value: 0,
@@ -93,6 +104,7 @@ $(function () {
             {
                 field: 'Uncertain',
                 title: 'מתלבטים',
+                sortable: true,
                 editable: ezMakeEditable('text', 'מתלבטים')
             }
             ]
@@ -123,37 +135,47 @@ function ezMakeEditable(type, title){
         // toggle: 'mouseenter'
     }
 }
-   $(function () {
-       $.ajax({
-           type        : "POST",
-           url         : "post/rsvpGet.php",
-           data        : {},
-           contentType: "application/json; charset=utf-8",
-           dataType    : 'json', // what type of data do we expect back from the server
-           encode      : true
-       })
-       .done(function(data) {
-           // here we will handle errors and validation messages
-           console.log(data);
-           if ( ! data.success) {
-               document.getElementById("errMsg").innerHTML = data.error;
-               $("#error_modal").modal();
-           }
-           else {
-               console.log("got table data success");
-               $table.bootstrapTable('load', (data.table));
-           }
-       })
-       .fail(function(data) {
-           // log data to the console so we can see
-           document.getElementById("errMsg").innerHTML = data.responseText;
+var loadRsvpTableData = function () {
+    if (!isSignedIn || $rsvpTableLoaded)
+        return;
+   $.ajax({
+       type        : "POST",
+       url         : "post/rsvpGet.php",
+       data        : {},
+       contentType: "application/json; charset=utf-8",
+       dataType    : 'json', // what type of data do we expect back from the server
+       encode      : true
+   })
+   .done(function(data) {
+       // here we will handle errors and validation messages
+       console.log(data);
+       if ( ! data.success) {
+           document.getElementById("errMsg").innerHTML = data.error;
            $("#error_modal").modal();
-           console.log(data);
-       });
+       }
+       else {
+           console.log("got table data success");
+           $rsvpTable.bootstrapTable('load', (data.table));
+           rsvpTableLoaded = true;
+           $rsvpTable.bootstrapTable('hideLoading');
+       }
+   })
+   .fail(function(data) {
+       // log data to the console so we can see
+       document.getElementById("errMsg").innerHTML = data.responseText;
+       $("#error_modal").modal();
+       console.log(data);
    });
+};
+$(document).on("signedIn", loadRsvpTableData);
+$(function(){
+    $rsvpTable.bootstrapTable('showLoading');
+    loadRsvpTableData();
+});
+
 $(function () {
     $('#toolbar').find('select').change(function () {
-        $table.bootstrapTable('destroy').bootstrapTable({
+        $rsvpTable.bootstrapTable('destroy').bootstrapTable({
             exportDataType: $(this).val()
         });
     });
@@ -221,7 +243,7 @@ function submitForm(){
             //TODO: let the user not he succeded
             $("#addRsvpRowForm")[0].reset();
             $("#addRowModal").modal('toggle');
-            $table.bootstrapTable('append', formData);
+            $rsvpTable.bootstrapTable('append', formData);
             // usually after form submission, you'll want to redirect
             // window.location = '/thank-you'; // redirect a user to another page
             // alert('success'); // for now we'll just alert the user
@@ -240,7 +262,7 @@ function submitForm(){
 $(function () {
     $removeButton.click(function () {
 
-        var ids = $.map($table.bootstrapTable('getSelections'), function (row) {
+        var ids = $.map($rsvpTable.bootstrapTable('getSelections'), function (row) {
             return row.ID;
         });
         if (ids.length == 0){
@@ -258,13 +280,14 @@ $(function () {
                     encode: true,
                     error: function(jqXHR, status){
                         console.log(status);
-                        bootbox.alert(status);
+                        console.log(jqXHR);
+                        bootbox.alert(jqXHR.responseText);
                     },
                     success: (function (data) {
                         // here we will handle errors and validation messages
                         console.log(data);
                         if (data.status === "success") {
-                            $table.bootstrapTable('remove',
+                            $rsvpTable.bootstrapTable('remove',
                                 {
                                     field: 'ID',
                                     values: ids
@@ -278,9 +301,13 @@ $(function () {
 
             }
         });
-        $table.bootstrapTable('remove', {
+        $rsvpTable.bootstrapTable('remove', {
             field: 'id',
             values: ids
         });
     });
+});
+
+$($refreshButton).on('click', function(){
+
 });

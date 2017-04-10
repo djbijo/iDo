@@ -19,9 +19,24 @@ $sanitized = filter_var($str, FILTER_SANITIZE_NUMBER_INT);
 }
 
 function validatePhone($phone){
-    $regexp = "/05([-]*\d){8}|(\+972(-*5)(-*\d){8})/";
+    $regexp = '/05([-]*\d){8}|(\+972(-*5)(-*\d){8})/';
     return filter_var($phone, FILTER_VALIDATE_REGEXP,
         array("options"=>array("regexp"=>$regexp)));
+}
+
+/**
+ * @return Event|null
+ */
+function postGetEvent(){
+    if (isset($_SESSION['userId']) and isset($_SESSION['eventId'])) {
+        try {
+            $user = new User($_SESSION['userId']);
+        } catch (Exception $e){
+            return null;
+        }
+        return  new Event($user, NULL, NULL, $_SESSION['eventId']);
+    }
+    return null;
 }
 
 /**
@@ -29,7 +44,7 @@ function validatePhone($phone){
  * @return bool true if table created / false otherwise
  */
 
-public function getMessageUnion(){
+function getMessageUnion(){
 
     // get events id's
     $IDs = DB::select("SELECT * FROM Events");
@@ -58,4 +73,3 @@ public function getMessageUnion(){
 
 
 
-?>

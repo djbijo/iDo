@@ -155,17 +155,17 @@ class Event implements iEvent
         $eventID = $this->eventID;
         $result = DB::select("SELECT * FROM Events WHERE ID=$eventID ");
 
-        if (!$result) {
+        if (empty($result[0])) {
             throw new Exception("Event get: couldn't get row for event$eventID from Events table ");
         }
 
-        return $result;
+        return $result[0];
     }
 
     /**
      * makeHebrewDate:  change date to Heberw date
      * @param Date $Date : the date to be converted to hebrew date
-     * @return Date hebrew date
+     * @return String hebrew date
      * @throws Exception "Event makeHebrewDate: date template is YEAR-MONTH-DAY (XXXX-XX-XX), $Date doesn't comply with this format"
      */
     private function makeHebrewDate($Date){              // todo: Working, but gibrish and not hebrew
