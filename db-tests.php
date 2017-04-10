@@ -16,10 +16,11 @@
         $EventName = 'Oria@Chen';
         $EventDate = '2018-08-12';
         $EventPhone = '050-1111111';
-        $user = new User($ID, $Name, $Email, $Phone, $EventName, $EventDate, $EventPhone);
+//        $user = new User($ID, $Name, $Email, $Phone, $EventName, $EventDate, $EventPhone);
 
         //echo $result['permission2'];
-        
+        echo Event::makeHebrewDate($EventDate);
+
         ?>
     </body>
 </html>

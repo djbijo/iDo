@@ -61,7 +61,7 @@ if ($payload) {
         }
     }
     //FIXME: just for testing
-    $user->selectEvent(4);
+//    $user->selectEvent(4);
 
     if ($user->event === null){
         var_dump ($user->getEvents());

@@ -203,7 +203,7 @@ class Event implements iEvent
      * @throws Exception "Event makeHebrewDate: date template is YEAR-MONTH-DAY (XXXX-XX-XX), $Date doesn't comply with this format"
      */
     //FIXME: doesn't work well, the returned event row can't be converted with json_encode (have to edit the sql for it to work)
-    private function makeHebrewDate($Date){              // todo: Working, but gibrish and not hebrew
+    public static function makeHebrewDate($Date){              // todo: Working, but gibrish and not hebrew
         // break date into an array
         $date = explode('-',$Date);
 
@@ -219,7 +219,6 @@ class Event implements iEvent
             echo $e->getMessage();
         }
         if (!$hebDate) throw new Exception("couldn't get hebrew date");
-//        $result = jdtojewish(gregoriantojd($date[2], $date[1], $date[0]), true, CAL_JEWISH_ADD_GERESHAYIM + CAL_JEWISH_ADD_ALAFIM + CAL_JEWISH_ADD_ALAFIM_GERESH);
 
         return $hebDate;
     }

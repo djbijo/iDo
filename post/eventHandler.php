@@ -8,10 +8,11 @@ $response           = array();      // array to pass back data
 $response['status'] = "error";
 
 $action = isset($_POST['action']) ? $_POST['action'] : "error";
+if (!isset($_SESSION['eventId'])) return; //todo: error
 switch ($action){
     case 'getEvents' : break;
     case 'getEventData' :
-        $event = postGetEvent();
+        $event = new Event($_SESSION['userId'], $_SESSION['eventId']);
         if ($event !== null){
             try {
                 $response['event'] = $event->get();
