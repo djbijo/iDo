@@ -9,7 +9,14 @@ interface iEvent
 
     public function deleteEvent(User $user);
 
+    public function switchEvent($EventID);
+
     public function getEventID();
+
+    public function get();
+
+    public function update($colName, $id, $value);
+
 }
 
 class Event implements iEvent
@@ -126,11 +133,11 @@ class Event implements iEvent
     }
 
     /**
-     * changeEventID: change the event id
+     * switchEvent: change the event id
      * @param int $EventID : the EventID that we would like to change to
      * @return bool true if eventID changed / false otherwise
      */
-    public function changeEventID($EventID) {
+    public function switchEvent($EventID) {
         $this->eventID = $EventID;
         return true;
     }
@@ -161,6 +168,30 @@ class Event implements iEvent
 
         return $result[0];
     }
+
+    /**
+     * update:  update event in Events table in database
+     * @param string $colName : column which value should be updated in
+     * @param string $id : id of row to be updated
+     * @param $Value : value to be inserted to the colName column
+     * @return bool true if table updated / false if table not updated
+     * @throws Exception "Table $tableType updateTable: couldn't update table ".$tableType.$eventID." with $colName = $value for row $id"
+     */
+    public function update($colName, $id, $Value){
+        // handel data
+        $value = DB::quote($Value);
+        $eventID = $this->eventID;
+
+        // generate mysql command
+        DB::query("UPDATE Events SET $colName = $value WHERE id = $eventID");
+
+        if (DB::affectedRows() < 0) {
+            throw new Exception("Event update: couldn't update Events table with $colName = $value for Event$eventID");
+        }
+        return true;
+    }
+
+    /* ---------- Private Functions ---------- */
 
     /**
      * makeHebrewDate:  change date to Heberw date
