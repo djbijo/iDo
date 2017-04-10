@@ -175,10 +175,19 @@ class Event implements iEvent
 
         // if empty group
         if (!$date[0] or !$date[1] or !$date[2]) throw new Exception("Event makeHebrewDate: date template is YEAR-MONTH-DAY (XXXX-XX-XX), $Date doesn't comply with this format");
+        $response = file_get_contents("http://www.hebcal.com/converter/?cfg=json&gy=$date[0]&gm=$date[1]&gd=$date[2]&g2h=1");
+//        echo $response;
+        $response = json_decode($response, true);
+        try {
+            $hebDate = $response['hebrew'];
+        } catch (Exception $e) {
+            var_dump($response);
+            echo $e->getMessage();
+        }
+        if (!$hebDate) throw new Exception("couldn't get hebrew date");
+//        $result = jdtojewish(gregoriantojd($date[2], $date[1], $date[0]), true, CAL_JEWISH_ADD_GERESHAYIM + CAL_JEWISH_ADD_ALAFIM + CAL_JEWISH_ADD_ALAFIM_GERESH);
 
-        $result = jdtojewish(gregoriantojd($date[2], $date[1], $date[0]), true, CAL_JEWISH_ADD_GERESHAYIM + CAL_JEWISH_ADD_ALAFIM + CAL_JEWISH_ADD_ALAFIM_GERESH);
-
-        return $result;
+        return $hebDate;
     }
 
 }

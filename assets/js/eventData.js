@@ -27,3 +27,23 @@ var loadEventData = function (data) {
 };
 $(document).on("signedIn", getEventData);
 
+var createNewEvent = function (eventData) {
+    $.ajax({
+        type        : "POST",
+        url         : "post/eventHandler.php",
+        data        : {action: 'create'},
+        // contentType: "application/json; charset=utf-8",
+        dataType    : 'json', // what type of data do we expect back from the server
+        encode      : true,
+        success     : function () {
+            bootbox.alert("הצלחתי ליצור אירוע");
+        },
+        error       : function(jqXHR, status){
+            console.log(status);
+            console.log(jqXHR);
+            bootbox.alert(jqXHR.responseText);
+        }
+    })
+}
+
+// $("#addEvent").on('click', createNewEvent(null));

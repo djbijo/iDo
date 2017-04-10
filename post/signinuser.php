@@ -60,6 +60,8 @@ if ($payload) {
             throw new ErrorException("clouldn't create event");
         }
     }
+    //FIXME: just for testing
+    $user->selectEvent(4);
 
     if ($user->event === null){
         var_dump ($user->getEvents());
