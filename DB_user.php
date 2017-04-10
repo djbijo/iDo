@@ -61,7 +61,7 @@ class User implements iUser
             if ($events['event1'] === NULL) {
                 return;
             }
-            $this->event = new Event($this);
+            $this->event = new Event($this->id, $events['event1']);
             return;
         }
 
