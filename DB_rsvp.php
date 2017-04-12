@@ -187,26 +187,53 @@ class RSVP extends Table {
     /**
      * importPartExcel:  import RSVP table from excel file (deleting previous rsvp table)
      * @param $excel : excel file
-     * @return bool true if excel imported / false if excel not imported
+     * @return int number of errors accuring due to Phone/Email validation
+     * @throws Exception "שגיאה: טעינת המידע לשרתינו נחלה כשלון קולוסלי"
      */
     public function importPartExcel($excel) {
         // open excel file
         $file = fopen($excel, "r");
         $count = 0;
+        $errors = 0;
         $eventID = $this->eventID;
 
         // insert data to relevant rsvp table
         while (($empData = fgetcsv($file, 10000, ",")) !== false) {
             $count++;
             if ($count > 1) {  // discard title
+
+                $name = DB::quote($empData[0]);
+                $surName = DB::quote($empData[1]);
+                $nickName = DB::quote($empData[2]);
+                $invitees = (int)$empData[3];
+                $phone = DB::quote($empData[4]);
+                $email = DB::quote($empData[5]);
+                $group = DB::quote($empData[6]);
+                $rsvp = (int)$empData[7];
+                $uncertin = (int)$empData[8];
+                $ride =(int)$empData[9];
+
+                // validate phone/email
+                if (!validatePhone($phone) or !validateEmail($email)){
+                    $errors++;
+                    continue;
+                }
+
+                // validate phone/email are not already in rsvp list
+                $sql = DB::query("SELECT * FROM rsvp$eventID WHERE Phone=$phone OR Email=$email");
+                if ($sql){
+                    $errors++;
+                    continue;
+                }
+
                 $result = DB::query("INSERT INTO rsvp$eventID (Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Uncertin, Ride) VALUES
-                            ('$empData[0]','$empData[1]','$empData[2]','$empData[3]','$empData[4]','$empData[5]','$empData[6]','$empData[7]','$empData[8]','$empData[9]')");
+                            ($name, $surName, $nickName, $invitees, $phone, $email, $group, $rsvp, $uncertin, $ride)");
                 if (!$result) {
                     throw new Exception("שגיאה: טעינת המידע לשרתינו נחלה כשלון קולוסלי");
                 }
             }
         }
-        return true;
+        return $errors;
     }
 }
 
