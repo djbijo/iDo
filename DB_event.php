@@ -243,7 +243,7 @@ class Event implements iEvent
             throw new Exception("שגיאה: האירוע המבוקש לא נמצא במאגרי האתר.");
         }
 
-        return $result[0]['permission1'];
+        return $result[0]['Permission1'];
     }
 
     /* ---------- Private Functions ---------- */
