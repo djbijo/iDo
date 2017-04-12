@@ -173,11 +173,17 @@ class Event implements iEvent
      */
     public function get() {
         $eventID = $this->eventID;
-        $result = DB::select("SELECT * FROM Events WHERE ID=$eventID ");
+
+        // Get the data into a temp table, remove column RootID
+        DB::query("DROP TABLE IF EXISTS TempTable; CREATE TABLE TempTable AS SELECT * FROM Events; ALTER TABLE TempTable DROP COLUMN RootID;");
+        // get Event row from Events table (using TempTable)
+        $result = DB::select("SELECT * FROM TempTable WHERE ID=$eventID ");
 
         if (empty($result[0])) {
             throw new Exception("Event get: couldn't get row for event$eventID from Events table ");
         }
+
+        DB::query("DROP TABLE TempTable");
 
         return $result[0];
     }
