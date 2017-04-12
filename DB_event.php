@@ -57,12 +57,12 @@ class Event implements iEvent
         // user exists
         if (!$addEvent and $EventID !== NULL) {
             // check for valid eventID
-            $sql = DB::select("SELECT FROM EVENTS WHERE ID=$EventID");
+            $sql = DB::select("SELECT * FROM Events WHERE ID=$EventID");
             if (!$sql[0]){
                 throw new Exception("שגיאה: האירוע לא מופיע במאגרי האתר.");
             }
             $this->eventID = $EventID;
-            $this->userID =  DB::quote($UserID);
+            $this->userID = $UserID;
             $this->rsvp = new RSVP($this->eventID);
             $this->messages = new Messages($this->eventID);
             $this->rawData = new RawData($this->eventID);
@@ -70,7 +70,7 @@ class Event implements iEvent
         elseif (($EventName and $EventDate) or $addEvent) {
             // initiate Database with user Database
             // Make strings query safe
-            $this->userID =  DB::quote($UserID);
+            $this->userID = $UserID;
             $eventName = DB::quote($EventName);
             $eventDate = DB::quote($EventDate);
             $eventEmail = DB::quote($EventEmail);
@@ -143,6 +143,7 @@ class Event implements iEvent
         throw new Exception("Event deleteEvent: only root user can delete event$eventID");
     }
 
+
     /**
      * switchEvent: change the event id
      * @param int $EventID : the EventID that we would like to change to
@@ -152,6 +153,7 @@ class Event implements iEvent
         $this->eventID = $EventID;
         return true;
     }
+
 
     /**
      * getEventID:  get Event ID
@@ -242,9 +244,10 @@ class Event implements iEvent
     public function getPermission() {
         $eventID = $this->eventID;
         $userID = $this->userID;
+
         $result = DB::select("SELECT * FROM Users WHERE ID=$userID AND Event1=$eventID");
 
-        if (empty($result[0])) {
+        if (!$result) {
             throw new Exception("שגיאה: האירוע המבוקש לא נמצא במאגרי האתר.");
         }
 

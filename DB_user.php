@@ -63,7 +63,6 @@ class User implements iUser
                 return;
             }
             $this->event = new Event($this->id, $events['event1']);
-            $this->permission = $events['permission1'];
             return;
         }
 
@@ -102,13 +101,12 @@ class User implements iUser
     {
 
         $result = $this->getEvents();
-        if (!$result) return false;
         $id = $this->id;
 
         for ($i = 1; $i <= 2; $i++) {
             $j = $i + 1;
 
-            if ($result["event$i"] === NULL and $result["event$j"] !== NULL) {
+            if ($result["event$i"] == NULL and $result["event$j"] != NULL) {
 
                 $eventJ = DB::quote($result["event$j"]);
                 $permissionJ = DB::quote($result["permission$j"]);
@@ -145,7 +143,7 @@ class User implements iUser
             $out['permission2'] = $result[0]['Permission2'];
             $out['event3'] = $result[0]['Event3'];
             $out['permission3'] = $result[0]['Permission3'];
-            return ($out['event1'] != NULL) ? $out : false;
+            return ($out['event1'] != NULL or $out['event2'] != NULL or $out['event2'] != NULL ) ? $out : false;
         }
         throw new Exception("User getEvents: couldn't find user is users table");
     }
@@ -231,6 +229,7 @@ class User implements iUser
      */
     public function deleteUser()
     {
+        // Todo: if user is the last of his event - delete event
         // Make strings query safe
         $id = $this->id;
 
@@ -394,13 +393,14 @@ class User implements iUser
         if (!$result) {
             throw new Exception("User addEvent: couldn't get user $id from users table");
         }
-        if($result[0]['Event3']!=='NULL'){
+        if($result[0]['Event3']!=NULL){
             throw new Exception("שגיאה: לא ניתן ליצור אירוע, ישנה הגבלה של עד 3 אירועים למשתמש בכל זמן נתון.");
         }
 
         $this->event = new Event($id, NULL,1, $EventName, $EventDate, 'NULL', $EventTime, $Venue, $Address, $EventEmail, $EventPhone, $Password, $Secret, $DeviceID);
 
         $this->addUserPermissions($result[0]['Email'], 'root');
+        $this->selectEvent($this->event->getEventID());
         return $this->event;
     }
 
@@ -418,8 +418,13 @@ class User implements iUser
      */
     public function selectEvent($EventID)
     {
+        $events = $this->getEvents();
+
+        if($events['event1']!=$EventID and $events['event2']!=$EventID and $events['event3']!=$EventID ){
+            throw new Exception("שגיאה: אין למשתמש אפשרות גישה לאירוע");
+        }
+
         $eventID = DB::quote($EventID);
-        $this->event->changeEventID($eventID);
         $id = $this->id;
         $events = $this->getEvents();
         $permission = NULL;
