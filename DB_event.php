@@ -56,6 +56,11 @@ class Event implements iEvent
 
         // user exists
         if (!$addEvent and $EventID !== NULL) {
+            // check for valid eventID
+            $sql = DB::select("SELECT FROM EVENTS WHERE ID=$EventID");
+            if (!$sql[0]){
+                throw new Exception("שגיאה: האירוע לא מופיע במאגרי האתר.");
+            }
             $this->eventID = $EventID;
             $this->userID =  DB::quote($UserID);
             $this->rsvp = new RSVP($this->eventID);

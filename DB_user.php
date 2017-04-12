@@ -108,8 +108,7 @@ class User implements iUser
         for ($i = 1; $i <= 2; $i++) {
             $j = $i + 1;
 
-            if ($result["event$i"] === NULL and $result["event$j"] != NULL) {
-
+            if ($result["event$i"] === NULL and $result["event$j"] !== NULL) {
 
                 $eventJ = DB::quote($result["event$j"]);
                 $permissionJ = DB::quote($result["permission$j"]);
