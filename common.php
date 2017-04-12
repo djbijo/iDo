@@ -1,6 +1,5 @@
 <?php
 
-require_once ("DB.php");
 // database preparation
 /*
  * use utf8 for hebrew:
@@ -18,10 +17,14 @@ $sanitized = filter_var($str, FILTER_SANITIZE_NUMBER_INT);
 
 }
 
-function validatePhone($phone){
+function validatePhone($phone){         // Todo: handle too many numbers, Null returns true
     $regexp = '/05([-]*\d){8}|(\+972(-*5)(-*\d){8})/';
     return filter_var($phone, FILTER_VALIDATE_REGEXP,
         array("options"=>array("regexp"=>$regexp)));
+}
+
+function validateEmail($email){         // Todo: handle valid email address, Null returns true
+    return true;
 }
 
 /**
@@ -39,11 +42,12 @@ function postGetEvent(){
     return null;
 }
 
+
 /**
  * createMessageUnion:  create the united messages table
  * @return bool true if table created / false otherwise
  */
-
+/*
 function getMessageUnion(){
 
     // get events id's
@@ -70,6 +74,7 @@ function getMessageUnion(){
     }
     return $result;
 }
+*/
 
 
 
