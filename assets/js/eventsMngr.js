@@ -204,10 +204,12 @@ var deleteEvent = function ()  {
                 dataType: 'json', // what type of data do we expect back from the server
                 encode: true,
                 error: function(jqXHR, status){
+                    console.log(jqXHR);
                     bootbox.alert(jqXHR.responseText);
                 },
                 success: (function (data) {
                     // here we will handle errors and validation messages
+                    console.log(data);
                     if (data.status !== "success") {
                         //TODO: make this appear in the page
                         bootbox.alert(data.errors.delete);
@@ -232,11 +234,6 @@ var getEvents = function(){
         // contentType: "application/json; charset=utf-8",
         dataType    : 'json', // what type of data do we expect back from the server
         encode      : true,
-        error       : function(jqXHR, status){
-            console.log(status);
-            console.log(jqXHR);
-            bootbox.alert(jqXHR.responseText);
-        }
     })
     .done( function(data){
         if (data.status === 'success'){
@@ -244,7 +241,7 @@ var getEvents = function(){
         }
     })
     .fail(function(data){
-
+        bootbox.alert(data.responseText);
     })
   $("#selectEventsDropdown").append(' <li role="presentation"><a role="menuitem">JavaScript</a></li>')
 };

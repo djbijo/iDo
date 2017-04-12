@@ -57,8 +57,8 @@ if (empty($errors)) {
                     try {
                         $user = new User($_SESSION['userId']);
                         try {
-                            $user->addEvent("עוד אירוע", "2021-05-01");
-                            $_SESSION['eventId'] = $user->event->getEventID();
+                            $user->addEvent($params['EventName'], $params['EventDate']);
+                            $_SESSION['eventId'] = $user->event!=null ? $user->event->getEventID() : null;
                         } catch (Exception $e) {
                             $errors['newevent'] = $e->getMessage();
                         }
@@ -78,6 +78,7 @@ if (empty($errors)) {
             } catch (Exception $e) {
                 $errors['delete'] = $e->getMessage();
             }
+            break;
         default:
             $errors['action'] = "no action is set, action i got was: " . $action;
             $errors['post'] = $_POST;

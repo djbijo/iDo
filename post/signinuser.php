@@ -29,8 +29,6 @@ try {
 } catch (Exception $e) {
     session_unset();
     session_destroy();
-    echo "";
-    return;
 }
 if ($payload) {
   $usrId = $payload['sub'];
