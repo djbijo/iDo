@@ -109,10 +109,10 @@ class Event implements iEvent
     public function deleteEvent(User $user)
     {
         // Check user permission for event
-        $result = $user->getEvents();
+        $permission = $this->getPermission();
         $eventID = DB::quote($this->eventID);
 
-        if ($result["permission1"] === 'root') {
+        if ($permission === 'root') {
             for ($i = 1; $i <= 3; $i++) {
                 // delete event from Events table
                 $sql = DB::query("DELETE FROM Events WHERE ID=$eventID");
