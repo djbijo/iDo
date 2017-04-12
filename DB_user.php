@@ -63,6 +63,7 @@ class User implements iUser
                 return;
             }
             $this->event = new Event($this->id, $events['event1']);
+            $this->permission = $events['permission1'];
             return;
         }
 
@@ -242,6 +243,50 @@ class User implements iUser
     }
 
     /**
+     * addUserPermissions: add a permissions granted for the user. one can add permission only to the event chosen
+     * @param string $Email : user email
+     * @param string $Permission : change to this permission
+     * @return bool false = user not in Users table or already has 3 events / true = user permission added
+     * @throws Exception "User addUserPermissions: the user with Email address:'$Email' is not registered to iDO. please register the user before granting permissions"
+     * @throws Exception "User addUserPermissions: Only the user which created the event can change permissions to it"
+     * @throws Exception "User addUserPermissions:User $email has too many events registered (max 3 events per user at a time)"
+     */
+    public function addUserPermissions($Email, $Permission)
+    {
+
+        //check that the user is already registered to iDO services
+        if (!$this->checkUserEmail($Email)) {
+            throw new Exception("User addUserPermissions: the user with Email address:'$Email' is not registered to iDO. please register the user before granting permissions");
+        }
+
+        // Make strings query safe
+        $email = DB::quote($Email);
+        $permission = DB::quote($Permission);
+
+        //check if user is root for this event
+        $eventID = $this->event->getEventID();
+
+        $result = DB::select("SELECT * FROM Events WHERE ID=$eventID");
+        $rootID = DB::quote($result[0]['RootID']);
+
+        if ($rootID != $this->id) {
+            throw new Exception("User addUserPermissions: Only the user which created the event can change permissions to it");
+        }
+        // Update relevant user in user table
+        for ($i = 1; $i <= 3; $i++) {
+            DB::query("UPDATE Users SET Permission$i=$permission, Event$i=$eventID
+			WHERE Email=$email AND Event$i IS NULL");
+
+            //if event updated
+            if (DB::affectedRows() > 0) {
+                return true;
+            }
+        }
+        throw new Exception("User addUserPermissions:User $email has too many events registered (max 3 events per user at a time)");
+    }
+
+
+    /**
      * editUserPermissions: edit the permissions granted for the user. one can edit permission only to the event chosen
      * @param string $Email : user email
      * @param string $Permission : change to this permission
@@ -357,48 +402,6 @@ class User implements iUser
 
     /* ---------- Static Functions ---------- */
 
-    /**
-     * addUserPermissions: add a permissions granted for the user. one can add permission only to the event chosen
-     * @param string $Email : user email
-     * @param string $Permission : change to this permission
-     * @return bool false = user not in Users table or already has 3 events / true = user permission added
-     * @throws Exception "User addUserPermissions: the user with Email address:'$Email' is not registered to iDO. please register the user before granting permissions"
-     * @throws Exception "User addUserPermissions: Only the user which created the event can change permissions to it"
-     * @throws Exception "User addUserPermissions:User $email has too many events registered (max 3 events per user at a time)"
-     */
-    public function addUserPermissions($Email, $Permission)
-    {
-
-        //check that the user is already registered to iDO services
-        if (!$this->checkUserEmail($Email)) {
-            throw new Exception("User addUserPermissions: the user with Email address:'$Email' is not registered to iDO. please register the user before granting permissions");
-        }
-
-        // Make strings query safe
-        $email = DB::quote($Email);
-        $permission = DB::quote($Permission);
-
-        //check if user is root for this event
-        $eventID = $this->event->getEventID();
-
-        $result = DB::select("SELECT * FROM Events WHERE ID=$eventID");
-        $rootID = DB::quote($result[0]['RootID']);
-
-        if ($rootID != $this->id) {
-            throw new Exception("User addUserPermissions: Only the user which created the event can change permissions to it");
-        }
-        // Update relevant user in user table
-        for ($i = 1; $i <= 3; $i++) {
-            DB::query("UPDATE Users SET Permission$i=$permission, Event$i=$eventID
-			WHERE Email=$email AND Event$i IS NULL");
-
-            //if event updated
-            if (DB::affectedRows() > 0) {
-                return true;
-            }
-        }
-        throw new Exception("User addUserPermissions:User $email has too many events registered (max 3 events per user at a time)");
-    }
 
     /* ---------- Private Functions ---------- */
 

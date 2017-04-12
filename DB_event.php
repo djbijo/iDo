@@ -23,7 +23,7 @@ interface iEvent
 
 class Event implements iEvent
 {
-
+    private $userID;
     private $eventID;
     public $rsvp;
     public $messages;
@@ -57,6 +57,7 @@ class Event implements iEvent
         // user exists
         if (!$addEvent and $EventID !== NULL) {
             $this->eventID = $EventID;
+            $this->userID =  DB::quote($UserID);
             $this->rsvp = new RSVP($this->eventID);
             $this->messages = new Messages($this->eventID);
             $this->rawData = new RawData($this->eventID);
@@ -64,6 +65,7 @@ class Event implements iEvent
         elseif (($EventName and $EventDate) or $addEvent) {
             // initiate Database with user Database
             // Make strings query safe
+            $this->userID =  DB::quote($UserID);
             $eventName = DB::quote($EventName);
             $eventDate = DB::quote($EventDate);
             $eventEmail = DB::quote($EventEmail);
@@ -186,6 +188,12 @@ class Event implements iEvent
         $value = DB::quote($Value);
         $eventID = $this->eventID;
 
+        $permission = $this->getPermission();
+
+        if($permission!=='root'){
+            throw new Exception("שגיאה: רק משתמש שהינו בעל הרשאת מנהל יכול לערוך את האירוע.");
+        }
+
         //if date change - change also hebrew date
         if ($colName==='EventDate'){
             $hebrewDate = DB::quote($this->makeHebrewDate($Value));
@@ -219,6 +227,23 @@ class Event implements iEvent
             throw new Exception("Event getUsers: couldn't get users for event$eventID from Users table");
         }
         return $result;
+    }
+
+    /**
+     * getPermission: get the user permission for this event;
+     * @return permission of this event for a specific user
+     * @throws Exception "שגיאה: האירוע המבוקש לא נמצא במאגרי האתר."
+     */
+    public function getPermission() {
+        $eventID = $this->eventID;
+        $userID = $this->userID;
+        $result = DB::select("SELECT * FROM Users WHERE ID=$userID AND Event1=$eventID");
+
+        if (empty($result[0])) {
+            throw new Exception("שגיאה: האירוע המבוקש לא נמצא במאגרי האתר.");
+        }
+
+        return $result[0]['permission1'];
     }
 
     /* ---------- Private Functions ---------- */
