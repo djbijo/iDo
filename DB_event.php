@@ -7,7 +7,7 @@ require_once('DB_rawData.php');
 interface iEvent
 {
 
-    public function deleteEvent(User $user);
+    public function deleteEvent(User &$user);
 
     public function switchEvent($EventID);
 
@@ -111,7 +111,7 @@ class Event implements iEvent
      * @throws Exception "Event deleteEvent: couldn't delete event$eventID from Users table"
      * @throws Exception "Event deleteEvent: only root user can delete event$eventID"
      */
-    public function deleteEvent(User $user)
+    public function deleteEvent(User &$user)
     {
         // Check user permission for event
         $permission = $this->getPermission();

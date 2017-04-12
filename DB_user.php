@@ -55,15 +55,15 @@ class User implements iUser
             }
             //shift user events left
             $this->shiftEvents();
-
-
-            // construct an events with only events ID to it
-            $events = $this->getEvents();
-            if ($events['event1'] === NULL) {
-                return;
-            }
-            $this->event = new Event($this->id, $events['event1']);
             return;
+
+//            // construct an events with only events ID to it
+//            $events = $this->getEvents();
+//            if ($events['event1'] === NULL) {
+//                return;
+//            }
+//            $this->event = new Event($this->id, $events['event1']);
+//            return;
         }
 
         // user is not in users table (not registered to iDO)
@@ -125,6 +125,12 @@ class User implements iUser
                 }
             }
         }
+        // FIXME: gil added, so after delete the object will still have the right event
+        $events = $this->getEvents();
+        if ($events['event1'] === NULL) {
+            return true;
+        }
+        $this->event = new Event($this->id, $events['event1']);
         return true;
     }
 
