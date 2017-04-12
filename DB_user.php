@@ -25,6 +25,7 @@ interface iUser
     public function getEvents();
 
     public function getID();
+
 }
 
 class User implements iUser

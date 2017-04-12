@@ -17,6 +17,8 @@ interface iEvent
 
     public function update($colName, $id, $value);
 
+    public function getUsers();
+
 }
 
 class Event implements iEvent
@@ -62,7 +64,6 @@ class Event implements iEvent
         elseif (($EventName and $EventDate) or $addEvent) {
             // initiate Database with user Database
             // Make strings query safe
-            $userID = DB::quote($UserID);
             $eventName = DB::quote($EventName);
             $eventDate = DB::quote($EventDate);
             $eventEmail = DB::quote($EventEmail);
@@ -185,14 +186,39 @@ class Event implements iEvent
         $value = DB::quote($Value);
         $eventID = $this->eventID;
 
+        //if date change - change also hebrew date
+        if ($colName==='EventDate'){
+            $hebrewDate = DB::quote($this->makeHebrewDate($Value));
+
+            DB::query("UPDATE Events SET $colName = $value, HebrewDate = $hebrewDate WHERE id = $eventID");
+
+            if (DB::affectedRows() < 0) {
+                throw new Exception("Event update: couldn't update Events table with EventDate=$value and HebrewDate=$hebrewDate for Event$eventID");
+            }
+        }
+
         // generate mysql command
         DB::query("UPDATE Events SET $colName = $value WHERE id = $eventID");
 
         if (DB::affectedRows() < 0) {
             throw new Exception("Event update: couldn't update Events table with $colName = $value for Event$eventID");
         }
-        //TODO: need to change hebrew date in case of date change
         return true;
+    }
+
+    /**
+     * getUsers:  get all users connected to this event
+     * @return table with all users the have the event under Event1,Event2 or Event3
+     * @throws Exception "Event getUsers: couldn't get users for event$eventID from Users table"
+     */
+    public function getUsers(){
+        $eventID = $this->eventID;
+        $result = DB::select("SELECT * FROM Users WHERE Event1=$eventID OR Event2=$eventID OR Event3=$eventID");
+
+        if (empty($result[0])) {
+            throw new Exception("Event getUsers: couldn't get users for event$eventID from Users table");
+        }
+        return $result;
     }
 
     /* ---------- Private Functions ---------- */
@@ -203,8 +229,7 @@ class Event implements iEvent
      * @return String hebrew date
      * @throws Exception "Event makeHebrewDate: date template is YEAR-MONTH-DAY (XXXX-XX-XX), $Date doesn't comply with this format"
      */
-    //FIXME: doesn't work well, the returned event row can't be converted with json_encode (have to edit the sql for it to work)
-    public static function makeHebrewDate($Date){              // todo: Working, but gibrish and not hebrew
+    public static function makeHebrewDate($Date){
         // break date into an array
         $date = explode('-',$Date);
 
