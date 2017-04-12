@@ -96,9 +96,11 @@ var loadEventData = function (data) {
     if (data.status === 'success'){
         $("#event-data").show();
         initializeEditable(data.event);
+        $("#deleteEventButton").prop('disabled', false);
     } else {
         console.log(data);
         $("#event-data").hide();
+        $("#deleteEventButton").prop('disabled', true);
     }
 
 };
@@ -219,3 +221,31 @@ var deleteEvent = function ()  {
         }
     });
 };
+
+//change event:
+
+var getEvents = function(){
+    $.ajax({
+        type        : "POST",
+        url         : "post/eventHandler.php",
+        data        : {action: 'getEvents'},
+        // contentType: "application/json; charset=utf-8",
+        dataType    : 'json', // what type of data do we expect back from the server
+        encode      : true,
+        error       : function(jqXHR, status){
+            console.log(status);
+            console.log(jqXHR);
+            bootbox.alert(jqXHR.responseText);
+        }
+    })
+    .done( function(data){
+        if (data.status === 'success'){
+            console.log(data.events);
+        }
+    })
+    .fail(function(data){
+
+    })
+  $("#selectEventsDropdown").append(' <li role="presentation"><a role="menuitem">JavaScript</a></li>')
+};
+

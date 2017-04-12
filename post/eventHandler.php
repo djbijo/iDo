@@ -9,12 +9,18 @@ $response['status'] = "error";
 $params             = array();
 
 $action = isset($_POST['action']) ? $_POST['action'] : "error";
-if (!isset($_SESSION['eventId'])){
+if (!isset($_SESSION['eventId']) && $action !== 'create'){
     $errors['event'] = "לא קיימים אירועים למשתמש";
 }
 if (empty($errors)) {
     switch ($action) {
         case 'getEvents' :
+            try {
+                $user = new User($_SESSION['userId']);
+                $response['events'] = $user->getEvents();
+            } catch (Event $e){
+                $errors['getEvents'] = $e->getMessage();
+            }
             break;
         case 'update' :
             $event = new Event($_SESSION['userId'], $_SESSION['eventId']);
@@ -50,14 +56,14 @@ if (empty($errors)) {
                 if (isset($_SESSION['userId'])) {
                     try {
                         $user = new User($_SESSION['userId']);
+                        try {
+                            $user->addEvent("עוד אירוע", "2021-05-01");
+                            $_SESSION['eventId'] = $user->event->getEventID();
+                        } catch (Exception $e) {
+                            $errors['newevent'] = $e->getMessage();
+                        }
                     } catch (Exception $e) {
                         $errors['user'] = "new User failed";
-                    }
-                    try {
-                        $user->addEvent("עוד אירוע", "2021-05-01");
-                        $_SESSION['eventId'] = $user->event->getEventID();
-                    } catch (Exception $e) {
-                        $errors['newevent'] = $e->getMessage();
                     }
                 } else {
                     $errors['user'] = "צריך להתחבר לפני יצירת אירוע חדש";

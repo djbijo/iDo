@@ -394,7 +394,7 @@ class User implements iUser
         if (!$result) {
             throw new Exception("User addEvent: couldn't get user $id from users table");
         }
-        if($result[0]['Event3']!=='NULL'){
+        if($result[0]['Event3']!==NULL){
             throw new Exception("שגיאה: לא ניתן ליצור אירוע, ישנה הגבלה של עד 3 אירועים למשתמש בכל זמן נתון.");
         }
 
