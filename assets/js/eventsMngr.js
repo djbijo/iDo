@@ -33,6 +33,20 @@ var initializeEditable = function(event){
         value: event.EventTime,
         title: 'שינוי שם'
     });
+    $('#Venue').editable({
+        type: 'text',
+        placeholder: 'אולמי בונבון',
+        pk: event.ID,
+        value: event.Venue,
+        title: 'שנה מקום'
+    });
+    $('#Address').editable({
+        type: 'text',
+        placeholder: '',
+        pk: event.ID,
+        value: event.Address,
+        title: 'שנה כתובת'
+    });
 };
 
 
