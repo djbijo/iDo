@@ -1,6 +1,7 @@
 
 $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
     var target = $(e.target).attr("href"); // activated tab
+    console.log("target is " + target);
     $.ajaxSetup({
         cache: false
     });
@@ -10,8 +11,8 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
             break;
         case "#home":
             break;
-        case "#event-Settings":
-            $(target).load("Views/EventSettings.html");
+        case "#events":
+            $(target).load("Views/events.html");
             break;
         default:
             $("#error_modal").modal();

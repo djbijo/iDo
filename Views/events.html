@@ -1,0 +1,80 @@
+<!--<!DOCTYPE html>-->
+<!--<table id="event-data" class="table table-bordered table-striped" style="clear: both">-->
+    <!--<tbody>-->
+        <!--<tr>-->
+            <!--<td width="35%">שם האירוע</td>-->
+            <!--&lt;!&ndash;<td width="65%" id="event-name" data-type="text" data-pk="1" data-title="Enter username">superuser</td>&ndash;&gt;-->
+        <!--</tr>-->
+    <!--</tbody>-->
+<!--</table>-->
+<form class="form-inline collapse" id="addEventForm" >
+        <div id="name-group" class="form-group">
+            <label for="InputName">שם האירוע</label>
+            <input type="text" class="form-control" id="InputName" placeholder="החתונה של צילי וגילי">
+        </div>
+        <div id ="date-group" class="form-group">
+            <label for="InputDate">תאריך</label>
+            <input type="date" class="form-control" id="InputDate" placeholder="1-1-2020">
+        </div>
+        <div id="time-group" class="form-group">
+            <label for="InputTime">זמן קבלת פנים</label>
+            <input type="time" class="form-control" id="InputTime" placeholder="19:00">
+        </div>
+        <div id="venue-group" class="form-group">
+            <label for="InputVenue">מקום האירוע</label>
+            <input type="text" class="form-control" id="InputVenue" placeholder="אולמי בונבון">
+        </div>
+        <div id="address-group" class="form-group">
+            <label for="InputAddress">כתובת</label>
+            <input type="tel" class="form-control" id="InputAddress" placeholder="רוטשילד 14, חיפה">
+        </div>
+        <div class="form-group">
+            <div class="col-xs-9 col-xs-offset-3">
+                <ul id="errors"></ul>
+            </div>
+        </div>
+        <div class="form-group">
+            <div>
+                <button data-target="#addEventForm" type="button" class="btn btn-default" data-toggle="collapse">בטל</button>
+                <button type="submit" class="btn btn-primary">הוסף</button>
+            </div>
+        </div>
+    <div>
+        <!--<button data-target="#addEventForm" type="button" class="btn btn-default" data-toggle="collapse">בטל</button>-->
+        <!--<button type="submit" class="btn btn-primary">הוסף</button>-->
+    </div>
+</form>
+
+<div id="event-data" style="display: none">
+    <table class="table table-bordered table-striped">
+        <thead></thead>
+        <tbody>
+            <tr>
+                <td width="20%">שם האירוע</td>
+                <td><a id="EventName"></a></td>
+            </tr>
+            <tr>
+                <td>תאריך לועזי</td>
+                <td><a id="EventDate"></a></td>
+            </tr>
+            <tr>
+                <td>תאריך עברי</td>
+                <td id="HebrewDate"></td>
+            </tr>
+            <tr>
+                <td>שעת קבלת פנים</td>
+                <td><a id="EventTime"></a></td>
+            </tr>
+            <tr>
+                <td>מקום האירוע</td>
+                <td><a id="Venue"></a></td>
+            </tr>
+            <tr>
+                <td>כתובת</td>
+                <td><a id="Address"></a></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<button data-target="#addEventForm" type="button" class="btn btn-default" data-toggle="collapse">הוסף אירוע חדש</button>
+<script src="assets/js/eventsMngr.js"></script>

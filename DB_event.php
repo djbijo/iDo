@@ -191,6 +191,7 @@ class Event implements iEvent
         if (DB::affectedRows() < 0) {
             throw new Exception("Event update: couldn't update Events table with $colName = $value for Event$eventID");
         }
+        //TODO: need to change hebrew date in case of date change
         return true;
     }
 

@@ -45,21 +45,20 @@
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav"  id="ezNavbar">
                 <li class="active"><a data-toggle="tab" href="#home">בית</a></li>
-                <li><a data-toggle="tab" href="#rsvp">ניהול מוזמנים</a></li>
-                <li><a href="#contact">Contact</a></li>
-                <li><a href="#event-settings">הגדרות</a></li>
-                <!--<li class="dropdown">-->
-                    <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <span class="caret"></span></a>-->
-                    <!--<ul class="dropdown-menu">-->
-                        <!--<li><a href="#">Action</a></li>-->
-                        <!--<li><a href="#">Another action</a></li>-->
-                        <!--<li><a href="#">Something else here</a></li>-->
-                        <!--<li class="divider"></li>-->
-                        <!--<li class="dropdown-header">Nav header</li>-->
-                        <!--<li><a href="#">Separated link</a></li>-->
-                        <!--<li><a href="#">One more separated link</a></li>-->
-                    <!--</ul>-->
-                <!--</li>-->
+                <li><a data-toggle="tab" href="#rsvp">מוזמנים</a></li>
+                <li><a data-toggle="tab" href="#events">ניהול אירוע</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                        <li><a href="#">Something else here</a></li>
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Nav header</li>
+                        <li><a href="#">Separated link</a></li>
+                        <li><a href="#">One more separated link</a></li>
+                    </ul>
+                </li>
             </ul>
             <button onclick="signOut()" class="btn btn-danger navbar-btn">התנתק</button>
         </div><!--/.nav-collapse -->
@@ -122,6 +121,7 @@
             <h3>מוזמנים</h3>
             <p>Eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
         </div>
+        <div id="events" class="tab-pane fade">אם אתם רואים את זה, יש בעיה</div>
 
     </div>
 </div> <!-- /container -->
@@ -149,6 +149,7 @@
 <!--<script src="assets/js/socketmgr.js"></script> TODO: enable websocket support to receive updates from server -->
 <script src="assets/js/mngusr.js" async defer></script>
 <script src="assets/js/eventData.js"></script>
+<!--<script src="assets/js/rsvpTable.js"></script>-->
 <script src="https://apis.google.com/js/platform.js?onload=appStart" async defer></script>
 <script src="assets/js/tabMngr.js" async defer></script>
 
