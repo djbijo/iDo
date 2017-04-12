@@ -391,11 +391,16 @@ class User implements iUser
     public function addEvent($EventName, $EventDate, $EventTime = 'NULL', $Venue = 'NULL', $Address = 'NULL', $EventEmail = 'NULL', $EventPhone = 'NULL', $Password = 'NULL', $Secret = 'NULL', $DeviceID = 'NULL')
     {
         $id = $this->id;
-        $this->event = new Event($id, NULL,1, $EventName, $EventDate, 'NULL', $EventTime, $Venue, $Address, $EventEmail, $EventPhone, $Password, $Secret, $DeviceID);
         $result = DB::select("SELECT * FROM USERS WHERE ID=$id");
         if (!$result) {
             throw new Exception("User addEvent: couldn't get user $id from users table");
         }
+        if($result[0]['Event3']!=='NULL'){
+            throw new Exception("שגיאה: לא ניתן ליצור אירוע, ישנה הגבלה של עד 3 אירועים למשתמש בכל זמן נתון.");
+        }
+
+        $this->event = new Event($id, NULL,1, $EventName, $EventDate, 'NULL', $EventTime, $Venue, $Address, $EventEmail, $EventPhone, $Password, $Secret, $DeviceID);
+
         $this->addUserPermissions($result[0]['Email'], 'root');
         return $this->event;
     }
