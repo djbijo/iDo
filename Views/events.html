@@ -76,5 +76,14 @@
         </tbody>
     </table>
 </div>
+<div class="dropdown">
+    <button class="btn btn-default dropdown-toggle" type="button" id="selectEvents" data-toggle="dropdown">בחר אירוע
+        <span class="caret"></span></button>
+    <ul class="dropdown-menu" role="menu" aria-labelledby="menu1" id="selectEventsDropdown">
+    </ul>
+</div>
 <button data-target="#addEventForm" type="button" class="btn btn-default" data-toggle="collapse">הוסף אירוע חדש</button>
+<button id="deleteEventButton" type="button" class="btn btn-danger" onclick="deleteEvent()" >מחק אירוע</button>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
 <script src="assets/js/eventsMngr.js"></script>

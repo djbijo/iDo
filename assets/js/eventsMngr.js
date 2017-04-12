@@ -49,14 +49,33 @@ var initializeEditable = function(event){
     });
 };
 
+// var eventUpdated = function(response, newValue) {
+//     if ( response.status !== "success") {
+//         console.log("error");
+//         var msg = "";
+//         response.errors.forEach(function(element){
+//             msg += element;
+//         })
+//         return msg;
+//     }
+//     getEventData();
+// };
+$.fn.editable.defaults.mode = 'inline';
+$.fn.editable.defaults.url = 'post/eventHandler.php';
+$.fn.editable.defaults.params = {action: 'update'};
+$.fn.editable.defaults.ajaxOptions = {dataType: 'json'};
+$.fn.editable.defaults.error = function(response, newValue) {
+    bootbox.alert(response.responseText);
+};
+$.fn.editable.defaults.success = function(response, newValue) {
+    if ( response.status !== "success") {
+        console.log("error");
+        return response.errors.event;
+    }
+    getEventData();
+};
 
 var getEventData = function () {
-
-    $.fn.editable.defaults.mode = 'inline';
-    $.fn.editable.defaults.url = 'post/eventHandler.php';
-    $.fn.editable.defaults.params = {action: 'update'};
-    $.fn.editable.defaults.success = getEventData;
-
     $.ajax({
         type        : "POST",
         url         : "post/eventHandler.php",
@@ -76,11 +95,12 @@ var getEventData = function () {
 var loadEventData = function (data) {
     if (data.status === 'success'){
         $("#event-data").show();
-        console.log("received event data");
-        console.log(data);
         initializeEditable(data.event);
+        $("#deleteEventButton").prop('disabled', false);
     } else {
         console.log(data);
+        $("#event-data").hide();
+        $("#deleteEventButton").prop('disabled', true);
     }
 
 };
@@ -172,3 +192,60 @@ function submitForm(){
             console.log(data);
         });
 }
+
+//handle remove button:
+var deleteEvent = function ()  {
+    bootbox.confirm("את/ה עומד/ת למחוק את האירוע לצמיתות, האם את/ה רוצה להמשיך?",function(result){
+        if (result) {
+            $.ajax({
+                type: "POST",
+                url: "post/eventHandler.php",
+                data: {action: 'delete'},
+                dataType: 'json', // what type of data do we expect back from the server
+                encode: true,
+                error: function(jqXHR, status){
+                    bootbox.alert(jqXHR.responseText);
+                },
+                success: (function (data) {
+                    // here we will handle errors and validation messages
+                    if (data.status !== "success") {
+                        //TODO: make this appear in the page
+                        bootbox.alert(data.errors.delete);
+                    }
+                    else {
+                        getEventData();
+                    }
+                })
+            })
+
+        }
+    });
+};
+
+//change event:
+
+var getEvents = function(){
+    $.ajax({
+        type        : "POST",
+        url         : "post/eventHandler.php",
+        data        : {action: 'getEvents'},
+        // contentType: "application/json; charset=utf-8",
+        dataType    : 'json', // what type of data do we expect back from the server
+        encode      : true,
+        error       : function(jqXHR, status){
+            console.log(status);
+            console.log(jqXHR);
+            bootbox.alert(jqXHR.responseText);
+        }
+    })
+    .done( function(data){
+        if (data.status === 'success'){
+            console.log(data.events);
+        }
+    })
+    .fail(function(data){
+
+    })
+  $("#selectEventsDropdown").append(' <li role="presentation"><a role="menuitem">JavaScript</a></li>')
+};
+

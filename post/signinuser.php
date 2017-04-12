@@ -54,23 +54,23 @@ if ($payload) {
         $response['status'] = 'error';
         $response['reason'] = "couldnt create user";
     }
-    if ($user->event === null){
-        $event = $user->addEvent("andh","2000-10-10");
-        if ($event === null){
-            throw new ErrorException("clouldn't create event");
-        }
-    }
+//    if ($user->event === null){
+//        $event = $user->addEvent("andh","2000-10-10");
+//        if ($event === null){
+//            throw new ErrorException("clouldn't create event");
+//        }
+//    }
     //FIXME: just for testing
 //    $user->selectEvent(4);
 
-    if ($user->event === null){
-        var_dump ($user->getEvents());
-        throw new ErrorException("event in user is null");
-
-    }
+//    if ($user->event === null){
+//        var_dump ($user->getEvents());
+//        throw new ErrorException("event in user is null");
+//
+//    }
     $_SESSION['loggedin'] = true;
     $_SESSION['userId'] = $usrId;//$user->getID();
-    $_SESSION['eventId'] = $user->event->getEventID();
+    $_SESSION['eventId'] = $user->event === null ? null : $user->event->getEventID();
     $_SESSION['beenHere'] = isset($_SESSION['beenHere']) ? $_SESSION['beenHere'] + 1 : 0;
     $response['beenHere'] = $_SESSION['beenHere'];
 //  }

@@ -185,7 +185,6 @@ $(function () {
 $("#addRsvpRowForm").submit(function(event){
     // cancels the form submission
     event.preventDefault();
-    console.log("in submit");
     submitForm();
 });
 

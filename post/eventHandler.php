@@ -9,59 +9,80 @@ $response['status'] = "error";
 $params             = array();
 
 $action = isset($_POST['action']) ? $_POST['action'] : "error";
-if (!isset($_SESSION['eventId'])) return; //todo: error
-switch ($action){
-    case 'getEvents' : break;
-    case 'update' :
-        $event = new Event($_SESSION['userId'], $_SESSION['eventId']);
-        if ($event !== null){
-            try {
-                $response['msg'] = $event->update($_POST['name'],$_POST['pk'],$_POST['value']);
-            } catch (Exception $e){
-                $errors['eventGet'] = $e->getMessage();
-            }
-        } else {
-            $errors['event'] = "event is null";
-        }
-        break;
-    case 'getEventData' :
-        $event = new Event($_SESSION['userId'], $_SESSION['eventId']);
-        if ($event !== null){
-            try {
-                $response['event'] = $event->get();
-            } catch (Exception $e){
-                $errors['eventGet'] = $e->getMessage();
-            }
-            if (empty($response['event'])){
-                $errors['event'] = 'event is empty';
-            }
-        } else {
-            $errors['event'] = "event is null";
-        }
-        break;
-    case 'create':
-        //todo: create with received data
-        createVal($params, $errors);
-        if (empty($errors))
-        if (isset($_SESSION['userId'])) {
+if (!isset($_SESSION['eventId']) && $action !== 'create'){
+    $errors['event'] = "לא קיימים אירועים למשתמש";
+}
+if (empty($errors)) {
+    switch ($action) {
+        case 'getEvents' :
             try {
                 $user = new User($_SESSION['userId']);
-            } catch (Exception $e) {
-                $errors['user'] = "new User failed";
+                $response['events'] = $user->getEvents();
+            } catch (Event $e){
+                $errors['getEvents'] = $e->getMessage();
             }
+            break;
+        case 'update' :
+            $event = new Event($_SESSION['userId'], $_SESSION['eventId']);
+            if ($event !== null) {
+                try {
+                    $response['msg'] = $event->update($_POST['name'], $_POST['pk'], $_POST['value']);
+                } catch (Exception $e) {
+                    $errors['event'] = $e->getMessage();
+                }
+            } else {
+                $errors['event'] = "event is null";
+            }
+            break;
+        case 'getEventData' :
+            $event = new Event($_SESSION['userId'], $_SESSION['eventId']);
+            if ($event !== null) {
+                try {
+                    $response['event'] = $event->get();
+                } catch (Exception $e) {
+                    $errors['eventGet'] = $e->getMessage();
+                }
+                if (empty($response['event'])) {
+                    $errors['event'] = 'event is empty';
+                }
+            } else {
+                $errors['event'] = "event is null";
+            }
+            break;
+        case 'create':
+            //todo: create with received data
+            createVal($params, $errors);
+            if (empty($errors))
+                if (isset($_SESSION['userId'])) {
+                    try {
+                        $user = new User($_SESSION['userId']);
+                        try {
+                            $user->addEvent("עוד אירוע", "2021-05-01");
+                            $_SESSION['eventId'] = $user->event->getEventID();
+                        } catch (Exception $e) {
+                            $errors['newevent'] = $e->getMessage();
+                        }
+                    } catch (Exception $e) {
+                        $errors['user'] = "new User failed";
+                    }
+                } else {
+                    $errors['user'] = "צריך להתחבר לפני יצירת אירוע חדש";
+                }
+            break;
+        case 'delete':
+            $event = new Event($_SESSION['userId'], $_SESSION['eventId']);
+            $user = new User($_SESSION['userId']);
             try {
-                $user->addEvent("עוד אירוע", "2021-05-01");
-            } catch (Exception $e){
-                $errors['newevent'] = $e->getMessage();
+                $event->deleteEvent($user);
+                $_SESSION['eventId'] = $user->event->getEventID();
+            } catch (Exception $e) {
+                $errors['delete'] = $e->getMessage();
             }
-        } else {
-            $errors['user'] = "צריך להתחבר לפני יצירת אירוע חדש";
-        }
-        break;
-    default:
-        $errors['action'] = "no action is set, action i got was: ".$action;
-        $errors['post'] = $_POST;
-        break;
+        default:
+            $errors['action'] = "no action is set, action i got was: " . $action;
+            $errors['post'] = $_POST;
+            break;
+    }
 }
 
 if (!empty($errors)){
