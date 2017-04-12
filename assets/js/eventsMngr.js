@@ -1,8 +1,8 @@
-var initializeEditable = function(event){
+var initializeEditable = function(){
     $('#EventName').editable({
         type: 'text',
-        pk: event.ID,
-        value: event.EventName,
+        // pk: event.ID,
+        // value: event.EventName,
         title: 'שינוי שם'
     });
     $('#EventDate').editable({
@@ -14,11 +14,11 @@ var initializeEditable = function(event){
             weekstart: 1
         },
         placement: 'bottom',
-        pk: event.ID,
-        value: event.EventDate,
+        // pk: event.ID,
+        // value: event.EventDate,
         title: 'שינוי שם'
     });
-    document.getElementById('HebrewDate').innerHTML = event.HebrewDate;
+    // document.getElementById('HebrewDate').innerHTML = event.HebrewDate;
     //     .editable({
     //     type: 'text',
     //     pk: event.ID,
@@ -29,37 +29,35 @@ var initializeEditable = function(event){
     $('#EventTime').editable({
         type: 'time',
         placeholder: '19:00',
-        pk: event.ID,
-        value: event.EventTime,
+        // pk: event.ID,
+        // value: event.EventTime,
         title: 'שינוי שם'
     });
     $('#Venue').editable({
         type: 'text',
         placeholder: 'אולמי בונבון',
-        pk: event.ID,
-        value: event.Venue,
+        // pk: event.ID,
+        // value: event.Venue,
         title: 'שנה מקום'
     });
     $('#Address').editable({
         type: 'text',
         placeholder: '',
-        pk: event.ID,
-        value: event.Address,
+        // pk: event.ID,
+        // value: event.Address,
         title: 'שנה כתובת'
     });
 };
 
-// var eventUpdated = function(response, newValue) {
-//     if ( response.status !== "success") {
-//         console.log("error");
-//         var msg = "";
-//         response.errors.forEach(function(element){
-//             msg += element;
-//         })
-//         return msg;
-//     }
-//     getEventData();
-// };
+var updateEventData = function(event){
+    $('#EventName').editable('setValue' , event.EventName).editable('option', 'pk', event.ID)  ;
+    $('#EventDate').editable('setValue' , event.EventDate).editable('option', 'pk', event.ID);
+    document.getElementById('HebrewDate').innerHTML = event.HebrewDate;
+    $('#EventTime').editable('setValue' , event.EventTime).editable('option', 'pk', event.ID);
+    $('#Venue').editable('setValue' , event.Venue).editable('option', 'pk', event.ID);
+    $('#Address').editable('setValue' , event.Address).editable('option', 'pk', event.ID);
+};
+
 $.fn.editable.defaults.mode = 'inline';
 $.fn.editable.defaults.url = 'post/eventHandler.php';
 $.fn.editable.defaults.params = {action: 'update'};
@@ -93,9 +91,12 @@ var getEventData = function () {
 };
 
 var loadEventData = function (data) {
+    console.log("loading event data");
+    console.log(data);
     if (data.status === 'success'){
         $("#event-data").show();
-        initializeEditable(data.event);
+
+        updateEventData(data.event);
         $("#deleteEventButton").prop('disabled', false);
     } else {
         console.log(data);
@@ -179,6 +180,7 @@ function submitForm(){
                 //TODO: let the user not he succeded
                 $("#addEventForm")[0].reset();
                 $("#addEventForm").collapse();
+                getEventData();
                 // usually after form submission, you'll want to redirect
                 // window.location = '/thank-you'; // redirect a user to another page
                 // alert('success'); // for now we'll just alert the user

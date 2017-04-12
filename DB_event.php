@@ -58,7 +58,7 @@ class Event implements iEvent
         if (!$addEvent and $EventID !== NULL) {
             // check for valid eventID
             $sql = DB::select("SELECT * FROM Events WHERE ID=$EventID");
-            if (!$sql[0]){
+            if (!$sql){
                 throw new Exception("שגיאה: האירוע לא מופיע במאגרי האתר.");
             }
             $this->eventID = $EventID;

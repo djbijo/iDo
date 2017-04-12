@@ -9,7 +9,7 @@ $response['status'] = "error";
 $params             = array();
 
 $action = isset($_POST['action']) ? $_POST['action'] : "error";
-if (!isset($_SESSION['eventId']) && $action !== 'create'){
+if ((!isset($_SESSION['eventId']) or !$_SESSION['eventId']) and $action !== 'create'){
     $errors['event'] = "לא קיימים אירועים למשתמש";
 }
 if (empty($errors)) {
@@ -35,7 +35,12 @@ if (empty($errors)) {
             }
             break;
         case 'getEventData' :
-            $event = new Event($_SESSION['userId'], $_SESSION['eventId']);
+            try {
+                $event = new Event($_SESSION['userId'], $_SESSION['eventId']);
+            } catch (Exception $e){
+                $errors['event'] = $e->getMessage();
+                break;
+            }
             if ($event !== null) {
                 try {
                     $response['event'] = $event->get();
@@ -58,7 +63,7 @@ if (empty($errors)) {
                         $user = new User($_SESSION['userId']);
                         try {
                             $user->addEvent($params['EventName'], $params['EventDate']);
-                            $_SESSION['eventId'] = $user->event!=null ? $user->event->getEventID() : null;
+                            $_SESSION['eventId'] = $user->event->getEventID();
                         } catch (Exception $e) {
                             $errors['newevent'] = $e->getMessage();
                         }
@@ -74,7 +79,9 @@ if (empty($errors)) {
             $user = new User($_SESSION['userId']);
             try {
                 $event->deleteEvent($user);
-                $_SESSION['eventId'] = $user->event->getEventID();
+                if ($user->event !== null)
+                    $_SESSION['eventId'] = $user->event->getEventID();
+                else unset($_SESSION['eventId']);
             } catch (Exception $e) {
                 $errors['delete'] = $e->getMessage();
             }
