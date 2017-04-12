@@ -202,86 +202,12 @@ class RSVP extends Table {
                 $result = DB::query("INSERT INTO rsvp$eventID (Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Uncertin, Ride) VALUES
                             ('$empData[0]','$empData[1]','$empData[2]','$empData[3]','$empData[4]','$empData[5]','$empData[6]','$empData[7]','$empData[8]','$empData[9]')");
                 if (!$result) {
-                    return false;
+                    throw new Exception("שגיאה: טעינת המידע לשרתינו נחלה כשלון קולוסלי");
                 }
             }
         }
         return true;
     }
-
-    /**
-     * exportExcel:  export rsvp table to csv format
-     * thanks John Peter for this solution: http://stackoverflow.com/questions/15699301/export-mysql-data-to-excel-in-php
-     * @param bool $sample : choose if sample file or actual table from database
-     * @return bool true if excel imported / false if excel not imported
-     */
-    public function exportExcel($sample = false) {
-
-        $eventID = $this->eventID;
-
-        $DB_Server = "localhost"; //MySQL Server    
-        $DB_Username = "root"; //MySQL Username     
-        $DB_Password = "";             //MySQL Password     
-        $DB_DBName = "idodb";         //MySQL Database Name 
-        $DB_TBLName = "rsvp$eventID"; //MySQL Table Name     
-        $filename = "RSVP";         //File Name
-
-        if ($sample) {
-            $DB_TBLName = "RSVPsample";
-            $filename = "RSVP_sample";
-        }
-
-        /*         * *****YOU DO NOT NEED TO EDIT ANYTHING BELOW THIS LINE****** */
-        //create MySQL connection   
-        $sql = "Select * from $DB_TBLName";
-        $Connect = @mysql_connect($DB_Server, $DB_Username, $DB_Password) or die("Couldn't connect to MySQL:<br>" . mysql_error() . "<br>" . mysql_errno());
-        //select database   
-        $Db = @mysql_select_db($DB_DBName, $Connect) or die("Couldn't select database:<br>" . mysql_error() . "<br>" . mysql_errno());
-        //execute query 
-        $result = @mysql_query($sql, $Connect) or die("Couldn't execute query:<br>" . mysql_error() . "<br>" . mysql_errno());
-        $file_ending = "xls";
-        //header info for browser
-        header("Content-Type: application/xls");
-        header("Content-Disposition: attachment; filename=$filename.xls");
-        header("Pragma: no-cache");
-        header("Expires: 0");
-        /*         * *****Start of Formatting for Excel****** */
-        //define separator (defines columns in excel & tabs in word)
-        $sep = "\t"; //tabbed character
-        //start of printing column names as names of MySQL fields
-        for ($i = 0; $i < mysql_num_fields($result); $i++) {
-            echo mysql_field_name($result, $i) . "\t";
-        }
-        print("\n");
-        //end of printing column names  
-        //start while loop to get data
-        while ($row = mysql_fetch_row($result)) {
-            $schema_insert = "";
-            for ($j = 0; $j < mysql_num_fields($result); $j++) {
-                if (!isset($row[$j]))
-                    $schema_insert .= "NULL" . $sep;
-                elseif ($row[$j] != "")
-                    $schema_insert .= "$row[$j]" . $sep;
-                else
-                    $schema_insert .= "" . $sep;
-            }
-            $schema_insert = str_replace($sep . "$", "", $schema_insert);
-            $schema_insert = preg_replace("/\r\n|\n\r|\n|\r/", " ", $schema_insert);
-            $schema_insert .= "\t";
-            print(trim($schema_insert));
-            print "\n";
-        }
-    }
-
-    /**
-     * sampleExcel:  export sample rsvp table to csv format for user usage
-     * @return bool true if excel imported / false if excel not imported
-     */
-    public function getSampleExcel() {
-        $this->exportExcel(true);
-        return true;
-    }
-
 }
 
 ?>

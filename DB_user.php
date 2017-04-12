@@ -101,6 +101,10 @@ class User implements iUser
     {
 
         $result = $this->getEvents();
+        if(!$result){
+            $this->event = NULL;
+        }
+
         $id = $this->id;
 
         for ($i = 1; $i <= 2; $i++) {
