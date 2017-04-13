@@ -123,7 +123,8 @@ class DB {
         self::connect();
         return mysqli_insert_id(self::$link) ;
     }
-    
+
+    /*
     static function getLink() {
         self::connect();
         if (isset(self::$link)) {
@@ -131,7 +132,7 @@ class DB {
         }
         return false;
     }
-    
+    */
     private static function DBprep(){
         // database preperation - use utf8 for hebrew
         self::query("SET character_set_server=utf8");

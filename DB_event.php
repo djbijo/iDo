@@ -3,6 +3,7 @@
 require_once('DB_rsvp.php');
 require_once('DB_message.php');
 require_once('DB_rawData.php');
+require_once('DB_groups.php');
 
 interface iEvent
 {
@@ -28,6 +29,7 @@ class Event implements iEvent
     public $rsvp;
     public $messages;
     public $rawData;
+    public $groups;
 
     /**
      * __construct: create new Event object. if Event not in Events table (eventName,eventDate!=Null) add Event to Events table (do not make any change to Users Table!)
@@ -66,6 +68,7 @@ class Event implements iEvent
             $this->rsvp = new RSVP($this->eventID);
             $this->messages = new Messages($this->eventID);
             $this->rawData = new RawData($this->eventID);
+            $this->groups = new Groups($this->eventID);
         } // Event is not in Events table (new Event)
         elseif (($EventName and $EventDate) or $addEvent) {
             // initiate Database with user Database
@@ -96,6 +99,8 @@ class Event implements iEvent
             $this->rsvp = new RSVP($this->eventID);
             $this->messages = new Messages($this->eventID);
             $this->rawData = new RawData($this->eventID);
+            $this->groups = new Groups($this->eventID);
+
         } else {
             throw new Exception("Event New : Couldn't construct new event");
         }
@@ -127,7 +132,10 @@ class Event implements iEvent
                 $sqlMessages = $this->messages->destruct();
                 // delete RawData[eventID] table
                 $sqlRawData = $this->rawData->destruct();
-                if (!$sql or !$sqlRSVP or !$sqlMessages or !$sqlRawData) {
+                // delete Groups[eventID] table
+                $sqlGroups = $this->groups->destruct();
+
+                if (!$sql or !$sqlRSVP or !$sqlMessages or !$sqlRawData or !$sqlGroups) {
                     throw new Exception("Event deleteEvent: couldn't delete event tables");
                 }
                 DB::query("UPDATE Users SET Event$i=NULL, Permission$i=NULL WHERE Event$i=$eventID");
@@ -173,11 +181,17 @@ class Event implements iEvent
      */
     public function get() {
         $eventID = $this->eventID;
-        $result = DB::select("SELECT * FROM Events WHERE ID=$eventID ");
+
+        // Get the data into a temp table, remove column RootID
+        DB::query("DROP TABLE IF EXISTS TempTable; CREATE TABLE TempTable AS SELECT * FROM Events; ALTER TABLE TempTable DROP COLUMN RootID;");
+        // get Event row from Events table (using TempTable)
+        $result = DB::select("SELECT * FROM TempTable WHERE ID=$eventID ");
 
         if (empty($result[0])) {
             throw new Exception("Event get: couldn't get row for event$eventID from Events table ");
         }
+
+        DB::query("DROP TABLE TempTable");
 
         return $result[0];
     }

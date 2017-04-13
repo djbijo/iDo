@@ -65,7 +65,6 @@ class groups extends Table {
      * add:  add row to groups[$eventID] table in database
      * @param string $GroupName : group name
      * @return bool true if row added / false otherwise
-     * @throws Exception "groups add: group name $groupName already in groups table"
      * @throws Exception "groups add: Error adding group $groupName to groups$eventID table"
      */
     public function add($GroupName) {
@@ -77,7 +76,7 @@ class groups extends Table {
 
         // check if groupName already in groups table
         if (NULL !== $groupName and DB::select("SELECT * FROM groups$eventID WHERE GroupName=$groupName")) {
-            throw new Exception("groups add: group name $groupName already in groups table");
+            return false; //throw new Exception("groups add: group name $groupName already in groups table");       // Todo: deside if this should be false or Exception
         }
 
         $result = DB::query("INSERT INTO groups" . $eventID . "  (GroupName) VALUES ($groupName)");
