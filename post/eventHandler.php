@@ -17,7 +17,7 @@ if (empty($errors)) {
         case 'getEvents' :
             try {
                 $user = new User($_SESSION['userId']);
-                $response['events'] = $user->getEvents();
+                $response['events'] = $user->getEventNames();
             } catch (Event $e){
                 $errors['getEvents'] = $e->getMessage();
             }
@@ -27,6 +27,24 @@ if (empty($errors)) {
             if ($event !== null) {
                 try {
                     $response['msg'] = $event->update($_POST['name'], $_POST['pk'], $_POST['value']);
+                } catch (Exception $e) {
+                    $errors['event'] = $e->getMessage();
+                    $errors['name'] = $_POST['name'];
+                    $errors['value'] = $_POST['value'];
+                }
+            } else {
+                $errors['event'] = "event is null";
+            }
+            break;
+        case 'updateSms':
+            //TODO: test smsgateway before submitting
+            $event = new Event($_SESSION['userId'], $_SESSION['eventId']);
+            if ($event !== null) {
+                $formData = $_POST['data'];
+                try {
+                    foreach ($formData as $field => $value)
+                    $response['post'] = $_POST;
+                    $response['msg'] = $event->update($field, $_POST['pk'], $value);
                 } catch (Exception $e) {
                     $errors['event'] = $e->getMessage();
                     $errors['name'] = $_POST['name'];
@@ -120,3 +138,4 @@ function createVal(&$params, &$errors){
     if (empty($params['Venue']    )){}
     if (empty($params['Address']  )){}
 }
+

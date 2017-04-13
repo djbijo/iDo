@@ -290,7 +290,7 @@ class Event implements iEvent
         }
 
         $regexp = '/root/';
-        return filter_var($phone, FILTER_VALIDATE_REGEXP,
+        return filter_var($result[0]['Permission1'], FILTER_VALIDATE_REGEXP,
             array("options"=>array("regexp"=>$regexp)));
 
         return $result[0]['Permission1'];

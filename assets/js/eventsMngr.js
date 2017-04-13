@@ -55,7 +55,45 @@ $(function() {
     });
 });
 
+//change event:
 
+var getEvents = function(){
+    $.ajax({
+        type        : "POST",
+        url         : "post/eventHandler.php",
+        data        : {action: 'getEvents'},
+        // contentType: "application/json; charset=utf-8",
+        dataType    : 'json', // what type of data do we expect back from the server
+        encode      : true,
+    })
+        .done( function(data){
+            if (data.status === 'success'){
+                console.log(data.events);
+                var events = data.events;
+                for (var prop in events){
+                    var li = $('<li></li>');
+                    var a = $('<a></a>')
+                    a.attr("herf", "#");
+                    a.text(events[prop].name);
+                    a.attr("data-event-id", events[prop].id);
+                    li.append(a);
+                    $("#selectEventsDropdown").append(li);
+                }
+                $('#selectEventsDropdown li').on("click", "a", function(event){
+                    event.preventDefault();
+                    console.log(this);
+                    console.log($(this).data("eventId"));
+                })
+
+            }
+        })
+        .fail(function(data){
+            bootbox.alert(data.responseText);
+        })
+    // onclick="selectEvent(this)
+};
+
+var $eventID;
 var updateEventData = function(event){
     $('#EventName').editable('setValue' , event.EventName).editable('option', 'pk', event.ID)  ;
     $('#EventDate').editable('setValue' , event.EventDate, true).editable('option', 'pk', event.ID);
@@ -68,6 +106,9 @@ var updateEventData = function(event){
     $('#password').val = event.Password;
     $('#secret').val = event.Secret;
     $('#device-id').val = event.DeviceID;
+    if ($eventID !== event.ID)
+        getEvents();
+    $eventID = event.ID;
 };
 
 
@@ -106,11 +147,10 @@ var loadEventData = function (data) {
 };
 $(document).on("signedIn", getEventData);
 $.when($.ready).then(function(){
-    if (isSignedIn) getEventData();
+    if (isSignedIn) {
+        getEventData();
+    }
 })
-var createNewEvent = function (eventData) {
-
-}
 
 $("#addEventForm").submit(function(event){
     // cancels the form submission
@@ -225,27 +265,7 @@ var deleteEvent = function ()  {
     });
 };
 
-//change event:
 
-var getEvents = function(){
-    $.ajax({
-        type        : "POST",
-        url         : "post/eventHandler.php",
-        data        : {action: 'getEvents'},
-        // contentType: "application/json; charset=utf-8",
-        dataType    : 'json', // what type of data do we expect back from the server
-        encode      : true,
-    })
-    .done( function(data){
-        if (data.status === 'success'){
-            console.log(data.events);
-        }
-    })
-    .fail(function(data){
-        bootbox.alert(data.responseText);
-    })
-  $("#selectEventsDropdown").append(' <li role="presentation"><a role="menuitem">JavaScript</a></li>')
-};
 
 $("#edit-smsgateway").submit(function(event){
     // cancels the form submission
@@ -254,7 +274,7 @@ $("#edit-smsgateway").submit(function(event){
     submitSmsForm();
 });
 
-function submitForm(){
+function submitSmsForm(){
     $('.form-group').removeClass('has-error'); // remove the error class
     $('.help-block').remove(); // remove the error text
     $('.alert-success').remove(); //remove the success text
@@ -269,7 +289,7 @@ function submitForm(){
     $.ajax({
         type        : "POST",
         url         : "post/eventHandler.php",
-        data        : {action: 'updateSms', data: formData},
+        data        : {action: 'updateSms', data: formData, pk: $eventID},
         // contentType: "application/json; charset=utf-8",
         dataType    : 'json', // what type of data do we expect back from the server
         encode      : true,
@@ -291,26 +311,22 @@ function submitForm(){
                     $('#sms-secret-group').addClass('has-error'); // add the error class to show red input
                     $('#sms-secret-group').append('<div class="help-block">' + data.errors.secret + '</div>'); // add the actual error message under our input
                 }
-                if (data.errors.deviceId) {
-                    $('#sms-id-group').addClass('has-error'); // add the error class to show red input
-                    $('#sms-id-group').append('<div class="help-block">' + data.errors.deviceId + '</div>'); // add the actual error message under our input
-                }
+                // if (data.errors.deviceId) {
+                //     $('#sms-id-group').addClass('has-error'); // add the error class to show red input
+                //     $('#sms-id-group').append('<div class="help-block">' + data.errors.deviceId + '</div>'); // add the actual error message under our input
+                // }
                 if (data.errors.password) {
                     $('#sms-password-group').addClass('has-error'); // add the error class to show red input
                     $('#sms-password-group').append('<div class="help-block">' + data.errors.password + '</div>'); // add the actual error message under our input
-                }
-                if (data.errors.address) {
-                    $('#address-group').addClass('has-error'); // add the error class to show red input
-                    $('#address-group').append('<div class="help-block">' + data.errors.address + '</div>'); // add the actual error message under our input
                 }
             } else {
                 // ALL GOOD! just show the success message!
                 // console.log("in submit success");
                 // $('#addRsvpRowForm').append('<div class="alert alert-success">' + data.message + '</div>');
                 //TODO: let the user not he succeded
-                $("#addEventForm")[0].reset();
-                $("#addEventForm").collapse();
-                getEventData();
+                $("#edit-smsgateway")[0].reset();
+                // $("#edit-smsgateway").collapse();
+                // getEventData();
                 // usually after form submission, you'll want to redirect
                 // window.location = '/thank-you'; // redirect a user to another page
                 // alert('success'); // for now we'll just alert the user

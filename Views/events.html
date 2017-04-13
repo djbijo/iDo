@@ -76,12 +76,7 @@
         </tbody>
     </table>
 </div>
-<div class="dropdown">
-    <button class="btn btn-default dropdown-toggle" type="button" id="selectEvents" data-toggle="dropdown">בחר אירוע
-        <span class="caret"></span></button>
-    <ul class="dropdown-menu" role="menu" aria-labelledby="menu1" id="selectEventsDropdown">
-    </ul>
-</div>
+
 
 <div>
     <form id="edit-smsgateway" class="form-horizontal">
@@ -98,12 +93,12 @@
                     <input type="text" class="input-medium" id="secret" value="ezvite">
                 </div> <!-- /controls -->
             </div> <!-- /control-group -->
-            <div class="control-group" id="sms-id-group">
-                <label class="control-label" for="device-id">device-id</label>
-                <div class="controls">
-                    <input type="text" class="input-medium" id="device-id" value="1111">
-                </div> <!-- /controls -->
-            </div> <!-- /control-group -->
+            <!--<div class="control-group" id="sms-id-group">-->
+                <!--<label class="control-label" for="device-id">device-id</label>-->
+                <!--<div class="controls">-->
+                    <!--<input type="text" class="input-medium" id="device-id" value="1111">-->
+                <!--</div> &lt;!&ndash; /controls &ndash;&gt;-->
+            <!--</div> &lt;!&ndash; /control-group &ndash;&gt;-->
             <div class="control-group" id="sms-password-group">
                 <label class="control-label" for="password">Password</label>
                 <div class="controls">
@@ -121,7 +116,17 @@
 <button data-target="#addEventForm" type="button" class="btn btn-default" data-toggle="collapse">הוסף אירוע חדש</button>
 <button id="deleteEventButton" type="button" class="btn btn-danger" onclick="deleteEvent()" >מחק אירוע</button>
 
-
+<div class="dropdown">
+    <button class="btn btn-default dropdown-toggle" type="button" id="selectEvents" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+        בחר אירוע
+        <span class="caret"></span>
+    </button>
+    <ul id="selectEventsDropdown" class="dropdown-menu" aria-labelledby="selectEvents">
+        <li><a href="#">Action</a></li>
+        <li><a href="#">Another action</a></li>
+        <li><a href="#">Something else here</a></li>
+    </ul>
+</div>
 <!-- bootstrap-datetimepicker -->
 
 
