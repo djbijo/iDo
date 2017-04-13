@@ -144,6 +144,9 @@ class Messages extends Table {
         return true;
     }
 
+
+//    public function sendMessages($event['Email'],$event['Password'],$guests, $message[0]['Message'], $message[0]['SendDate'], $message[0]['SendTime']);
+
 }
 
 ?>
