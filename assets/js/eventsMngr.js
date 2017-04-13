@@ -70,6 +70,7 @@ var getEvents = function(){
             if (data.status === 'success'){
                 console.log(data.events);
                 var events = data.events;
+                $('#selectEventsDropdown li').remove();
                 for (var prop in events){
                     var li = $('<li></li>');
                     var a = $('<a></a>')
@@ -81,8 +82,7 @@ var getEvents = function(){
                 }
                 $('#selectEventsDropdown li').on("click", "a", function(event){
                     event.preventDefault();
-                    console.log(this);
-                    console.log($(this).data("eventId"));
+                    changeEvent($(this).data('eventId'));
                 })
 
             }
@@ -111,7 +111,25 @@ var updateEventData = function(event){
     $eventID = event.ID;
 };
 
-
+var changeEvent = function (eventId) {
+    if (eventId == $eventID) return;
+    $.ajax({
+        type        : "POST",
+        url         : "post/eventHandler.php",
+        data        : {action: 'changeEvent', eventId: eventId},
+        // contentType: "application/json; charset=utf-8",
+        dataType    : 'json', // what type of data do we expect back from the server
+        encode      : true,
+        success     : function(data) {
+            getEventData();
+        },
+        error       : function(jqXHR, status){
+            console.log(status);
+            console.log(jqXHR);
+            bootbox.alert(jqXHR.responseText);
+        }
+    })
+};
 
 var getEventData = function () {
     $.ajax({

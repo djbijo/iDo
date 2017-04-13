@@ -116,15 +116,12 @@
 <button data-target="#addEventForm" type="button" class="btn btn-default" data-toggle="collapse">הוסף אירוע חדש</button>
 <button id="deleteEventButton" type="button" class="btn btn-danger" onclick="deleteEvent()" >מחק אירוע</button>
 
-<div class="dropdown">
-    <button class="btn btn-default dropdown-toggle" type="button" id="selectEvents" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-        בחר אירוע
-        <span class="caret"></span>
+<div class="btn-group">
+    <button type="button" class="form-control btn btn-default dropdown-toggle" data-toggle="dropdown">
+        החלף אירוע <span class="caret"></span>
     </button>
-    <ul id="selectEventsDropdown" class="dropdown-menu" aria-labelledby="selectEvents">
-        <li><a href="#">Action</a></li>
-        <li><a href="#">Another action</a></li>
-        <li><a href="#">Something else here</a></li>
+    <ul class="dropdown-menu" role="menu" id="selectEventsDropdown">
+        <li><a href="#">אין ארועים</a></li>
     </ul>
 </div>
 <!-- bootstrap-datetimepicker -->

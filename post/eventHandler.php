@@ -22,6 +22,16 @@ if (empty($errors)) {
                 $errors['getEvents'] = $e->getMessage();
             }
             break;
+        case 'changeEvent':
+            try {
+                $user = new User($_SESSION['userId']);
+                $user->selectEvent($_POST['eventId']);
+                $_SESSION['eventId'] = $user->event->getEventID();
+//                $response['newEventId'] = $user->event->getEventID();
+            } catch (Exeption $e){
+                $errors['changeEvent'] = $e->getMessage();
+            }
+            break;
         case 'update' :
             $event = new Event($_SESSION['userId'], $_SESSION['eventId']);
             if ($event !== null) {

@@ -177,10 +177,10 @@ class User implements iUser
 
         $result = DB::select("SELECT * FROM Events WHERE ID=$id[1] OR ID=$id[2] OR ID=$id[3]");
         if ($result) {
-            $i=1;
+            $i=0;
             foreach ($result as $event){
                 $out[$i]['name'] = $event['EventName'];
-                $out[$i]['id'] = $id[$i];
+                $out[$i]['id'] = $event['ID']; //FIXME: [gil] - changed because the order wasn't the same
                 $i++;
             }
             return $out;
@@ -488,6 +488,8 @@ class User implements iUser
         if (DB::affectedRows() < 0) {
             throw new Exception("User selectEvent: couldn't switch event$EventID and event$event1 in users records");
         }
+        //FIXME: gil added, need to make sure it's sanitized
+        $this->event = new Event($id, $EventID);
     }
 
     /**
