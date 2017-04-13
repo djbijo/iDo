@@ -29,6 +29,8 @@ if (empty($errors)) {
                     $response['msg'] = $event->update($_POST['name'], $_POST['pk'], $_POST['value']);
                 } catch (Exception $e) {
                     $errors['event'] = $e->getMessage();
+                    $errors['name'] = $_POST['name'];
+                    $errors['value'] = $_POST['value'];
                 }
             } else {
                 $errors['event'] = "event is null";

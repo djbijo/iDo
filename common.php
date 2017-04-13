@@ -24,7 +24,7 @@ function validatePhone($phone){         // Todo: handle too many numbers, Null r
 }
 
 function validateEmail($email){         // Todo: handle valid email address, Null returns true
-    return true;
+    return filter_var($email, FILTER_VALIDATE_EMAIL);
 }
 
 /**

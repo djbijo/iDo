@@ -82,8 +82,48 @@
     <ul class="dropdown-menu" role="menu" aria-labelledby="menu1" id="selectEventsDropdown">
     </ul>
 </div>
+
+<div>
+    <form id="edit-smsgateway" class="form-horizontal">
+        <fieldset>
+            <div class="control-group" id="sms-name-group">
+                <label class="control-label" for="email">Email Address</label>
+                <div class="controls">
+                    <input type="text" class="input-large" id="email" value="rod.howard@example.com">
+                </div> <!-- /controls -->
+            </div> <!-- /control-group -->
+            <div class="control-group" id="sms-secret-group">
+                <label class="control-label" for="secret">secret</label>
+                <div class="controls">
+                    <input type="text" class="input-medium" id="secret" value="ezvite">
+                </div> <!-- /controls -->
+            </div> <!-- /control-group -->
+            <div class="control-group" id="sms-id-group">
+                <label class="control-label" for="device-id">device-id</label>
+                <div class="controls">
+                    <input type="text" class="input-medium" id="device-id" value="1111">
+                </div> <!-- /controls -->
+            </div> <!-- /control-group -->
+            <div class="control-group" id="sms-password-group">
+                <label class="control-label" for="password">Password</label>
+                <div class="controls">
+                    <input type="password" class="input-medium" id="password" value="password">
+                </div> <!-- /controls -->
+            </div> <!-- /control-group -->
+            <div class="help-block" id="sms-help-block"></div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">שמור</button>
+                <button class="btn">בטל</button>
+            </div> <!-- /form-actions -->
+        </fieldset>
+    </form>
+</div>
 <button data-target="#addEventForm" type="button" class="btn btn-default" data-toggle="collapse">הוסף אירוע חדש</button>
 <button id="deleteEventButton" type="button" class="btn btn-danger" onclick="deleteEvent()" >מחק אירוע</button>
 
-<script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
+
+<!-- bootstrap-datetimepicker -->
+
+
+<!--<script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>-->
 <script src="assets/js/eventsMngr.js"></script>

@@ -1,77 +1,76 @@
-var initializeEditable = function(){
+$(function() {
+    $.fn.editable.defaults.mode = 'inline';
+    $.fn.editable.defaults.url = 'post/eventHandler.php';
+    $.fn.editable.defaults.params = {action: 'update'};
+    $.fn.editable.defaults.ajaxOptions = {dataType: 'json'};
+
+    $.fn.editable.defaults.error = function(response, newValue) {
+        bootbox.alert(response.responseText);
+    };
+
+    $.fn.editable.defaults.success = function(response, newValue) {
+        try {
+            if (response.status !== "success") {
+                console.log("error");
+                return response.errors.event;
+            }
+            getEventData();
+        } catch (e){
+            console.log(e);
+        }
+    };
+
     $('#EventName').editable({
         type: 'text',
-        // pk: event.ID,
-        // value: event.EventName,
         title: 'שינוי שם'
     });
     $('#EventDate').editable({
         type: 'date',
         format: 'yyyy-mm-dd',
+        // format: 'YYYY-MM-DD',
+        // value: "2000-01-01",
+        // viewformat: 'DD/MM/YYYY',
         viewformat: 'dd/mm/yyyy',
         mode: 'popup',
         datepicker: {
             weekstart: 1
         },
         placement: 'bottom',
-        // pk: event.ID,
-        // value: event.EventDate,
-        title: 'שינוי שם'
+        title: 'שנה תאריך'
     });
-    // document.getElementById('HebrewDate').innerHTML = event.HebrewDate;
-    //     .editable({
-    //     type: 'text',
-    //     pk: event.ID,
-    //     url: '/post/eventHandler.php',
-    //     value: event.EventName,
-    //     title: 'שינוי שם'
-    // });
     $('#EventTime').editable({
         type: 'time',
         placeholder: '19:00',
-        // pk: event.ID,
-        // value: event.EventTime,
         title: 'שינוי שם'
     });
     $('#Venue').editable({
         type: 'text',
         placeholder: 'אולמי בונבון',
-        // pk: event.ID,
-        // value: event.Venue,
         title: 'שנה מקום'
     });
     $('#Address').editable({
         type: 'text',
         placeholder: '',
-        // pk: event.ID,
-        // value: event.Address,
         title: 'שנה כתובת'
     });
-};
+});
+
 
 var updateEventData = function(event){
     $('#EventName').editable('setValue' , event.EventName).editable('option', 'pk', event.ID)  ;
-    $('#EventDate').editable('setValue' , event.EventDate).editable('option', 'pk', event.ID);
+    $('#EventDate').editable('setValue' , event.EventDate, true).editable('option', 'pk', event.ID);
     document.getElementById('HebrewDate').innerHTML = event.HebrewDate;
     $('#EventTime').editable('setValue' , event.EventTime).editable('option', 'pk', event.ID);
     $('#Venue').editable('setValue' , event.Venue).editable('option', 'pk', event.ID);
     $('#Address').editable('setValue' , event.Address).editable('option', 'pk', event.ID);
+    //smsgateway form:
+    $('#email').val = event.Email;
+    $('#password').val = event.Password;
+    $('#secret').val = event.Secret;
+    $('#device-id').val = event.DeviceID;
 };
 
-$.fn.editable.defaults.mode = 'inline';
-$.fn.editable.defaults.url = 'post/eventHandler.php';
-$.fn.editable.defaults.params = {action: 'update'};
-$.fn.editable.defaults.ajaxOptions = {dataType: 'json'};
-$.fn.editable.defaults.error = function(response, newValue) {
-    bootbox.alert(response.responseText);
-};
-$.fn.editable.defaults.success = function(response, newValue) {
-    if ( response.status !== "success") {
-        console.log("error");
-        return response.errors.event;
-    }
-    getEventData();
-};
+
 
 var getEventData = function () {
     $.ajax({
@@ -248,3 +247,80 @@ var getEvents = function(){
   $("#selectEventsDropdown").append(' <li role="presentation"><a role="menuitem">JavaScript</a></li>')
 };
 
+$("#edit-smsgateway").submit(function(event){
+    // cancels the form submission
+    event.preventDefault();
+    console.log("in submit");
+    submitSmsForm();
+});
+
+function submitForm(){
+    $('.form-group').removeClass('has-error'); // remove the error class
+    $('.help-block').remove(); // remove the error text
+    $('.alert-success').remove(); //remove the success text
+    // Initiate Variables With Form Content
+    var formData = {
+        'Email' : $("#email").val(),
+        'Password' : $("#password").val(),
+        'Secret' : $("#secret").val(),
+        'DeviceID'     : $("#device-id").val(),
+    }
+
+    $.ajax({
+        type        : "POST",
+        url         : "post/eventHandler.php",
+        data        : {action: 'updateSms', data: formData},
+        // contentType: "application/json; charset=utf-8",
+        dataType    : 'json', // what type of data do we expect back from the server
+        encode      : true,
+    })
+
+        .done(function(data) {
+            // here we will handle errors and validation messages
+            console.log(data);
+            if ( data.status !== "success") {
+                if (data.errors.login){
+                    $('#sms-help-block').append('<div class="help-block">' + data.errors.login + '</div>');
+                }
+                // handle errors for name ---------------
+                if (data.errors.email) {
+                    $('#sms-email-group').addClass('has-error'); // add the error class to show red input
+                    $('#sms-email-group').append('<div class="help-block">' + data.errors.email + '</div>'); // add the actual error message under our input
+                }
+                if (data.errors.secret) {
+                    $('#sms-secret-group').addClass('has-error'); // add the error class to show red input
+                    $('#sms-secret-group').append('<div class="help-block">' + data.errors.secret + '</div>'); // add the actual error message under our input
+                }
+                if (data.errors.deviceId) {
+                    $('#sms-id-group').addClass('has-error'); // add the error class to show red input
+                    $('#sms-id-group').append('<div class="help-block">' + data.errors.deviceId + '</div>'); // add the actual error message under our input
+                }
+                if (data.errors.password) {
+                    $('#sms-password-group').addClass('has-error'); // add the error class to show red input
+                    $('#sms-password-group').append('<div class="help-block">' + data.errors.password + '</div>'); // add the actual error message under our input
+                }
+                if (data.errors.address) {
+                    $('#address-group').addClass('has-error'); // add the error class to show red input
+                    $('#address-group').append('<div class="help-block">' + data.errors.address + '</div>'); // add the actual error message under our input
+                }
+            } else {
+                // ALL GOOD! just show the success message!
+                // console.log("in submit success");
+                // $('#addRsvpRowForm').append('<div class="alert alert-success">' + data.message + '</div>');
+                //TODO: let the user not he succeded
+                $("#addEventForm")[0].reset();
+                $("#addEventForm").collapse();
+                getEventData();
+                // usually after form submission, you'll want to redirect
+                // window.location = '/thank-you'; // redirect a user to another page
+                // alert('success'); // for now we'll just alert the user
+            }
+        })
+        .fail(function(data) {
+            // log data to the console so we can see
+            $("addRowModal").modal('toggle');
+            document.getElementById("errMsg").innerHTML = data.responseText;
+            $("#error_modal").modal();
+            console.log(data);
+        });
+}

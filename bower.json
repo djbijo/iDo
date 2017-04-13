@@ -22,6 +22,7 @@
   ],
   "dependencies": {
     "bootstrap-table": "^1.11.1",
-    "bootstrap-rtl": "^3.4.0"
+    "bootstrap-rtl": "^3.4.0",
+    "eonasdan-bootstrap-datetimepicker": "^4.17.47"
   }
 }
