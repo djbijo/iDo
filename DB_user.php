@@ -159,6 +159,36 @@ class User implements iUser
     }
 
     /**
+     * getEventNames: get all events names for the user
+     * @return array[6]  array[i]['id'] = event i id, array[i]['name'] = event i name
+     * @throws "שגיאה: לא ניתן להציג את האירועים עבור משתמש זה."
+     */
+    public function getEventNames()
+    {
+        $events = $this->getEvents();
+        $id[1] = $events['event1'];
+        $id[2] = $events['event2'];
+        $id[3] = $events['event3'];
+
+        // set ' ' to null
+        for ($i=1;$i<=3;$i++){
+            if (!$id[$i]) $id[$i]='NULL';
+        }
+
+        $result = DB::select("SELECT * FROM Events WHERE ID=$id[1] OR ID=$id[2] OR ID=$id[3]");
+        if ($result) {
+            $i=1;
+            foreach ($result as $event){
+                $out[$i]['name'] = $event['EventName'];
+                $out[$i]['id'] = $id[$i];
+                $i++;
+            }
+            return $out;
+        }
+        throw new Exception("שגיאה: לא ניתן להציג את האירועים עבור משתמש זה.");
+    }
+
+    /**
      * addUser: Add user to Users table
      * @param string $ID : user id
      * @param string $Name : user name

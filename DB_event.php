@@ -289,6 +289,10 @@ class Event implements iEvent
             throw new Exception("שגיאה: האירוע המבוקש לא נמצא במאגרי האתר.");
         }
 
+        $regexp = '/root/';
+        return filter_var($phone, FILTER_VALIDATE_REGEXP,
+            array("options"=>array("regexp"=>$regexp)));
+
         return $result[0]['Permission1'];
     }
 
