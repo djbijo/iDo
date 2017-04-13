@@ -20,6 +20,8 @@ interface iEvent
 
     public function getUsers();
 
+    public function sendMessages($messageID);
+
 }
 
 class Event implements iEvent
@@ -251,6 +253,18 @@ class Event implements iEvent
     }
 
     /**
+     * sendMessages:
+     * @return
+     * @throws Exception
+     */
+    public function sendMessages($messageID){
+
+        // check MessageID exists
+
+
+    }
+
+    /**
      * getPermission: get the user permission for this event;
      * @return permission of this event for a specific user
      * @throws Exception "שגיאה: האירוע המבוקש לא נמצא במאגרי האתר."
@@ -295,6 +309,8 @@ class Event implements iEvent
 
         return $hebDate;
     }
+
+
 
 }
 

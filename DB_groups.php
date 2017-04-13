@@ -15,7 +15,7 @@ class groups extends Table {
 
         $result = DB::query("CREATE TABLE IF NOT EXISTS Groups$eventID ( 
                 ID INT(5) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                GroupName VARCHAR(50) NOT NULL,
+                GroupName VARCHAR(50) NOT NULL
                 ) DEFAULT CHARACTER SET utf8;");
 
         if (!$result) {
@@ -76,7 +76,7 @@ class groups extends Table {
 
         // check if groupName already in groups table
         if (NULL !== $groupName and DB::select("SELECT * FROM groups$eventID WHERE GroupName=$groupName")) {
-            return false; //throw new Exception("groups add: group name $groupName already in groups table");       // Todo: deside if this should be false or Exception
+            throw new Exception("שגיאה: קבוצה".$groupName." זו כבר קיימת. אין אפשרות להוסיפה למאגר הקבוצות");
         }
 
         $result = DB::query("INSERT INTO groups" . $eventID . "  (GroupName) VALUES ($groupName)");
