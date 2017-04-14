@@ -47,9 +47,32 @@ $(function(){
     });
 
     let handleMsg = function (send) {
-        var msg = $("#msg").val();
-        var time = $("#msg-send-time").val();
-        var date = $("#msg-send-date").val();
+        var msg = $("#msg").val(),
+         time = $("#msg-send-time").val(),
+         date = $("#msg-send-date").val(),
+         action = send ? 'send' : 'add';
+
         console.log("msg is: " + msg + " date to send: " + date+" time: "+time);
+        $.ajax({
+            type        : "POST",
+            url         : "post/messagesHandler.php",
+            data        : {
+                action : action,
+                message: msg,
+                date   : date,
+                time   : time
+            },
+            // contentType: "application/json; charset=utf-8",
+            dataType    : 'json', // what type of data do we expect back from the server
+            encode      : true,
+        })
+
+        .done(function(data) {
+            console.log("sent msg success");
+            console.log(data);
+        })
+        .fail(function (data) {
+            console.log(data);
+        })
     }
 });
