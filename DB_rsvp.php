@@ -94,7 +94,7 @@ class RSVP extends Table {
         $arrayI = DB::quote($array[0]);
         $query = "SELECT * FROM rsvp$eventID WHERE Groups=$arrayI";
         
-        while ($array[$i]){
+        while (isset($array[$i])){
             $arrayI = DB::quote($array[$i]);
             $query = $query . " OR Groups=$arrayI";
             $i++;
@@ -127,7 +127,7 @@ class RSVP extends Table {
      * @param int $RSVP : amount of guests coming (default 0)
      * @param int $Uncertin : amount of people not sure if coming
      * @param bool|int $Ride : if the guest ordered a ride or not (default false)
-     * @return bool true if row added / false otherwise
+     * @return int insert id if added
      * @throws Exception "RSVP add: Email $email already in RSVP table"
      * @throws Exception "RSVP add: Phone $phone already in RSVP table"
      * @throws Exception "RSVP add: Error adding guest $name $surName to RSVP$eventID table"

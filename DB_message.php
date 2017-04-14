@@ -74,7 +74,7 @@ class Messages extends Table {
      * @param SendDate : date to send the message
      * @param $SendTime : time of day to send the message
      * @param $Groups: group that message should be sent to (default null)
-     * @return bool true if row added / false otherwise
+     * @return int insert id if added
      * @throws Exception "Messages add: Error adding guest $message to Messages$eventID table"
      */
     public function add($MessageType, $Message, $SendDate, $SendTime, $Groups = NULL) {
@@ -93,7 +93,7 @@ class Messages extends Table {
         if (!$result) {
             throw new Exception("Messages add: Error adding Message: $message to Messages$eventID table");
         }
-        return true;
+        return DB::insertID();
     }
 
     /**
@@ -125,7 +125,7 @@ class Messages extends Table {
         $group = DB::quote($Groups[0]);
         $string = "$group";
         
-        while ($Groups[0][$i]){
+        while (isset($Groups[0][$i])){
             $group = DB::quote($Groups[$i]);
             $string = $string . ",$group";
             $i++;

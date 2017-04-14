@@ -22,6 +22,7 @@ interface iEvent
 
     public function sendMessages($MessageID);
 
+    public function getMessages();
 }
 
 class Event implements iEvent
@@ -282,6 +283,25 @@ class Event implements iEvent
         unset($message[0]['Groups']);
 
         return $this->messages->sendMessages($event, $guests, $message[0]);
+    }
+
+    /** TODO: update
+     * sendMessages: send messages to relevant guests
+     * @return bool true if messages sent
+     * @throws Exception "שגיאה: בכדי לשלוח הודעה יש צורך בהתחברות לאתר smsGateway והכנסת הפרטים תחת 'ניהול אירוע'"
+     */
+    public function getMessages(){
+        // get messages and insert to rawData[eventID] table
+        $event = $this->get();
+
+        // check email
+        if(!$event['Email']){
+            throw new Exception("שגיאה: בכדי לקבל הודעה יש צורך בהתחברות לאתר smsGateway והכנסת הפרטים תחת 'ניהול אירוע'");
+        }
+
+        $rawData = $this->rawData->getMessages($event['Email'], $event['Password'], $event['DeviceID']);
+
+        // update RSVP according to RawData
     }
 
     /**
