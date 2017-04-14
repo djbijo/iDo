@@ -48,21 +48,92 @@ function postGetEvent(){
 function GER2UTC($date,$time){
     // set default timezone
     date_default_timezone_set('Asia/Jerusalem');
-
     $dateTime =  strtotime("$date"."$time");
-
-    date("Y-m-dTG:i:sz",$dateTime);
     date_default_timezone_set("UTC");
-    $UTCtime = date("Y-m-dTG:i:sz", $dateTime);
-
-    // get rid of "UTC" in $UTCtime
-    $timeArray = explode('UTC',$UTCtime);
-    $newTime = $timeArray[0]." ".$timeArray[1];
-
-    //take only the Date XXXX-XX-XX and number XX:XX:XX (total 19 characters)
-    return substr($newTime, 0, 19);
+    return date("Y-m-d G:i:s", $dateTime);
 }
 
+function UNIX2GER($unixTime){
+    // set default timezone
+    date_default_timezone_set('Asia/Jerusalem');
+    return date("Y-m-d G:i:s", $unixTime);
+}
+
+function get_numerics ($str) {
+    preg_match_all('/\d+/', $str, $matches);
+    return $matches[0];
+}
+
+function dictionary($string){
+
+    $patterns = array();
+    $replacements = array();
+
+    $patterns[0] = '/אחד/';
+    $patterns[1] = '/אחת/';
+    $patterns[2] = '/one/';
+    $patterns[3] = '/שניים/';
+    $patterns[4] = '/שתיים/';
+    $patterns[5] = '/two/';
+    $patterns[6] = '/שלוש/';
+    $patterns[7] = '/שלושה/';
+    $patterns[8] = '/three/';
+    $patterns[9] = '/ארבע/';
+    $patterns[10] = '/ארבעה/';
+    $patterns[11] = '/four/';
+    $patterns[12] = '/חמש/';
+    $patterns[13] = '/חמישה/';
+    $patterns[14] = '/five/';
+    $patterns[15] = '/שש/';
+    $patterns[16] = '/שישה/';
+    $patterns[17] = '/six/';
+    $patterns[18] = '/שבע/';
+    $patterns[19] = '/שבעה/';
+    $patterns[20] = '/seven/';
+    $patterns[21] = '/שמונה/';
+    $patterns[22] = '/שמונה/';
+    $patterns[23] = '/eight/';
+    $patterns[24] = '/תשע/';
+    $patterns[25] = '/תשעה/';
+    $patterns[26] = '/nine/';
+    $patterns[27] = '/עשר/';
+    $patterns[28] = '/עשרה/';
+    $patterns[29] = '/ten/';
+
+    $replacements[0] = '1';
+    $replacements[1] = '1';
+    $replacements[2] = '1';
+    $replacements[3] = '2';
+    $replacements[4] = '2';
+    $replacements[5] = '2';
+    $replacements[6] = '3';
+    $replacements[7] = '3';
+    $replacements[8] = '3';
+    $replacements[9] = '4';
+    $replacements[10] = '4';
+    $replacements[11] = '4';
+    $replacements[12] = '5';
+    $replacements[13] = '5';
+    $replacements[14] = '5';
+    $replacements[15] = '6';
+    $replacements[16] = '6';
+    $replacements[17] = '6';
+    $replacements[18] = '7';
+    $replacements[19] = '7';
+    $replacements[20] = '7';
+    $replacements[21] = '8';
+    $replacements[22] = '8';
+    $replacements[23] = '8';
+    $replacements[24] = '9';
+    $replacements[25] = '9';
+    $replacements[26] = '9';
+    $replacements[27] = '10';
+    $replacements[28] = '10';
+    $replacements[29] = '10';
+
+    return preg_replace($patterns,$replacements, $string);
+
+}
 
 
 /**

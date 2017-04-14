@@ -1,6 +1,8 @@
 <?php
 
 require_once ("DB_tables.php");
+require_once ("common.php");
+
 
 class rawData extends Table {
 
@@ -137,18 +139,56 @@ class rawData extends Table {
 
         //get latest inserted rawData date and time
         $eventID = $this->eventID;
-        $sql = DB::query("SELECT * FROM rawData$eventID ORDER BY ID DESC LIMIT 1");
-        if (!$sql) {
+        $latestRaw = DB::query("SELECT * FROM rawData$eventID ORDER BY ID DESC LIMIT 1");
+        if (!$latestRaw) {
             throw new Exception("Error : לא ניתן להוציא את המידע המאוחסן בשרתי החברה בטבלת rawData$eventID");       //TODO: make sure this is right
         }
+        $latestDate = $latestRaw['Date'];
+        $latestTime = $latestRaw['Time'];
 
+        $latestRawTime = strtotime("$latestDate"."$latestTime");
 
         // get data from pages
         $page = 1;
         $result = $smsGateway->getMessages($page);
+        while ($result['response']['success']) {                // TODO: validate blank page
 
-        var_dump($result);
+            foreach ($result['response']['result'] as $Message) {
+                // continue if not received message (only received messages) or if not this deviceID
+                if($Message['status']!='received' or $Message['device_id']!=$DeviceID) continue;
+
+                // break if message dateTime<=$lastRawTime
+                if($Message['received_at']<=$latestRawTime){
+                    $result['response']['success'] = false;     //TODO: validate this stops the while
+                    break;                                      //TODO: validate this stops the foreach
+                }
+
+                $rawData[] = [
+                    'Phone' => $Message['contact']['number'],
+                    'Message' => $Message['message'],
+                    'Received' => UNIX2GER($Message['received_at']),
+                    'RSVP' => $this->extractRSVP($Message['message']),
+                    'Ride' => $this->extractRide($Message['message'])
+                ];
+            }
+            $page++;
+            $result = $smsGateway->getMessages($page);
+        }
+        return $rawData;
     }
+
+    /**
+     * extractRSVP: extract RSVP number out of string
+     * @param string $String : message to extract rsvp from
+     * @return int RSVP
+     */
+    private function extractRSVP($String) {
+        $string = DB::quote($String);
+
+
+
+    }
+
 
 }
 
