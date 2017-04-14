@@ -79,7 +79,7 @@ class rawData extends Table {
      * @param string $Groups : group in which the guest is categorised (default null)
      * @param int $RSVP : amount of guests coming (default 0)
      * @param bool $Ride : if the guest ordered a ride or not (default false)
-     * @return bool true if row added / false otherwise
+     * @return int insert id if added
      * @throws Exception "RawData add: Error adding rawData from $name $surName to RawData$eventID table"
      */
     public function add($Name, $SurName, $Message, $Phone = NULL, $Email = NULL, $Groups = NULL, $RSVP = 0, $Ride = false) {
@@ -100,7 +100,7 @@ class rawData extends Table {
         if (!$result) {
             throw new Exception("RawData add: Error adding rawData from $name $surName to RawData$eventID table");
         }
-        return true;
+        return DB::insertID();
     }
 
     /**
@@ -123,6 +123,31 @@ class rawData extends Table {
         $phone = DB::quote($Phone);
         $result = DB::select("SELECT * FROM RawData$eventID WHERE Phone=$phone");
         return $result;
+    }
+
+
+    /**     TODO: Update
+     * getByPhone:  get RawData table for specific event by phone number (one row)
+     * @param string $Phone : the phone number of the guest
+     * @return row of specific guest (specified by phone number)
+     */
+    public function getMessages($Email, $Password, $DeviceID){
+        //connect to smsGateway
+        $smsGateway = new SmsGateway($Email,$Password);
+
+        //get latest inserted rawData date and time
+        $eventID = $this->eventID;
+        $sql = DB::query("SELECT * FROM rawData$eventID ORDER BY ID DESC LIMIT 1");
+        if (!$sql) {
+            throw new Exception("Error : לא ניתן להוציא את המידע המאוחסן בשרתי החברה בטבלת rawData$eventID");       //TODO: make sure this is right
+        }
+
+
+        // get data from pages
+        $page = 1;
+        $result = $smsGateway->getMessages($page);
+
+        var_dump($result);
     }
 
 }

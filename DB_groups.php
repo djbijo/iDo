@@ -64,7 +64,7 @@ class groups extends Table {
     /**
      * add:  add row to groups[$eventID] table in database
      * @param string $GroupName : group name
-     * @return bool true if row added / false otherwise
+     * @return int insert id if added
      * @throws Exception "groups add: Error adding group $groupName to groups$eventID table"
      */
     public function add($GroupName) {
@@ -84,7 +84,7 @@ class groups extends Table {
         if (!$result) {
             throw new Exception("groups add: Error adding group $groupName to groups$eventID table");
         }
-        return true;
+        return DB::insertID();
     }
 
     /**

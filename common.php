@@ -12,6 +12,9 @@
  * 
  */
 
+// MySQL commands
+//SELECT * FROM rsvp1 ORDER BY ID DESC;
+
 function phoneFromStr($str){
 $sanitized = filter_var($str, FILTER_SANITIZE_NUMBER_INT);
 
