@@ -437,7 +437,7 @@ class User implements iUser
             throw new Exception("שגיאה: לא ניתן ליצור אירוע, ישנה הגבלה של עד 3 אירועים למשתמש בכל זמן נתון.");
         }
 
-        $this->event = new Event($id, NULL,1, $EventName, $EventDate, 'NULL', $EventTime, $Venue, $Address, $EventEmail, $EventPhone, $Password, $Secret, $DeviceID);
+        $this->event = new Event($id, NULL,1, $EventName, $EventDate, $EventTime, $Venue, $Address, $EventEmail, $EventPhone, $Password, $Secret, $DeviceID);
 
         $this->addUserPermissions($result[0]['Email'], 'root');
         $this->selectEvent($this->event->getEventID());

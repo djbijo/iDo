@@ -1,6 +1,8 @@
 <?php
 
 require_once ("DB_tables.php");
+require_once ("smsGateway.php");
+require_once ("common.php");
 
 class Messages extends Table {
 
@@ -20,7 +22,6 @@ class Messages extends Table {
                 Groups VARCHAR(100) DEFAULT NULL,
                 SendDate DATE NOT NULL,
                 SendTime TIME NOT NULL,
-                EventID INT(100) NOT NULL,
                 Sent BOOLEAN DEFAULT FALSE
                 ) DEFAULT CHARACTER SET utf8");
 
@@ -82,13 +83,15 @@ class Messages extends Table {
         $messageType = DB::quote($MessageType);
         $message = DB::quote($Message);
         $groups = $this->appendGroups($Groups);
+        $sendTime = DB::quote($SendTime);
+        $sendDate = DB::quote($SendDate);
 
         $eventID = $this->eventID;
 
-        $result = DB::query("INSERT INTO messages$eventID (MessageType, Message, Groups, SendDate, SendTime, EventID) VALUES
-                    ( $messageType, $message, $groups, $SendDate, $SendTime, $eventID)");
+        $result = DB::query("INSERT INTO messages$eventID (MessageType, Message, Groups, SendDate, SendTime) VALUES
+                    ( $messageType, $message, $groups, $sendDate, $sendTime)");
         if (!$result) {
-            throw new Exception("Messages add: Error adding guest $message to Messages$eventID table");
+            throw new Exception("Messages add: Error adding Message: $message to Messages$eventID table");
         }
         return true;
     }
@@ -110,7 +113,11 @@ class Messages extends Table {
      */
     private function appendGroups($Groups){
         // if empty group
-        if ($Groups[0] === NULL){return false;}
+        if ($Groups[0][0] == NULL) return false;
+        // only one group
+        if($Groups[0][1] == NULL) return DB::quote($Groups);
+
+        // todo: make sure this works with more than one group
         
         // prepare query (append while array[i] is not null)
         $i=1;
@@ -118,7 +125,7 @@ class Messages extends Table {
         $group = DB::quote($Groups[0]);
         $string = "$group";
         
-        while ($Groups[$i]){
+        while ($Groups[0][$i]){
             $group = DB::quote($Groups[$i]);
             $string = $string . ",$group";
             $i++;
@@ -144,8 +151,120 @@ class Messages extends Table {
         return true;
     }
 
+    /**
+     * sendMessage: send costume message to smsGateway => to guests of a specific group
+     * @param array $event : all relevant event details
+     * @param table $guests : guests this message should be sent to
+     * @param array $Message : details of message to be sent
+     * @return bool true if message was sent and was marked as sent
+     * @throws Exception "שגיאה: יש לבחור בזמן שליחת ההודעה שהינו גדול מהשעה הנוכחית."
+     * @throws Exception "שגיאה: שליחת ההודעות נכשלה כשלון קולוסלי. הודעת שגיאה: $errorMsg"
+     */
+    public function sendMessages($event, $guests, $Message){
+        // set time in UTC
+        $time = GER2UTC($Message['SendDate'], $Message['SendTime']);
+        $i=0;
 
-//    public function sendMessages($event['Email'],$event['Password'],$guests, $message[0]['Message'], $message[0]['SendDate'], $message[0]['SendTime']);
+        // check that sending time > current time
+        $currTime = time();
+
+        if ($currTime>strtotime($time)){
+            throw new Exception("שגיאה: יש לבחור בזמן שליחת ההודעה שהינו גדול מהשעה הנוכחית.");
+        }
+
+        // connect to smsGateway
+        $smsGateway = new SmsGateway($event['Email'], $event['Password']);
+
+        // save deviceID
+        $deviceID = $event['DeviceID'];
+
+        //unset all irrelevant columns for function updateMessage
+        unset($event['Email']);
+        unset($event['Password']);
+        unset($event['DeviceID']);
+
+        // update message with details
+        $message = $this->updateMessage($Message['Message'], $event);
+
+        // send messages to smsGateway with time and date in UTC
+        foreach ($guests as $guest){
+            // set time with delay (avoid malfunctions)
+            $timeToSend = $time." +$i minutes";
+            $expire = $timeToSend." +60 minutes";
+            $i++;
+            // prepare guest message
+            $guestMessage = $this->updateGuestMessage($message, $guest);
+            // prepare data
+            $data[] = [
+                'device' => $deviceID,
+                'number' => $guest['Phone'],
+                'message' => $guestMessage,
+                'send_at' => strtotime($timeToSend),
+                'expire_at' => strtotime($expire)
+            ];
+        }
+        // send messages to smsGateway
+        $response = $smsGateway->sendManyMessages($data);
+
+        // check and return errors
+        if($response['response']['result']['fails'][0]['errors']){
+            $errorMsg = print_r($response['response']['result']['fails'][0]['errors'],true);
+            throw new Exception("שגיאה: שליחת ההודעות נכשלה כשלון קולוסלי. הודעת שגיאה: $errorMsg");
+        }
+
+        // mark message as sent
+        return $this->markAsSent($event['ID'],$Message['ID']);
+    }
+
+    /**
+     * updateMessage:  update message with the Name,Date,HebrewDate,Time,Address and venue of the event
+     * @param string $Message : message that should be sent (containing relevant patterns)
+     * @param array $event : all relevant event details
+     * @return string updated message with all replacements
+     */
+    private function updateMessage($Message, $event){
+
+        $patterns = array();
+        $replacements = array();
+
+        $patterns[0] = '/{אירוע}/';
+        $patterns[1] = '/{תאריך}/';
+        $patterns[2] = '/{תאריךע}/';
+        $patterns[3] = '/{שעה}/';
+        $patterns[4] = '/{כתובת}/';
+        $patterns[5] = '/{מקום}/';
+
+        $replacements[0] = $event['EventName'];
+        $replacements[1] = $event['EventDate'];
+        $replacements[2] = $event['HebrewDate'];
+        $replacements[3] = $event['EventTime'];
+        $replacements[4] = $event['Address'];
+        $replacements[5] = $event['Venue'];
+
+        return preg_replace($patterns,$replacements, $Message);
+
+    }
+
+    /**
+     * updateGuestMessage:  update message with the Name,Surname and nickname of the guest
+     * @param string $message : message that should be sent (containing relevant patterns)
+     * @param array $guest : all relevant guest details
+     * @return string updated message with all replacements
+     */
+    private function updateGuestMessage($message, $guest){
+        $patterns = array();
+        $replacements = array();
+
+        $patterns[0] = '/{שם}/';
+        $patterns[1] = '/{משפחה}/';
+        $patterns[2] = '/{כינוי}/';
+
+        $replacements[0] = $guest['Name'];
+        $replacements[1] = $guest['Surname'];
+        $replacements[1] = $guest['Nickname'];
+
+        return preg_replace($patterns,$replacements, $message);
+    }
 
 }
 

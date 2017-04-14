@@ -20,7 +20,7 @@ interface iEvent
 
     public function getUsers();
 
-    public function sendMessages($messageID);
+    public function sendMessages($MessageID);
 
 }
 
@@ -253,9 +253,9 @@ class Event implements iEvent
     }
 
     /**
-     * sendMessages:
-     * @return
-     * @throws Exception
+     * sendMessages: send messages to relevant guests
+     * @return bool true if messages sent
+     * @throws Exception "שגיאה: בכדי לשלוח הודעה יש צורך בהתחברות לאתר smsGateway והכנסת הפרטים תחת 'ניהול אירוע'"
      */
     public function sendMessages($MessageID){
 
@@ -271,7 +271,17 @@ class Event implements iEvent
         $guests = $this->rsvp->getByGroups($message[0]['Groups']);
         $event = $this->get();
 
-        return $this->messages->sendMessages($event['Email'],$event['Password'],$guests, $message[0]['Message'], $message[0]['SendDate'], $message[0]['SendTime']);
+        // check email
+        if(!$event['Email']){
+            throw new Exception("שגיאה: בכדי לשלוח הודעה יש צורך בהתחברות לאתר smsGateway והכנסת הפרטים תחת 'ניהול אירוע'");
+        }
+
+        //unset all irrelevant columns
+        unset($event['Created']);
+        unset($event['Secret']);
+        unset($message[0]['Groups']);
+
+        return $this->messages->sendMessages($event, $guests, $message[0]);
     }
 
     /**
