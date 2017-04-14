@@ -113,9 +113,9 @@ class Messages extends Table {
      */
     private function appendGroups($Groups){
         // if empty group
-        if ($Groups[0][0] == NULL) return false;
+        if ($Groups[0][0] == NULL) return 'NULL';
         // only one group
-        if($Groups[0][1] == NULL) return DB::quote($Groups);
+        if(!isset($Groups[0][1])) return DB::quote($Groups);
 
         // todo: make sure this works with more than one group
         
@@ -131,7 +131,7 @@ class Messages extends Table {
             $i++;
         }
         
-        return $string;
+        return DB::quote($string);
     }
 
     /**
