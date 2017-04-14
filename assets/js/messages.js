@@ -75,4 +75,64 @@ $(function(){
             console.log(data);
         })
     }
+
+    var $msgTable = $("#messages-table");
+    $msgTable.bootstrapTable({
+        url: 'post/messagesHandler.php',
+        method: "POST",
+        queryParams: {action: 'get'},
+        ajax: function(params){
+            $.ajax({
+                type        : "POST",
+                url         : "post/messagesHandler.php",
+                data        : {
+                    action : 'get'
+                },
+                // contentType: "application/json; charset=utf-8",
+                dataType    : 'json', // what type of data do we expect back from the server
+                encode      : true,
+            })
+            .done(function(data){
+                params.success(data);
+            })
+        },
+        responseHandler: function (res) {
+            console.log("in get table");
+            console.log(res);
+            if(res['status']==='success')
+                return res['table'];
+            else return null;
+        },
+        // toolbar: '#toolbar',
+        idField: 'ID',
+        showColumns: true,
+        mobileResponsive: true,
+        resizable: true,
+        showToggle: true,
+        search: true,
+        striped: true,
+        showRefresh: true,
+        // onRefresh: function () {
+        //     $rsvpTableLoaded = false;
+        //     loadRsvpTableData();
+        // },
+        columns: [
+            {
+                formatter: function(value, row, index) {
+                    return index;
+                },
+                title: "מס"
+            },
+            {
+                field: 'ID',
+                title: 'ID',
+                visible: false,
+                switchable: false
+            }, {
+                field: 'Message',
+                title: 'הודעה',
+                sortable: true,
+            }
+        ]
+    })
 });

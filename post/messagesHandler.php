@@ -22,6 +22,9 @@ if ((!isset($_SESSION['eventId']) or !$_SESSION['eventId']) and $action !== 'cre
 
 if (empty($errors))
     switch ($action){
+        case 'get':
+            $response['table'] = $messages->get();
+            break;
         case 'send':
 //            addMsg($params, $errors, $messages);
 //            break;
@@ -35,6 +38,7 @@ if (empty($errors))
 
 if (!empty($errors)){
     $response['status'] = "error";
+    $errors['post'] = $_POST;
     $response['errors'] = $errors;
 } else {
     $response['status'] = 'success';
@@ -77,5 +81,6 @@ function addMsg(&$params, &$errors, &$messages){
 //        $messages->add($params['msgType'], $params['message'], $params['date'], $params['time'], $params['groups']);
     } catch (Exception $e){
         $errors['addMsg'] = $e->getMessage();
+        $errors['params'] = $params;
     }
 }
