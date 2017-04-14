@@ -1,14 +1,15 @@
 <?php
 
-$nick = "ביגו";
-$msg = " שלום {כינוי} אתה מוזמן {כינוי} למסיבה וקוראים לך {שם}";
-$name = "גיל";
 
-$nickstr = '{כינוי}';
-$namestr = '{שם}';
-$regex = "/($nickstr)/";
-$out = preg_replace($regex,$nick, $msg);
-var_dump ($out);
-$regex = "/($namestr)/";
-$out = preg_replace($regex,$name, $out);
-var_dump($out);
+$msg = " שלום {כינוי} אתה מוזמן {כינוי} למסיבה וקוראים לך {שם}";
+
+$patterns = array();
+$replacements = array();
+
+$patterns[0] = '/{כינוי}/';
+$patterns[1] = '/{שם}/';
+
+$replacements[0] = "ביגו";
+$replacements[1] = "גיל";
+
+echo preg_replace($patterns,$replacements, $msg);
