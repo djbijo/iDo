@@ -47,9 +47,92 @@ $(function(){
     });
 
     let handleMsg = function (send) {
-        var msg = $("#msg").val();
-        var time = $("#msg-send-time").val();
-        var date = $("#msg-send-date").val();
+        var msg = $("#msg").val(),
+         time = $("#msg-send-time").val(),
+         date = $("#msg-send-date").val(),
+         action = send ? 'send' : 'add';
+
         console.log("msg is: " + msg + " date to send: " + date+" time: "+time);
+        $.ajax({
+            type        : "POST",
+            url         : "post/messagesHandler.php",
+            data        : {
+                action : action,
+                message: msg,
+                date   : date,
+                time   : time
+            },
+            // contentType: "application/json; charset=utf-8",
+            dataType    : 'json', // what type of data do we expect back from the server
+            encode      : true,
+        })
+
+        .done(function(data) {
+            console.log("sent msg success");
+            console.log(data);
+        })
+        .fail(function (data) {
+            console.log(data);
+        })
     }
+
+    var $msgTable = $("#messages-table");
+    $msgTable.bootstrapTable({
+        url: 'post/messagesHandler.php',
+        method: "POST",
+        queryParams: {action: 'get'},
+        ajax: function(params){
+            $.ajax({
+                type        : "POST",
+                url         : "post/messagesHandler.php",
+                data        : {
+                    action : 'get'
+                },
+                // contentType: "application/json; charset=utf-8",
+                dataType    : 'json', // what type of data do we expect back from the server
+                encode      : true,
+            })
+            .done(function(data){
+                params.success(data);
+            })
+        },
+        responseHandler: function (res) {
+            console.log("in get table");
+            console.log(res);
+            if(res['status']==='success')
+                return res['table'];
+            else return null;
+        },
+        // toolbar: '#toolbar',
+        idField: 'ID',
+        showColumns: true,
+        mobileResponsive: true,
+        resizable: true,
+        showToggle: true,
+        search: true,
+        striped: true,
+        showRefresh: true,
+        // onRefresh: function () {
+        //     $rsvpTableLoaded = false;
+        //     loadRsvpTableData();
+        // },
+        columns: [
+            {
+                formatter: function(value, row, index) {
+                    return index;
+                },
+                title: "מס"
+            },
+            {
+                field: 'ID',
+                title: 'ID',
+                visible: false,
+                switchable: false
+            }, {
+                field: 'Message',
+                title: 'הודעה',
+                sortable: true,
+            }
+        ]
+    })
 });
