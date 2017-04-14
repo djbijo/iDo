@@ -52,9 +52,10 @@ if (empty($errors)) {
             if ($event !== null) {
                 $formData = $_POST['data'];
                 try {
-                    foreach ($formData as $field => $value)
+                    foreach ($formData as $field => $value) {
+                        $response['msg'] = $event->update($field, $_POST['pk'], $value);
+                    }
                     $response['post'] = $_POST;
-                    $response['msg'] = $event->update($field, $_POST['pk'], $value);
                 } catch (Exception $e) {
                     $errors['event'] = $e->getMessage();
                     $errors['name'] = $_POST['name'];

@@ -84,13 +84,13 @@
             <div class="control-group" id="sms-name-group">
                 <label class="control-label" for="email">Email Address</label>
                 <div class="controls">
-                    <input type="text" class="input-large" id="email" value="rod.howard@example.com">
+                    <input type="text" class="input-large" id="email" placeholder="rod.howard@example.com">
                 </div> <!-- /controls -->
             </div> <!-- /control-group -->
             <div class="control-group" id="sms-secret-group">
                 <label class="control-label" for="secret">secret</label>
                 <div class="controls">
-                    <input type="text" class="input-medium" id="secret" value="ezvite">
+                    <input type="text" class="input-medium" id="secret" placeholder="unique secret">
                 </div> <!-- /controls -->
             </div> <!-- /control-group -->
             <!--<div class="control-group" id="sms-id-group">-->
@@ -102,13 +102,13 @@
             <div class="control-group" id="sms-password-group">
                 <label class="control-label" for="password">Password</label>
                 <div class="controls">
-                    <input type="password" class="input-medium" id="password" value="password">
+                    <input type="password" class="input-medium" id="password" >
                 </div> <!-- /controls -->
             </div> <!-- /control-group -->
             <div class="help-block" id="sms-help-block"></div>
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">שמור</button>
-                <button class="btn">בטל</button>
+                <button class="btn" type="reset" onclick="getEventData()">בטל</button>
             </div> <!-- /form-actions -->
         </fieldset>
     </form>
@@ -116,7 +116,7 @@
 <button data-target="#addEventForm" type="button" class="btn btn-default" data-toggle="collapse">הוסף אירוע חדש</button>
 <button id="deleteEventButton" type="button" class="btn btn-danger" onclick="deleteEvent()" >מחק אירוע</button>
 
-<div class="btn-group">
+<div class="btn-group" id="change-event-group" style="display: none">
     <button type="button" class="form-control btn btn-default dropdown-toggle" data-toggle="dropdown">
         החלף אירוע <span class="caret"></span>
     </button>

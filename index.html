@@ -42,12 +42,13 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">Bootstrap theme</a>
+            <a class="navbar-brand" href="#">EzVite</a>
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav"  id="ezNavbar">
                 <li class="active"><a data-toggle="tab" href="#home">בית</a></li>
                 <li><a data-toggle="tab" href="#rsvp">מוזמנים</a></li>
+                <li><a data-toggle="tab" href="#messages">הודעות</a></li>
                 <li><a data-toggle="tab" href="#events">ניהול אירוע</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <span class="caret"></span></a>
@@ -62,7 +63,10 @@
                     </ul>
                 </li>
             </ul>
-            <button onclick="signOut()" class="btn btn-danger navbar-btn">התנתק</button>
+            <ul class="nav navbar-nav navbar-left">
+                <!--<li></li><button onclick="signOut()" class="btn btn-danger navbar-btn">התנתק</button></li>-->
+                <li><a herf="#" onclick="signOut()" class="glyphicon glyphicon-log-out">התנתק</a></li>
+            </ul>
         </div><!--/.nav-collapse -->
     </div>
 </div>
@@ -124,6 +128,7 @@
             <p>Eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
         </div>
         <div id="events" class="tab-pane fade">אם אתם רואים את זה, יש בעיה</div>
+        <div id="messages" class="tab-pane fade">אם אתם רואים את זה, יש בעיה</div>
 
     </div>
 </div> <!-- /container -->

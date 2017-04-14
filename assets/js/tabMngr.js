@@ -14,8 +14,11 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         case "#events":
             $(target).load("Views/events.html");
             break;
+        case "#messages":
+            $(target).load("Views/messages.html");
+            break;
         default:
-            $("#error_modal").modal();
+            bootbox.alret("tab does not exist");
     }
 
 //        alert(target);

@@ -70,8 +70,10 @@ var getEvents = function(){
             if (data.status === 'success'){
                 console.log(data.events);
                 var events = data.events;
+                var numEvents = 0;
                 $('#selectEventsDropdown li').remove();
                 for (var prop in events){
+                    numEvents++;
                     var li = $('<li></li>');
                     var a = $('<a></a>')
                     a.attr("herf", "#");
@@ -79,6 +81,11 @@ var getEvents = function(){
                     a.attr("data-event-id", events[prop].id);
                     li.append(a);
                     $("#selectEventsDropdown").append(li);
+                }
+                if (numEvents>1){
+                    $('#change-event-group').show();
+                } else {
+                    $('#change-event-group').hide();
                 }
                 $('#selectEventsDropdown li').on("click", "a", function(event){
                     event.preventDefault();
@@ -93,7 +100,7 @@ var getEvents = function(){
     // onclick="selectEvent(this)
 };
 
-var $eventID;
+var $eventID = 0;
 var updateEventData = function(event){
     $('#EventName').editable('setValue' , event.EventName).editable('option', 'pk', event.ID)  ;
     $('#EventDate').editable('setValue' , event.EventDate, true).editable('option', 'pk', event.ID);
@@ -102,10 +109,10 @@ var updateEventData = function(event){
     $('#Venue').editable('setValue' , event.Venue).editable('option', 'pk', event.ID);
     $('#Address').editable('setValue' , event.Address).editable('option', 'pk', event.ID);
     //smsgateway form:
-    $('#email').val = event.Email;
-    $('#password').val = event.Password;
-    $('#secret').val = event.Secret;
-    $('#device-id').val = event.DeviceID;
+    $('#email').val(event.Email);
+    $('#password').val(event.Password);
+    $('#secret').val(event.Secret);
+    // $('#device-id').val = event.DeviceID;
     if ($eventID !== event.ID)
         getEvents();
     $eventID = event.ID;
@@ -288,7 +295,6 @@ var deleteEvent = function ()  {
 $("#edit-smsgateway").submit(function(event){
     // cancels the form submission
     event.preventDefault();
-    console.log("in submit");
     submitSmsForm();
 });
 
@@ -340,9 +346,9 @@ function submitSmsForm(){
             } else {
                 // ALL GOOD! just show the success message!
                 // console.log("in submit success");
-                // $('#addRsvpRowForm').append('<div class="alert alert-success">' + data.message + '</div>');
+                $('#edit-smsgateway').append('<div class="alert alert-success">' + data.msg + '</div>');
                 //TODO: let the user not he succeded
-                $("#edit-smsgateway")[0].reset();
+                // $("#edit-smsgateway")[0].reset();
                 // $("#edit-smsgateway").collapse();
                 // getEventData();
                 // usually after form submission, you'll want to redirect
