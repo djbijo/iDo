@@ -57,14 +57,34 @@ class Messages extends Table {
     }
 
     /**
-     * update:  update messages[$eventID] table in database
-     * @param string $colName : column which value should be updated in
-     * @param string $id : id of row to be updated
-     * @param $value : value to be inserted to the colName column
-     * @return bool true if table updated / false if table not updated
+     * update: update messages[$eventID] table in database
+     * @param int $ID : the row ID of the message to be updated
+     * @param $MessageType : type of message [SaveTheDate/Reminder/ThankYou]
+     * @param $Message : message text to be sent
+     * @param SendDate : date to send the message
+     * @param $SendTime : time of day to send the message
+     * @param $Groups: group that message should be sent to (default null)
+     * @return int updated id (if updated)
+     * @throws Exception "שגיאה: לא ניתן להכניס את ההודעה בפורמט הנוכחי, אנא נסח מחדש את ההודעה ונסה שנית."
      */
-    public function update($colName, $id, $value) {
-        return Table::updateTable('messages', $colName, $id, $value);
+    public function update($ID, $MessageType, $Message, $SendDate, $SendTime, $Groups = NULL) {
+
+        // Make strings query safe
+        $id = DB::quote($ID);
+        $messageType = DB::quote($MessageType);
+        $message = DB::quote($Message);
+        $groups = $this->appendGroups($Groups);
+        $sendTime = DB::quote($SendTime);
+        $sendDate = DB::quote($SendDate);
+
+        $eventID = $this->eventID;
+
+        DB::query("UPDATE Messages$eventID SET MessageType=$messageType, Message=$message, Groups=$groups, SendDate=$sendDate, SendTime=$sendTime  WHERE id = $id");
+
+        if (DB::affectedRows() < 0) {
+            throw new Exception("שגיאה: לא ניתן להכניס את ההודעה בפורמט הנוכחי, אנא נסח מחדש את ההודעה ונסה שנית.");
+        }
+        return $id;
     }
 
     /**
@@ -94,6 +114,9 @@ class Messages extends Table {
             throw new Exception("Messages add: Error adding Message: $message to Messages$eventID table");
         }
         return DB::insertID();
+
+
+        return true;
     }
 
     /**
