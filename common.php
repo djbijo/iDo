@@ -42,6 +42,25 @@ function postGetEvent(){
     return null;
 }
 
+function GER2UTC($date,$time){
+    // set default timezone
+    date_default_timezone_set('Asia/Jerusalem');
+
+    $dateTime =  strtotime("$date"."$time");
+
+    date("Y-m-dTG:i:sz",$dateTime);
+    date_default_timezone_set("UTC");
+    $UTCtime = date("Y-m-dTG:i:sz", $dateTime);
+
+    // get rid of "UTC" in $UTCtime
+    $timeArray = explode('UTC',$UTCtime);
+    $newTime = $timeArray[0]." ".$timeArray[1];
+
+    //take only the Date XXXX-XX-XX and number XX:XX:XX (total 19 characters)
+    return substr($newTime, 0, 19);
+}
+
+
 
 /**
  * createMessageUnion:  create the united messages table
