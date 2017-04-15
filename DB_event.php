@@ -286,6 +286,9 @@ class Event implements iEvent
                 if ($result['result']['total'] > 0) {
                     $device = $result['result']['data'][0]['id'];
                     $response = $this->update('DeviceID',$this->eventID, $device);
+                    if (!$response){
+                        throw new Exception("שגיאה: בכדי לשלוח הודעה יש צורך בהתחברות לאתר smsGateway והכנסת פרטי המכשיר תחת 'ניהול אירוע'");
+                    }
                 }
 
             } else {
@@ -318,10 +321,12 @@ class Event implements iEvent
         // get new raw data in the format of Table : array[i]['Phone'/'Message'/'Recived'/'RSVP'/'Ride']
         $rawData = $this->rawData->getMessages($event['Email'], $event['Password'], $event['DeviceID']);
 
-//        var_dump($rawData);
-
         // update RSVP according to RawData and get back name,surname, email and group
         $rsvpData = $this->rsvp->updateFromRaw($rawData);
+
+        if(!$rsvpData){
+            throw new Exception("שגיאה: לא התקבלו הודעות חדשות אשר מקושרות לאירוע זה.");
+        }
 
         // insert to rawData table
         return $this->rawData->insertBatch($rsvpData);
