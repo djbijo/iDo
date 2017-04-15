@@ -28,8 +28,14 @@ if (empty($errors))
         case 'send':
 //            addMsg($params, $errors, $messages);
 //            break;
-        case 'add':
-            addMsg($params, $errors, $messages);
+        case 'update':
+            updateMsg($params, $errors, $messages);
+            $response['msgId'] = $params['msgId'];
+            break;
+        case 'updateSend':
+            updateMsg($params, $errors, $messages);
+            sendMsg($params, $errors, $event);
+            //send
             break;
         default:
             $errors['action'] = "no known action was set, action is: ".$action;
@@ -48,39 +54,65 @@ echo json_encode($response);
 
 //helper functions:
 function val_add(&$params, &$errors){
-    if (empty($_POST['message'])){
+    if (empty($_POST['data']['message'])){
         $errors['message'] = "תוכן ההודעה לא יכול להשאר ריק";
     }
-    if (empty($_POST['date'])){
+    if (empty($_POST['data']['date'])){
         $errors['date'] = "חובה למלא תאריך";
     }
-    if (empty($_POST['time'])){
+    if (empty($_POST['data']['time'])){
         $errors['date'] = "חובה למלא שעה";
     }
     if (!empty($errors)) return false;
-    if (empty($_POST['msgType'])){
+    if (empty($_POST['data']['msgType'])){
         $params['msgType'] = 'default';
     } else {
         $params['msgType'] = $_POST['msgType'];
     }
-    if (!empty($_POST['groups'])){
+    if (!empty($_POST['data']['groups'])){
         $params['groups'] = $_POST['groups'];
     } else {
-        $params['groups'] = null;
+        $params['groups'] = 'all';
     }
-    $params['message'] = $_POST['message'];
-    $params['date'] = $_POST['date'];
-    $params['time'] = $_POST['time'];
+    if (!empty($_POST['data']['id'])){
+        $params['id'] = $_POST['data']['id'];
+    }
+    $params['message'] = $_POST['data']['message'];
+    $params['date'] = $_POST['data']['date'];
+    $params['time'] = $_POST['data']['time'];
     return true;
 }
 
-function addMsg(&$params, &$errors, &$messages){
+function val_send(&$params, &$errors){
+    if (isset($params['msgId']))
+        return true;
+    if (!empty($_POST['msgId'])){
+        $params['msgId'] = $_POST['msgId'];
+        return true;
+    }
+    $errors['msgId'] = "מספר ההודעה לא ידוע";
+    return false;
+}
+
+function updateMsg(&$params, &$errors, &$messages){
     if (!val_add($params, $errors)) return;
     try{
-        $messages->add($params['msgType'], $params['message'], $params['date'], $params['time']);
-//        $messages->add($params['msgType'], $params['message'], $params['date'], $params['time'], $params['groups']);
+//        $messages->add($params['msgType'], $params['message'], $params['date'], $params['time']);
+        if (!isset($params['id'])) {
+            $params['msgId'] = $messages->add($params['msgType'], $params['message'], $params['date'], $params['time'], $params['groups']);
+        } else {
+            $params['msgId'] = $messages->update($params['id'], $params['msgType'], $params['message'], $params['date'], $params['time'], $params['groups']);
+        }
     } catch (Exception $e){
         $errors['addMsg'] = $e->getMessage();
-        $errors['params'] = $params;
+    }
+}
+
+function sendMsg(&$params, &$errors, &$event){
+    if (!val_send($params, $errors)) return;
+    try{
+        return $event->sendMessages($params['msgId']);
+    } catch (Exception $e){
+        $errors['sendMsg'] = $e->getMessage();
     }
 }

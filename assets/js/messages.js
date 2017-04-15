@@ -1,4 +1,5 @@
 $(function(){
+    var $msgTable = $("#messages-table");
    //handle add tag event
     $(".msg-tag").click(function(){
         var textArea = $("#msg");
@@ -38,45 +39,75 @@ $(function(){
 
     $("#msgSave").click(function (event) {
         event.preventDefault();
-        handleMsg(false);
+        var data = getDataFromForm();
+        handleMsg('update', data);
     });
 
     $("#msgSend").click(function (event) {
         event.preventDefault();
-        handleMsg(true);
+        var data = getDataFromForm();
+        handleMsg('updateSend', data);
     });
 
-    let handleMsg = function (send) {
-        var msg = $("#msg").val(),
-         time = $("#msg-send-time").val(),
-         date = $("#msg-send-date").val(),
-         action = send ? 'send' : 'add';
+    function getDataFromForm(){
+        var data = {
+            message : $("#msg").val(),
+            date: $("#msg-send-date").val(),
+            time: $("#msg-send-time").val(),
+            id  : $("#msg").data('id')
+        };
+        return data;
+    }
 
-        console.log("msg is: " + msg + " date to send: " + date+" time: "+time);
+    let handleMsg = function (action, data) {
+
         $.ajax({
             type        : "POST",
             url         : "post/messagesHandler.php",
             data        : {
                 action : action,
-                message: msg,
-                date   : date,
-                time   : time
+                data: data
             },
-            // contentType: "application/json; charset=utf-8",
             dataType    : 'json', // what type of data do we expect back from the server
             encode      : true,
         })
 
         .done(function(data) {
-            console.log("sent msg success");
-            console.log(data);
+            if (data.status==='success') {
+                console.log("sent msg success");
+                $msgTable.bootstrapTable('refresh');
+            }
+            else {
+                console.log(data.errors);
+                if (data.sendMsg) bootbox.alert(data.sendMsg);
+            }
         })
         .fail(function (data) {
             console.log(data);
+            bootbox.alert(data.responseText);
         })
     }
 
-    var $msgTable = $("#messages-table");
+    window.operateEvents = {
+        'click .like': function (e, value, row, index) {
+            alert('You click like action, row: ' + JSON.stringify(row));
+            //send
+
+        },
+        'click .remove': function (e, value, row, index) {
+            //file form:
+            $("#msg-send-date").val(row.SendDate);
+            $("#msg-send-time").val(row.SendTime);
+            $("#msg").val(row.Message);
+            $("#msg").data('id', row.ID);
+            //todo: remove row
+            // $msgsTable.bootstrapTable('remove', {
+            //     field: 'ID',
+            //     values: [row.ID]
+            // });
+        }
+    };
+
     $msgTable.bootstrapTable({
         url: 'post/messagesHandler.php',
         method: "POST",
@@ -132,7 +163,26 @@ $(function(){
                 field: 'Message',
                 title: 'הודעה',
                 sortable: true,
+            }, {
+                field: 'operate',
+                title: 'Item Operate',
+                align: 'center',
+                events: operateEvents,
+                formatter: operateFormatter
             }
         ]
     })
+    function operateFormatter(value, row, index) {
+        return [
+            '<a class="like" href="javascript:void(0)" title="Like">',
+            '<i class="glyphicon glyphicon-heart"></i>',
+            '</a>  ',
+            '<a class="remove" href="javascript:void(0)" title="Remove">',
+            '<i class="glyphicon glyphicon-remove"></i>',
+            '</a>'
+        ].join('');
+    }
+
+
 });
+

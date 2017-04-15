@@ -30,7 +30,7 @@ try {
     session_unset();
     session_destroy();
 }
-if ($payload) {
+if (isset($payload)) {
   $usrId = $payload['sub'];
   $response['user'] = $usrId;
   $response['email'] = $payload['email'];
