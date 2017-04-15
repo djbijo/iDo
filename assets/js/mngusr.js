@@ -148,8 +148,8 @@ function signWithServer() {
         try {
             resp = JSON.parse(xhr.responseText);
             if (resp.status == 'error') {
-                document.getElementById("errMsg").innerHTML = "הודעת שגיאה";
-                $("#error_modal").modal();
+                // document.getElementById("errMsg").innerHTML = "הודעת שגיאה";
+                // $("#error_modal").modal();
                 updateGoogleUser();
             }
             console.log(resp);

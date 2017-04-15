@@ -231,6 +231,10 @@ function submitForm(){
                 $('#invitees-group').addClass('has-error'); // add the error class to show red input
                 $('#invitees-group').append('<div class="help-block">' + data.errors.Invitees + '</div>'); // add the actual error message under our input
             }
+            if (data.errors.Phone){
+                $('#phone-group').addClass('has-error'); // add the error class to show red input
+                $('#phone-group').append('<div class="help-block">' + data.errors.Phone + '</div>'); // add the actual error message under our input
+            }
             // handle errors for email ---------------
             // if (data.errors.phone) {
             //     $('#phone-group').addClass('has-error'); // add the error class to show red input

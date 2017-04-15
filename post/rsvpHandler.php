@@ -108,6 +108,12 @@ function addRowVal(&$params, &$errors){
     if (empty($params['invitees'])){
         $errors['Invitees'] = "חייבים למלא מספר מוזמנים, אפשר גם 0";
     }
+    if (!empty($params['phone'])){
+        $params['Phone'] = validatePhone($params['phone']);
+        if (!$params['phone']){
+            $errors['phone'] = "מספר הטלפון שהוקש לא תקין";
+        }
+    }
 }
 
 function cellUpdateVal(&$params, &$errors){

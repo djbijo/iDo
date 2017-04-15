@@ -23,7 +23,7 @@
         echo validatePhone('0528599996')."\n";
         echo validatePhone('+972528599996')."\n";
         echo validatePhone('050-90273588')."\n";
-        echo validatePhone('050-902+++,,??-7-3-58')."\n";
+        echo validatePhone("") ? "true" : "false";
         // checkUserID
 //        $user = User::checkUserID($ID);
         
