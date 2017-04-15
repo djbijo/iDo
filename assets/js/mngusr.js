@@ -150,6 +150,7 @@ function signWithServer() {
             if (resp.status == 'error') {
                 document.getElementById("errMsg").innerHTML = "הודעת שגיאה";
                 $("#error_modal").modal();
+                updateGoogleUser();
             }
             console.log(resp);
         } catch (e) {
