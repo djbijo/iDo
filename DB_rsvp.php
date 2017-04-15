@@ -24,7 +24,8 @@ class RSVP extends Table {
                 Groups VARCHAR(50) DEFAULT NULL,
                 RSVP INT(3) DEFAULT NULL,
                 Uncertin int(3) DEFAULT NULL,
-                Ride BOOLEAN DEFAULT FALSE
+                Ride BOOLEAN DEFAULT FALSE,
+                Messages INT DEFAULT 0
                 ) DEFAULT CHARACTER SET utf8");
 
         if (!$result) {
@@ -132,7 +133,7 @@ class RSVP extends Table {
      * @throws Exception "RSVP add: Phone $phone already in RSVP table"
      * @throws Exception "RSVP add: Error adding guest $name $surName to RSVP$eventID table"
      */
-    public function add($Name, $SurName, $Invitees, $NickName = 'NULL', $Phone = 'NULL', $Email = 'NULL', $Groups = 'NULL', $RSVP = 0, $Uncertin = 0,$Ride = 0) {
+    public function add($Name, $SurName, $Invitees, $NickName = 'NULL', $Phone = 'NULL', $Email = 'NULL', $Groups = 'NULL', $RSVP = 0, $Uncertin = 0,$Ride = 0) {       //TODO: can't add phone +972...
 
         // Make strings query safe
         $name = DB::quote($Name);
@@ -141,8 +142,13 @@ class RSVP extends Table {
         $phone = DB::quote($Phone);
         $email = DB::quote($Email);
         $groups = DB::quote($Groups);
+        $rsvp = DB::quote($RSVP);
+        $uncertin = DB::quote($Uncertin);
+        $ride = DB::quote($Ride);
 
         $eventID = $this->eventID;
+
+        echo "name: $name; surname: $surName; nickName: $nickName; phone: $phone; email: $email; groups: $groups; rsvp: $rsvp; uncertin: $uncertin; ride: $ride";
 
         //check that phone and email are not already in rsvp table
         if (NULL !== $email and DB::select("SELECT * FROM rsvp$eventID WHERE Email=$email")) {
@@ -154,7 +160,7 @@ class RSVP extends Table {
 
         //insert guest to RSVP table
         $result = DB::query("INSERT INTO rsvp$eventID (Name, Surname, Nickname, Invitees, Phone, Email, Groups, RSVP, Uncertin, Ride) VALUES
-                    ($name, $surName, $nickName, $Invitees, $phone, $email, $groups, $RSVP, $Uncertin, $Ride)");
+                    ($name, $surName, $nickName, $Invitees, $phone, $email, $groups, $rsvp, $uncertin, $ride)");
 
         if (!$result) {
             throw new Exception("RSVP add: Error adding guest $name $surName to RSVP$eventID table");
@@ -239,7 +245,7 @@ class RSVP extends Table {
     /**     TODO:: update
      * updateFromRaw:  import RSVP table from excel file (deleting previous rsvp table)
      * @param table $rawData : array[i]['Phone'/'Message'/'Recived'/'RSVP'/'Uncertin'/'Ride']
-     * @return table array[i]['Name'/'Surname'/'Email'/'Groups'/'Phone'/'Message'/'Recived'/'RSVP'/'Uncertin'/'Ride']
+     * @return array[i]['Name'/'Surname'/'Email'/'Groups'/'Phone'/'Message'/'Recived'/'RSVP'/'Uncertin'/'Ride']
      * @throws Exception "שגיאה: משהו מוזר קרה, אנא נסה שנית."
      * @throws Exception "שגיאה: לא ניתן לעדכן את המידע המועבר מההודעות לטבלת המוזמנים. אנא עדכן את המידע באופן ידני."
      * @throws Exception "שגיאה: אין אפשרות לעדכן את המידע המועבר מההודעות לטבלת המוזמנים. אנא עדכן את המידע באופן ידני."
@@ -252,13 +258,14 @@ class RSVP extends Table {
         }
 
         $eventID = $this->eventID;
+        $rsvpData = array();
 
         // update data in rsvp table and in return value
         foreach ($rawData as $raw) {
-            $phone = $raw['Phone'];
-            $rsvp = $raw['RSVP'];
-            $ride = $raw['Ride'];
-            $uncertin = $raw['Uncertin'];
+            $phone = DB::quote($raw['Phone']);
+            $rsvp = DB::quote($raw['RSVP']);
+            $ride = DB::quote($raw['Ride']);
+            $uncertin = DB::quote($raw['Uncertin']);
 
             // get needed information from RSVP table
             $data = DB::select("SELECT * FROM rsvp$eventID WHERE Phone=$phone");
@@ -268,7 +275,7 @@ class RSVP extends Table {
             }
 
             // update rsvp table if RSVP/Uncertin/Ride == 'NULL'
-            DB::query("UPDATE rsvp$eventID SET RSVP=IF(status='NULL',$rsvp,RSVP), Uncertin=IF(status='NULL',$uncertin,Uncertin), Ride=IF(status='0',$ride,Ride) WHERE Phone=$phone");
+            DB::query("UPDATE rsvp$eventID SET RSVP=IF($rsvp!='NULL',$rsvp,RSVP), Uncertin=IF(Uncertin=NULL,$uncertin,Uncertin), Ride=IF(Ride=0,$ride,Ride), Messages = Messages + 1 WHERE Phone=$phone");
             if (DB::affectedRows() < 0) {
                 throw new Exception("שגיאה: אין אפשרות לעדכן את המידע המועבר מההודעות לטבלת המוזמנים. אנא עדכן את המידע באופן ידני.");
             }
