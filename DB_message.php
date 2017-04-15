@@ -212,7 +212,8 @@ class Messages extends Table {
         // send messages to smsGateway with time and date in UTC
         foreach ($guests as $guest){
             // set time with delay (avoid malfunctions)
-            $timeToSend = $time." +$i minutes";
+            $delay = $i*5;                          // delay in seconds
+            $timeToSend = $time." +$delay seconds";
             $expire = $timeToSend." +60 minutes";
             $i++;
             // prepare guest message

@@ -299,9 +299,14 @@ class Event implements iEvent
             throw new Exception("שגיאה: בכדי לקבל הודעה יש צורך בהתחברות לאתר smsGateway והכנסת הפרטים תחת 'ניהול אירוע'");
         }
 
+        // get new raw data in the format of Table : array[i]['Phone'/'Message'/'Recived'/'RSVP'/'Ride']
         $rawData = $this->rawData->getMessages($event['Email'], $event['Password'], $event['DeviceID']);
 
-        // update RSVP according to RawData
+        // update RSVP according to RawData and get back name,surname, email and group
+        $rsvpData = $this->rsvp->updateFromRaw($rawData);
+
+        // insert to rawData table
+        return $this->rawData->insertBatch($rsvpData);
     }
 
     /**

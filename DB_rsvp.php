@@ -235,6 +235,59 @@ class RSVP extends Table {
         }
         return $errors;
     }
+
+    /**     TODO:: update
+     * updateFromRaw:  import RSVP table from excel file (deleting previous rsvp table)
+     * @param table $rawData : array[i]['Phone'/'Message'/'Recived'/'RSVP'/'Uncertin'/'Ride']
+     * @return table array[i]['Name'/'Surname'/'Email'/'Groups'/'Phone'/'Message'/'Recived'/'RSVP'/'Uncertin'/'Ride']
+     * @throws Exception "שגיאה: משהו מוזר קרה, אנא נסה שנית."
+     * @throws Exception "שגיאה: לא ניתן לעדכן את המידע המועבר מההודעות לטבלת המוזמנים. אנא עדכן את המידע באופן ידני."
+     * @throws Exception "שגיאה: אין אפשרות לעדכן את המידע המועבר מההודעות לטבלת המוזמנים. אנא עדכן את המידע באופן ידני."
+     */
+    public function updateFromRaw($rawData) {
+
+        // check valid param
+        if (!$rawData) {
+            throw new Exception("שגיאה: משהו מוזר קרה, אנא נסה שנית.");
+        }
+
+        $eventID = $this->eventID;
+
+        // update data in rsvp table and in return value
+        foreach ($rawData as $raw) {
+            $phone = $raw['Phone'];
+            $rsvp = $raw['RSVP'];
+            $ride = $raw['Ride'];
+            $uncertin = $raw['Uncertin'];
+
+            // get needed information from RSVP table
+            $data = DB::select("SELECT * FROM rsvp$eventID WHERE Phone=$phone");
+            // if message is not from guest in rsvp table
+            if (!$data) {
+                continue;
+            }
+
+            // update rsvp table if RSVP/Uncertin/Ride == 'NULL'
+            DB::query("UPDATE rsvp$eventID SET RSVP=IF(status='NULL',$rsvp,RSVP), Uncertin=IF(status='NULL',$uncertin,Uncertin), Ride=IF(status='0',$ride,Ride) WHERE Phone=$phone");
+            if (DB::affectedRows() < 0) {
+                throw new Exception("שגיאה: אין אפשרות לעדכן את המידע המועבר מההודעות לטבלת המוזמנים. אנא עדכן את המידע באופן ידני.");
+            }
+            // create data to be inserted back to rawData table (exclude messages from non guests)
+            $rsvpData[] = [
+                'Name' => $data[0]['Name'],
+                'Surname' => $data[0]['Surname'],
+                'Email' => $data[0]['Email'],
+                'Groups' => $data[0]['Groups'],
+                'Phone' => $raw['Phone'],
+                'Message' => $raw['Message'],
+                'Received' => $raw['Received'],
+                'RSVP' => $raw['RSVP'],
+                'Uncertin' => $raw['Uncertin'],
+                'Ride' => $raw['Ride']
+            ];
+        }
+        return $rsvpData;
+    }
 }
 
 ?>

@@ -84,7 +84,7 @@ class rawData extends Table {
      * @return int insert id if added
      * @throws Exception "RawData add: Error adding rawData from $name $surName to RawData$eventID table"
      */
-    public function add($Name, $SurName, $Message, $Phone = NULL, $Email = NULL, $Groups = NULL, $RSVP = 0, $Ride = false) {
+    public function add($Name, $SurName, $Message, $Phone = NULL, $Email = NULL, $Groups = NULL, $RSVP = 0, $Ride = false, $Received = 0) {
 
         // Make strings query safe
         $name = DB::quote($Name);
@@ -93,11 +93,12 @@ class rawData extends Table {
         $phone = DB::quote($Phone);
         $email = DB::quote($Email);
         $groups = DB::quote($Groups);
+        $received = DB::quote($Received);
 
         $eventID = $this->eventID;
 
-        $result = DB::query("INSERT INTO rawData" . $eventID . "  (Name, Surname, Phone, Email, Groups, RSVP, Ride, Message) VALUES
-                    ( $name, $surName, $phone, $email, $groups, $RSVP, $Ride, $message)");
+        $result = DB::query("INSERT INTO rawData" . $eventID . "  (Name, Surname, Phone, Email, Groups, RSVP, Ride, Message, Received) VALUES
+                    ( $name, $surName, $phone, $email, $groups, $RSVP, $Ride, $message, $received)");
 
         if (!$result) {
             throw new Exception("RawData add: Error adding rawData from $name $surName to RawData$eventID table");
@@ -128,10 +129,12 @@ class rawData extends Table {
     }
 
 
-    /**     TODO: Update
-     * getByPhone:  get RawData table for specific event by phone number (one row)
-     * @param string $Phone : the phone number of the guest
-     * @return row of specific guest (specified by phone number)
+    /**
+     * getMessages:  get messages from smsGateway and extract relevant data from it
+     * @param string $Email : email for smsGateway site
+     * @param string $Password : password for smsGateway site
+     * @param string $DeviceID : device id from smsGateway site
+     * @return Table RawData : array[i]['Phone'/'Message'/'Recived'/'RSVP'/''Uncertin/'Ride']
      */
     public function getMessages($Email, $Password, $DeviceID){
         //connect to smsGateway
@@ -139,19 +142,16 @@ class rawData extends Table {
 
         //get latest inserted rawData date and time
         $eventID = $this->eventID;
-        $latestRaw = DB::query("SELECT * FROM rawData$eventID ORDER BY ID DESC LIMIT 1");
-        if (!$latestRaw) {
-            throw new Exception("Error : לא ניתן להוציא את המידע המאוחסן בשרתי החברה בטבלת rawData$eventID");       //TODO: make sure this is right
-        }
-        $latestDate = $latestRaw['Date'];
-        $latestTime = $latestRaw['Time'];
+        $latestRaw = DB::select("SELECT * FROM rawData$eventID ORDER BY ID DESC LIMIT 1");
 
-        $latestRawTime = strtotime("$latestDate"."$latestTime");
+        // mark latest DateTime entry to rsvp table
+        ($latestRaw) ? $latestRawTime = strtotime($latestRaw[0]['Received']) : $latestRawTime = strtotime(0);
 
         // get data from pages
         $page = 1;
+        $done = 0;
         $result = $smsGateway->getMessages($page);
-        while ($result['response']['success']) {                // TODO: validate blank page
+        while ($result['response']['success'] and $done == 0) {                // TODO: validate blank page
 
             foreach ($result['response']['result'] as $Message) {
                 // continue if not received message (only received messages) or if not this deviceID
@@ -159,37 +159,127 @@ class rawData extends Table {
 
                 // break if message dateTime<=$lastRawTime
                 if($Message['received_at']<=$latestRawTime){
-                    $result['response']['success'] = false;     //TODO: validate this stops the while
-                    break;                                      //TODO: validate this stops the foreach
+                    $done = 1;
+                    break;
                 }
+
+                $extracted = $this->extract($Message['message']);
 
                 $rawData[] = [
                     'Phone' => $Message['contact']['number'],
                     'Message' => $Message['message'],
                     'Received' => UNIX2GER($Message['received_at']),
-                    'RSVP' => $this->extractRSVP($Message['message']),
-                    'Ride' => $this->extractRide($Message['message'])
+                    'RSVP' => $extracted['RSVP'],
+                    'Uncertin' => $extracted['Uncertin'],
+                    'Ride' => $extracted['Ride']
                 ];
             }
-            $page++;
-            $result = $smsGateway->getMessages($page);
+//            $page++;                                          //TODO : uncomment, delete break once page issue is resolved
+//            $result = $smsGateway->getMessages($page);
+            break;
         }
         return $rawData;
     }
 
     /**
-     * extractRSVP: extract RSVP number out of string
-     * @param string $String : message to extract rsvp from
-     * @return int RSVP
+     * insert: insert updated raw data to rawData table
+     * @param table array[i]['Name'/'Surname'/'Email'/'Groups'/'Phone'/'Message'/'Recived'/'RSVP'/'Uncertin'/'Ride']
+     * @return int latest insert id
+     * @throws Exception "שגיאה: משהו מוזר קרה, אנא נסה שנית."
      */
-    private function extractRSVP($String) {
-        $string = DB::quote($String);
+    public function insert($rsvpData){
 
+        // check valid param
+        if (!$rsvpData) {
+            throw new Exception("שגיאה: משהו מוזר קרה, אנא נסה שנית.");
+        }
 
+        $reverseData = array_reverse($rsvpData);
+
+        // insert data to rawData table
+        foreach ($reverseData as $data) {
+            $insertID = $this->add($reverseData['Name'], $reverseData['SurName'], $reverseData['Message'],
+                $reverseData['Phone'], $reverseData['Email'], $reverseData['Groups'], $reverseData['RSVP'],
+                $reverseData['Ride'], $reverseData['Received']);
+        }
+        return $insertID;
 
     }
 
+    /**
+     * insertBatch: insert updated raw data to rawData table as batch (one MySQL command)
+     * @param table array[i]['Name'/'Surname'/'Email'/'Groups'/'Phone'/'Message'/'Recived'/'RSVP'/'Uncertin'/'Ride']
+     * @return int latest insert id
+     * @throws Exception "שגיאה: משהו מוזר קרה, אנא נסה שנית."
+     * @throws Exception "שגיאה: לא ניתן להכניס את הרשומות לטבלת ההודעות."
+     */
+    public function insertBatch($rsvpData){
 
+        // check valid param
+        if (!$rsvpData) {
+            throw new Exception("שגיאה: משהו מוזר קרה, אנא נסה שנית.");
+        }
+
+        $eventID = $this->eventID;
+        $reverseData = array_reverse($rsvpData);
+
+        // prepare values string for insert
+        // prepare 1st value
+        $i = 1;
+        $name = $reverseData[0]['Name'];
+        $surname = $reverseData[0]['SurName'];
+        $message = $reverseData[0]['Message'];
+        $phone = $reverseData[0]['Phone'];
+        $email = $reverseData[0]['Email'];
+        $groups = $reverseData[0]['Groups'];
+        $rsvp = $reverseData[0]['RSVP'];
+        $ride = $reverseData[0]['Ride'];
+        $received = $reverseData[0]['Received'];
+
+        $values = "($name, $surname, $message, $phone, $email, $groups, $rsvp, $ride, $received)";
+
+        // prepare other values
+        while (isset($reverseData[$i])){
+            $name = $reverseData[$i]['Name'];
+            $surname = $reverseData[$i]['SurName'];
+            $message = $reverseData[$i]['Message'];
+            $phone = $reverseData[$i]['Phone'];
+            $email = $reverseData[$i]['Email'];
+            $groups = $reverseData[$i]['Groups'];
+            $rsvp = $reverseData[$i]['RSVP'];
+            $ride = $reverseData[$i]['Ride'];
+            $received = $reverseData[$i]['Received'];
+
+            $values = $values.", ($name, $surname, $message, $phone, $email, $groups, $rsvp, $ride, $received)";
+            $i++;
+        }
+
+        // insert data to rawData table as batch
+        $result = DB::query("INSERT INTO rawData" . $eventID . "  (Name, Surname, Phone, Email, Groups, RSVP, Ride, Message, Received) VALUES
+                    $values");
+        if (!$result) {
+            throw new Exception("שגיאה: לא ניתן להכניס את הרשומות לטבלת ההודעות.");
+        }
+        return DB::insertID();
+    }
+
+    /**
+     * extract: extract RSVP, Uncertin and Ride numbers out of string
+     * @param string $String : message to extract rsvp from
+     * @return array['RSVP'/'Uncertin/'Ride']
+     */
+    private function extract($String) {
+        $string = DB::quote($String);
+        $numbers = [];
+
+        $updatedString = dictionary($string);
+        preg_match_all('!\d+!', $updatedString, $matches);
+        (isset($matches[0][0])) ? $numbers['RSVP']=$matches[0][0] : $numbers['RSVP']='NULL';  // TODO: this returns only the 1st number in the string after dict
+        (isset($matches[0][1])) ? $numbers['Uncertin']=$matches[0][1] : $numbers['Uncertin']='NULL';  // TODO: this returns only the 2nd number in the string after dict
+        (isset($matches[0][2])) ? $numbers['Ride']=$matches[0][2] : $numbers['Ride']='NULL';  // TODO: this returns only the 3rd number in the string after dict
+
+        return $numbers;
+    }
 }
 
 ?>
