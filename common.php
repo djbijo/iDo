@@ -1,5 +1,5 @@
 <?php
-
+require  'vendor/autoload.php';
 // database preparation
 /*
  * use utf8 for hebrew:
@@ -15,15 +15,19 @@
 // MySQL commands
 //SELECT * FROM rsvp1 ORDER BY ID DESC;
 
-function phoneFromStr($str){
-$sanitized = filter_var($str, FILTER_SANITIZE_NUMBER_INT);
 
-}
-
-function validatePhone($phone){         // Todo: handle too many numbers, Null returns true
-    $regexp = '/05([-]*\d){8}|(\+972(-*5)(-*\d){8})/';
-    return filter_var($phone, FILTER_VALIDATE_REGEXP,
-        array("options"=>array("regexp"=>$regexp)));
+function validatePhone($phone){
+    $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
+    //throws exception if number is invalid
+    try {
+        $ilNumberProto = $phoneUtil->parse($phone, "IL");
+    } catch (\libphonenumber\NumberParseException  $e){
+        return false;
+    }
+    if ($phoneUtil->isValidNumberForRegion($ilNumberProto,"IL")){
+        return $phoneUtil->format($ilNumberProto, \libphonenumber\PhoneNumberFormat::NATIONAL);
+    }
+    return false;
 }
 
 function validateEmail($email){         // Todo: handle valid email address, Null returns true

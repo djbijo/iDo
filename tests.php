@@ -7,7 +7,8 @@
     <body>
         <?php
         include ("DB_user.php");
-        include ("smsGateway.php");
+//        include ("smsGateway.php");
+        require_once ("common.php");
 
         $ID = '123';
         $Name = 'Oriah';
@@ -18,13 +19,17 @@
         $EventDate = '2018-08-12';
         $EventPhone = '050-1111111';
         $EventEmail = 'oriah@gmail.com';
-        
+
+        echo validatePhone('0528599996')."\n";
+        echo validatePhone('+972528599996')."\n";
+        echo validatePhone('050-90273588')."\n";
+        echo validatePhone('050-902+++,,??-7-3-58')."\n";
         // checkUserID
 //        $user = User::checkUserID($ID);
         
         // new user with new event
-        $user = new User($ID, $Name, $Email);
-        $event = $user->addEvent("h&h","10-10-1997");
+//        $user = new User($ID, $Name, $Email);
+//        $event = $user->addEvent("h&h","10-10-1997");
 //        $user = new User($usrId, $payload['name'], $payload['email'], 0, 'test', "2008-09-24");
         // new user w/o new event
         //$user = new User($ID, $Name, $Email);
@@ -138,8 +143,7 @@
         
         echo $string;
          */
-        
-        $smsGateway =
+
         
         
         ?>

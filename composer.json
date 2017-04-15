@@ -6,6 +6,7 @@
     },
     "require": {
         "google/apiclient": "^2.1",
-        "cboden/ratchet": "^0.3.*"
+        "cboden/ratchet": "^0.3.6",
+        "giggsey/libphonenumber-for-php": "^8.4"
     }
 }
