@@ -72,7 +72,7 @@ function val_add(&$params, &$errors){
     if (!empty($_POST['data']['groups'])){
         $params['groups'] = $_POST['groups'];
     } else {
-        $params['groups'] = 'all';
+        $params['groups'] = '';
     }
     if (!empty($_POST['data']['id'])){
         $params['id'] = $_POST['data']['id'];
