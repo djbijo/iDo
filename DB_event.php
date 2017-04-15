@@ -273,8 +273,27 @@ class Event implements iEvent
         $event = $this->get();
 
         // check email
-        if(!$event['Email']){
+        if(!$event['Email'] or !$event['Password']){
             throw new Exception("שגיאה: בכדי לשלוח הודעה יש צורך בהתחברות לאתר smsGateway והכנסת הפרטים תחת 'ניהול אירוע'");
+        }
+
+        // update device if not updated
+        if(!isset($event['DeviceID'])) {
+            $smsGateway = new SmsGateway($event['Email'], $event['Password']);
+            $result = $smsGateway->getDevices(1);
+            $result = $result['response'];
+            if (isset($result['success'])) {
+                if ($result['result']['total'] > 0) {
+                    $device = $result['result']['data'][0]['id'];
+                    $response = $this->update('DeviceID',$this->eventID, $device);
+                    if (!$response){
+                        throw new Exception("שגיאה: בכדי לשלוח הודעה יש צורך בהתחברות לאתר smsGateway והכנסת פרטי המכשיר תחת 'ניהול אירוע'");
+                    }
+                }
+
+            } else {
+                throw new Exception("שגיאה: בכדי לשלוח הודעה יש צורך בהתחברות לאתר smsGateway והכנסת פרטי המכשיר תחת 'ניהול אירוע'");
+            }
         }
 
         //unset all irrelevant columns
@@ -304,6 +323,10 @@ class Event implements iEvent
 
         // update RSVP according to RawData and get back name,surname, email and group
         $rsvpData = $this->rsvp->updateFromRaw($rawData);
+
+        if(!$rsvpData){
+            throw new Exception("שגיאה: לא התקבלו הודעות חדשות אשר מקושרות לאירוע זה.");
+        }
 
         // insert to rawData table
         return $this->rawData->insertBatch($rsvpData);

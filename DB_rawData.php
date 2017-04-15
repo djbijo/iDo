@@ -97,8 +97,8 @@ class rawData extends Table {
 
         $eventID = $this->eventID;
 
-        $result = DB::query("INSERT INTO rawData" . $eventID . "  (Name, Surname, Phone, Email, Groups, RSVP, Ride, Message, Received) VALUES
-                    ( $name, $surName, $phone, $email, $groups, $RSVP, $Ride, $message, $received)");
+        $result = DB::query("INSERT INTO rawData$eventID (Name, Surname, Phone, Email, Groups, RSVP, Ride, Message, Received) VALUES
+                    ($name, $surName, $phone, $email, $groups, $RSVP, $Ride, $message, $received)");
 
         if (!$result) {
             throw new Exception("RawData add: Error adding rawData from $name $surName to RawData$eventID table");
@@ -226,37 +226,38 @@ class rawData extends Table {
         // prepare values string for insert
         // prepare 1st value
         $i = 1;
-        $name = $reverseData[0]['Name'];
-        $surname = $reverseData[0]['SurName'];
-        $message = $reverseData[0]['Message'];
-        $phone = $reverseData[0]['Phone'];
-        $email = $reverseData[0]['Email'];
-        $groups = $reverseData[0]['Groups'];
-        $rsvp = $reverseData[0]['RSVP'];
-        $ride = $reverseData[0]['Ride'];
-        $received = $reverseData[0]['Received'];
+        $name = DB::quote($reverseData[0]['Name']);
+        $surname = DB::quote($reverseData[0]['Surname']);
+        $message = DB::quote($reverseData[0]['Message']);
+        $phone = DB::quote($reverseData[0]['Phone']);
+        $email = DB::quote($reverseData[0]['Email']);
+        $groups = DB::quote($reverseData[0]['Groups']);
+        $rsvp = DB::quote($reverseData[0]['RSVP']);
+        $ride = DB::quote($reverseData[0]['Ride']);
+        $received = DB::quote($reverseData[0]['Received']);
 
-        $values = "($name, $surname, $message, $phone, $email, $groups, $rsvp, $ride, $received)";
+        $message = DB::quote('IM IN 123');
+
+        $values = "($name, $surname, $phone, $email, $groups, $rsvp, $ride, $message, $received)";
 
         // prepare other values
         while (isset($reverseData[$i])){
-            $name = $reverseData[$i]['Name'];
-            $surname = $reverseData[$i]['SurName'];
-            $message = $reverseData[$i]['Message'];
-            $phone = $reverseData[$i]['Phone'];
-            $email = $reverseData[$i]['Email'];
-            $groups = $reverseData[$i]['Groups'];
-            $rsvp = $reverseData[$i]['RSVP'];
-            $ride = $reverseData[$i]['Ride'];
-            $received = $reverseData[$i]['Received'];
+            $name = DB::quote($reverseData[$i]['Name']);
+            $surname = DB::quote($reverseData[$i]['Surname']);
+            $message = DB::quote($reverseData[$i]['Message']);
+            $phone = DB::quote($reverseData[$i]['Phone']);
+            $email = DB::quote($reverseData[$i]['Email']);
+            $groups = DB::quote($reverseData[$i]['Groups']);
+            $rsvp = DB::quote($reverseData[$i]['RSVP']);
+            $ride = DB::quote($reverseData[$i]['Ride']);
+            $received = DB::quote($reverseData[$i]['Received']);
 
-            $values = $values.", ($name, $surname, $message, $phone, $email, $groups, $rsvp, $ride, $received)";
+            $values = $values.", ($name, $surname, $phone, $email, $groups, $rsvp, $ride, $message, $received)";
             $i++;
         }
 
         // insert data to rawData table as batch
-        $result = DB::query("INSERT INTO rawData" . $eventID . "  (Name, Surname, Phone, Email, Groups, RSVP, Ride, Message, Received) VALUES
-                    $values");
+        $result = DB::query("INSERT INTO RawData$eventID (Name, Surname, Phone, Email, Groups, RSVP, Ride, Message, Received) VALUES $values");
         if (!$result) {
             throw new Exception("שגיאה: לא ניתן להכניס את הרשומות לטבלת ההודעות.");
         }
@@ -276,7 +277,8 @@ class rawData extends Table {
         preg_match_all('!\d+!', $updatedString, $matches);
         (isset($matches[0][0])) ? $numbers['RSVP']=$matches[0][0] : $numbers['RSVP']='NULL';  // TODO: this returns only the 1st number in the string after dict
         (isset($matches[0][1])) ? $numbers['Uncertin']=$matches[0][1] : $numbers['Uncertin']='NULL';  // TODO: this returns only the 2nd number in the string after dict
-        (isset($matches[0][2])) ? $numbers['Ride']=$matches[0][2] : $numbers['Ride']='NULL';  // TODO: this returns only the 3rd number in the string after dict
+        (isset($matches[0][2])) ? $numbers['Ride']=$matches[0][2] : $numbers['Ride']=0;  // TODO: this returns only the 3rd number in the string after dict
+        ($numbers['Ride'] !=0 ) ? $numbers['Ride']=1 : $numbers['Ride']=0;
 
         return $numbers;
     }

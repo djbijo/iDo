@@ -109,7 +109,7 @@ class Messages extends Table {
         $eventID = $this->eventID;
 
         $result = DB::query("INSERT INTO messages$eventID (MessageType, Message, Groups, SendDate, SendTime) VALUES
-                    ( $messageType, $message, $groups, $sendDate, $sendTime)");
+                    ($messageType, $message, $groups, $sendDate, $sendTime)");
         if (!$result) {
             throw new Exception("Messages add: Error adding Message: $message to Messages$eventID table");
         }
