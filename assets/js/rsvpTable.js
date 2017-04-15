@@ -55,7 +55,8 @@ $(function () {
                 field: 'Groups',
                 title: 'קבוצות',
                 sortable: true,
-                editable: ezMakeEditable('checklist', 'קבוצות')
+                editable: ezMakeEditable('text', 'קבוצות') //TODO: enable groups select
+                // editable: ezMakeEditable('checklist', 'קבוצות')
             },
             {
                 field: 'Invitees',

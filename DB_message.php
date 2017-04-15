@@ -187,12 +187,17 @@ class Messages extends Table {
         // set time in UTC
         $time = GER2UTC($Message['SendDate'], $Message['SendTime']);
         $i=0;
+        $data = array();
 
+        //check that the event has guests:
+        if (empty($guests)){
+            throw new Exception("לאירוע אין אפילו מוזמין אחד");
+        }
         // check that sending time > current time
         $currTime = time();
-
-        if ($currTime>strtotime($time)){
-            throw new Exception("שגיאה: יש לבחור בזמן שליחת ההודעה שהינו גדול מהשעה הנוכחית.");
+        $sendTime = strtotime($time);
+        if ($currTime>$sendTime){
+            throw new Exception("שגיאה: יש לבחור בזמן שליחת ההודעה שהינו גדול מהשעה הנוכחית."." sendTime=$sendTime, currTime=$currTime");
         }
 
         // connect to smsGateway
@@ -230,9 +235,9 @@ class Messages extends Table {
         $response = $smsGateway->sendManyMessages($data);
 
         // check and return errors
-        if($response['response']['result']['fails'][0]['errors']){
+        if(!empty($response['response']['result']['fails'])){
             $errorMsg = print_r($response['response']['result']['fails'][0]['errors'],true);
-            throw new Exception("שגיאה: שליחת ההודעות נכשלה כשלון קולוסלי. הודעת שגיאה: $errorMsg");
+            throw new Exception("שגיאה: שליחת ההודעות נכשלה כשלון קולוסלי. הודעת שגיאה: $errorMsg". "data sent=".var_dump($data));
         }
 
         // mark message as sent
@@ -284,7 +289,7 @@ class Messages extends Table {
 
         $replacements[0] = $guest['Name'];
         $replacements[1] = $guest['Surname'];
-        $replacements[1] = $guest['Nickname'];
+        $replacements[2] = $guest['Nickname'];
 
         return preg_replace($patterns,$replacements, $message);
     }

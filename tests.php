@@ -7,6 +7,7 @@
     <body>
         <?php
         include ("DB_user.php");
+        include ("smsGateway.php");
 
         $ID = '123';
         $Name = 'Oriah';
@@ -34,8 +35,8 @@
         
         // getEevents
         //$user = new User($ID);
-        var_dump($user->getEvents());
-        var_dump($user);
+//        var_dump($user->getEvents());
+//        var_dump($user);
 //        echo $user.->();
         
         // add user phone
@@ -138,7 +139,7 @@
         echo $string;
          */
         
-        
+        $smsGateway =
         
         
         ?>

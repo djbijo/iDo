@@ -79,10 +79,12 @@ $(function(){
             }
             else {
                 console.log(data.errors);
+                if (data.sendMsg) bootbox.alert(data.sendMsg);
             }
         })
         .fail(function (data) {
             console.log(data);
+            bootbox.alert(data.responseText);
         })
     }
 

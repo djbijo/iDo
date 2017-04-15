@@ -260,13 +260,13 @@ class Event implements iEvent
      */
     public function sendMessages($MessageID){
 
-        $messageID = DB::quote($MessageID);
+        $messageID = $MessageID;//DB::quote($MessageID); //FIXME: this added some slashes
         $eventID = $this->eventID;
 
         $message = DB::select("SELECT * FROM Messages$eventID WHERE ID=$messageID");
         // check MessageID exists
         if (!$message){
-            throw new Exception("שגיאה: הודעה זו איננה במאגרי האתר. אנא בחר הודעה המתאימה לאירוע זה.");
+            throw new Exception("שגיאה: הודעה $messageID זו איננה במאגרי האתר. אנא בחר הודעה המתאימה לאירוע זה.");
         }
         // get guests from rsvp table
         $guests = $this->rsvp->getByGroups($message[0]['Groups']);

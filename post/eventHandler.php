@@ -2,6 +2,7 @@
 session_start();
 require_once ("../DB_user.php");
 require_once("../common.php");
+require_once ("../smsGateway.php");
 
 $errors             = array();      // array to hold validation errors
 $response           = array();      // array to pass back data
@@ -55,11 +56,26 @@ if (empty($errors)) {
                     foreach ($formData as $field => $value) {
                         $response['msg'] = $event->update($field, $_POST['pk'], $value);
                     }
-                    $response['post'] = $_POST;
+                    //try to auth to smsgateway and retrieve deviceID if empty
+                    $eventData = $event->get();
+                    $smsGateway = new SmsGateway($eventData['Email'], $eventData['Password']);
+                    $result = $smsGateway->getDevices(1);
+                    $result = $result['response'];
+                    if (isset($result['success'])){
+                        if ($result['result']['total']>0) {
+                            $device = $result['result']['data'][0]['id'];
+                            if (!isset($formData['DeviceID'])){
+                                $response['msg'] = $event->update('DeviceID', $_POST['pk'], $device);
+                            }
+                        }
+
+                    } else {
+                        $errors['auth'] = "לא הצלחתי להתחבר לאתר, תוודאו שהפרטים נכונים";
+                        $errors['smsGateway'] = $result;
+                    }
                 } catch (Exception $e) {
                     $errors['event'] = $e->getMessage();
-                    $errors['name'] = $_POST['name'];
-                    $errors['value'] = $_POST['value'];
+                    $errors['formData'] = $formData;
                 }
             } else {
                 $errors['event'] = "event is null";

@@ -30,9 +30,11 @@ if (empty($errors))
 //            break;
         case 'update':
             updateMsg($params, $errors, $messages);
+            $response['msgId'] = $params['msgId'];
             break;
         case 'updateSend':
             updateMsg($params, $errors, $messages);
+            sendMsg($params, $errors, $event);
             //send
             break;
         default:
@@ -81,16 +83,36 @@ function val_add(&$params, &$errors){
     return true;
 }
 
+function val_send(&$params, &$errors){
+    if (isset($params['msgId']))
+        return true;
+    if (!empty($_POST['msgId'])){
+        $params['msgId'] = $_POST['msgId'];
+        return true;
+    }
+    $errors['msgId'] = "מספר ההודעה לא ידוע";
+    return false;
+}
+
 function updateMsg(&$params, &$errors, &$messages){
     if (!val_add($params, $errors)) return;
     try{
 //        $messages->add($params['msgType'], $params['message'], $params['date'], $params['time']);
         if (!isset($params['id'])) {
-            $response['msgId'] = $messages->add($params['msgType'], $params['message'], $params['date'], $params['time'], $params['groups']);
+            $params['msgId'] = $messages->add($params['msgType'], $params['message'], $params['date'], $params['time'], $params['groups']);
         } else {
-            $response['msgId'] = $messages->update($params['id'], $params['msgType'], $params['message'], $params['date'], $params['time'], $params['groups']);
+            $params['msgId'] = $messages->update($params['id'], $params['msgType'], $params['message'], $params['date'], $params['time'], $params['groups']);
         }
     } catch (Exception $e){
         $errors['addMsg'] = $e->getMessage();
+    }
+}
+
+function sendMsg(&$params, &$errors, &$event){
+    if (!val_send($params, $errors)) return;
+    try{
+        return $event->sendMessages($params['msgId']);
+    } catch (Exception $e){
+        $errors['sendMsg'] = $e->getMessage();
     }
 }
