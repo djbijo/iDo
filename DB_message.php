@@ -167,9 +167,9 @@ class Messages extends Table {
      */
     public function markAsSent($eventID ,$messageID){
 
-        $result = DB::query("INSERT INTO messages$eventID (Sent) VALUES (true) WHERE ID=$messageID");
-        if (!$result) {
-            throw new Exception("Messages markAsSent: Error marking Message$messageID in Event$eventID as sent");
+        DB::query("UPDATE Messages$eventID SET Sent = 1 WHERE id = $messageID");
+        if (DB::affectedRows() <= 0) {
+            throw new Exception("שגיאה: לא ניתן לעדכן את שליחת ההודעה בשרתי האתר.");
         }
         return true;
     }

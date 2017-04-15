@@ -331,7 +331,7 @@ class Event implements iEvent
         return $result[0]['Permission1'];
     }
 
-    /* ---------- Private Functions ---------- */
+    /* ---------- Static Functions ---------- */
 
     /**
      * makeHebrewDate:  change date to Heberw date
@@ -358,9 +358,6 @@ class Event implements iEvent
 
         return $hebDate;
     }
-
-
-
 }
 
 ?>
