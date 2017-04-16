@@ -12,6 +12,7 @@ $params             = array();
 $action = isset($_POST['action']) ? $_POST['action'] : "error";
 if ((!isset($_SESSION['eventId']) or !$_SESSION['eventId']) and $action !== 'create'){
     $errors['event'] = "לא קיימים אירועים למשתמש";
+    $errors['noEvent'] = true;
 }
 if (empty($errors)) {
     switch ($action) {

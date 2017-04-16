@@ -2,5 +2,5 @@ SELECT * FROM events;
 SELECT * FROM users;
 show tables;
 UPDATE events SET HebrewDate="כז" WHERE id = 3;
-SELECT * FROM rsvp41;
+SELECT * FROM rsvp44;
 select * FROM messages41;

@@ -8,34 +8,49 @@ $response       = array();      // array to pass back data
 $params         = array();
 $response['status'] = "error";
 
-$action = isset($_POST['action']) ? $_POST['action'] : "error";
-switch ($action){
-    case 'getTable': break;
-    case 'addRow':
-        addRowVal($params, $errors);
-        break;
-    case 'deleteRows' :
-        if (empty($_POST['ids'])){
-            $errors["ids"] = "לא נבחרו שורות למחיקה";
-            break;
-        }
-        $params['ids']   = $_POST['ids'];
-        break;
-    case 'cellUpdate':
-        cellUpdateVal($params, $errors);
-        break;
+switch($_SERVER['REQUEST_METHOD'])
+{
+    case 'GET': $request = &$_GET; break;
+    case 'POST': $request = &$_POST; break;
     default:
-        $errors["action"] = "no action was set";
-        $errors["post"] = $_POST;
 }
 
-
+$action = isset($request['action']) ? $request['action'] : "error";
 if (!isset ($_SESSION['eventId'])){
     $errors['event'] = "לא נבחר אירוע עדיין";
 }
 if (!isset($_SESSION['userId'])){
     $errors['user'] = "אין משתמש פעיל";
 }
+switch ($action){
+    case 'getTable': break;
+    case 'addRow':
+        addRowVal();
+        break;
+    case 'deleteRows' :
+        if (empty($request['ids'])){
+            $errors["ids"] = "לא נבחרו שורות למחיקה";
+            break;
+        }
+        $params['ids']   = $request['ids'];
+        break;
+    case 'cellUpdate':
+        cellUpdateVal();
+        break;
+    case 'getRawData':
+        if (isset($request['phone'])){
+            $params['phone'] = $request['phone'];
+        } else {
+            $errors['phone'] = "לא נשלח מס טלפון";
+        }
+        break;
+    default:
+        $errors["action"] = "no action was set";
+        $errors["request"] = $request;
+}
+
+
+
 
 if (empty($errors)) {
     //validation succeeded
@@ -74,6 +89,13 @@ if (empty($errors)) {
                 if (!$response['rowId'])
                     $errors['row'] = "העדכון נכשל";
                 break;
+            case 'getRawData':
+                try{
+                    $response['data'] = $event->rawData->getByPhone($params['phone']);
+                } catch (Exception $e){
+                    $errors['getRawData'] = $e->getMessage();
+                }
+                break;
             default:
                 $errors["action"] = "no action was set";
         }
@@ -89,16 +111,17 @@ if (!empty($errors)){
 }
 echo json_encode($response);
 
-function addRowVal(&$params, &$errors){
-    $params['name']     = $_POST['data']['Name'];
-    $params['surname']  = $_POST['data']['Surname'];
-    $params['nickname'] = $_POST['data']['NickName'];
-    $params['invitees'] = $_POST['data']['Invitees'];
-    $params['phone']    = $_POST['data']['Phone'];
-    $params['email']    = $_POST['data']['Email'];
-    $params['groups']   = $_POST['data']['Groups'];
-    $params['rsvp']     = $_POST['data']['Rsvp'];
-    $params['ride']     = $_POST['data']['Ride'];
+function addRowVal(){
+    global $request, $params, $errors;
+    $params['name']     = $request['data']['Name'];
+    $params['surname']  = $request['data']['Surname'];
+    $params['nickname'] = $request['data']['NickName'];
+    $params['invitees'] = $request['data']['Invitees'];
+    $params['phone']    = $request['data']['Phone'];
+    $params['email']    = $request['data']['Email'];
+    $params['groups']   = $request['data']['Groups'];
+    $params['rsvp']     = $request['data']['Rsvp'];
+    $params['ride']     = $request['data']['Ride'];
     if (empty($params['name'])) {
         $errors["Name"] = "שם המוזמן לא יכול להשאר ריק";
     }
@@ -116,10 +139,11 @@ function addRowVal(&$params, &$errors){
     }
 }
 
-function cellUpdateVal(&$params, &$errors){
-    $params['pk']    = $_POST['pk'];
-    $params['name']  = $_POST['name'];
-    $params['value'] = $_POST['value'];
+function cellUpdateVal(){
+    global $request, $params, $errors;
+    $params['pk']    = $request['pk'];
+    $params['name']  = $request['name'];
+    $params['value'] = $request['value'];
 
     if (empty($params['name'])){
         //TODO: handle fields differently

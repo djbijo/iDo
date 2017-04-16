@@ -121,7 +121,10 @@
             <h1>ברוכים הבאים!</h1>
             <p>EzVite - כל צרכי ארגון החתונה במקום אחד</p>
             <p><a href="#" class="btn btn-primary btn-lg" role="button">מידע נוסף &raquo;</a></p>
-            <button type="submit" class="btn btn-primary" id="addEvent" onclick="createNewEvent()" >צור אירוע חדש</button>
+            <div id="create-event-group" style="display: none">
+                <div class="alert alert-warning"><h3> לא יצרתם עדיין אירוע, לחצו כאן בשביל ליצור את האירוע הראשון שלכם</h3></div>
+                <p><a href="#events" class="btn btn-primary" role="button">צור אירוע חדש</a></p>
+            </div>
         </div>
         <div id="rsvp" class="tab-pane fade">
             <h3>מוזמנים</h3>

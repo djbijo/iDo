@@ -86,12 +86,18 @@ var getEvents = function(){
                     $('#change-event-group').show();
                 } else {
                     $('#change-event-group').hide();
+                    $("#addEventForm").collapse('show');
                 }
                 $('#selectEventsDropdown li').on("click", "a", function(event){
                     event.preventDefault();
                     changeEvent($(this).data('eventId'));
                 })
 
+            } else { //error
+                if (data.errors.noEvent) {
+                    $('#change-event-group').hide();
+                    $("#addEventForm").collapse('show');
+                }
             }
         })
         .fail(function(data){
@@ -160,13 +166,15 @@ var loadEventData = function (data) {
     console.log(data);
     if (data.status === 'success'){
         $("#event-data").show();
-
         updateEventData(data.event);
         $("#deleteEventButton").prop('disabled', false);
     } else {
-        console.log(data);
-        $("#event-data").hide();
-        $("#deleteEventButton").prop('disabled', true);
+        if (data.errors.noEvent) {
+            $("#event-data").hide();
+            $("#deleteEventButton").prop('disabled', true);
+            $('#change-event-group').hide();
+            $("#addEventForm").collapse('show');
+        }
     }
 
 };
@@ -243,7 +251,7 @@ function submitForm(){
                 // $('#addRsvpRowForm').append('<div class="alert alert-success">' + data.message + '</div>');
                 //TODO: let the user not he succeded
                 $("#addEventForm")[0].reset();
-                $("#addEventForm").collapse();
+                $("#addEventForm").collapse('hide');
                 getEventData();
                 // usually after form submission, you'll want to redirect
                 // window.location = '/thank-you'; // redirect a user to another page

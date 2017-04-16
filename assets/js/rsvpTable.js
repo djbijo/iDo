@@ -15,6 +15,7 @@ $(function () {
         search: true,
         striped: true,
         showRefresh: true,
+        detailView: true,
         onRefresh: function () {
             $rsvpTableLoaded = false;
             loadRsvpTableData();
@@ -112,14 +113,22 @@ $(function () {
     })
 });
 
+//table actions:
+$rsvpTable.on('expand-row.bs.table', function (e, index, row, $detail) {
+        $detail.html('Loading from ajax request...');
+        $.get('post/rsvpHandler.php', {action: 'getRawData', phone: row.Phone}, function (res) {
+            $detail.html(res.replace(/\n/g, '<br>'));
+        });
+});
+
 function cellUpdateSuccess(response, newValue){
-    var respArr;
-    try {
-        respArr = JSON.parse(response);
-    } catch (err) {
-        document.getElementById("errMsg").innerHTML = response;
-        $("#error_modal").modal();
-    }
+    var respArr = response;
+    // try {
+    //     respArr = JSON.parse(response);
+    // } catch (err) {
+    //     document.getElementById("errMsg").innerHTML = response;
+    //     $("#error_modal").modal();
+    // }
     if (respArr.status === 'error'){
         return respArr.error;
     }
