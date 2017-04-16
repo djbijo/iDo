@@ -328,13 +328,17 @@ class Event implements iEvent
         // get new raw data in the format of Table : array[i]['Phone'/'Message'/'Recived'/'RSVP'/'Ride']
         $rawData = $this->rawData->getMessages($event['Email'], $event['Password'], $event['DeviceID']);
 
+        if(!$rawData){
+            throw new Exception("לא התקבלו הודעות חדשות אשר מקושרות לאירוע זה.");
+        }
+
         $upsideRaw = array_reverse($rawData);
 
         // update RSVP according to RawData and get back name,surname, email and group
         $rsvpData = $this->rsvp->updateFromRaw($upsideRaw);
 
         if(!$rsvpData){
-            throw new Exception("שגיאה: לא התקבלו הודעות חדשות אשר מקושרות לאירוע זה.");
+            throw new Exception("לא התקבלו הודעות חדשות אשר מקושרות לאירוע זה.");
         }
 
         // insert to rawData table
