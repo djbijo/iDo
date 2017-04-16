@@ -81,17 +81,18 @@ class rawData extends Table {
      * @param string $Groups : group in which the guest is categorised (default null)
      * @param int $RSVP : amount of guests coming (default 0)
      * @param bool $Ride : if the guest ordered a ride or not (default false)
+     * @param int $Received
      * @return int insert id if added
      * @throws Exception "RawData add: Error adding rawData from $name $surName to RawData$eventID table"
      */
-    public function add($Name, $SurName, $Message, $Phone = NULL, $Email = NULL, $Groups = NULL, $RSVP = 0, $Ride = false, $Received = 0) {
+    public function add($Name, $SurName, $Message, $Phone = 'NULL', $Email = 'NULL', $Groups = 'NULL', $RSVP = 0, $Ride = false, $Received = 0) {
 
         // Make strings query safe
         $name = DB::quote($Name);
         $surName = DB::quote($SurName);
         $message = DB::quote($Message);
-        $phone = DB::quote($Phone);
-        $email = DB::quote($Email);
+        $phone = validatePhone($Phone);
+        $email = validateEmail($Email);
         $groups = DB::quote($Groups);
         $received = DB::quote($Received);
 
@@ -123,7 +124,7 @@ class rawData extends Table {
     public function getByPhone($Phone) {
         $eventID = $this->eventID;
         
-        $phone = DB::quote($Phone);
+        $phone = validatePhone($Phone);
         $result = DB::select("SELECT * FROM RawData$eventID WHERE Phone=$phone");
         return $result;
     }
@@ -232,17 +233,17 @@ class rawData extends Table {
             $surname = DB::quoteNull($rsvpData[$i]['Surname']);
             $message = DB::quoteNull($rsvpData[$i]['Message']);
             $phone = validatePhone($rsvpData[$i]['Phone']);
-            $email = DB::quoteNull($rsvpData[$i]['Email']);
+            $email = validateEmail($rsvpData[$i]['Email']);
             $groups = DB::quoteNull($rsvpData[$i]['Groups']);
             $rsvp = DB::quoteNull($rsvpData[$i]['RSVP']);
             $ride = DB::quoteNull($rsvpData[$i]['Ride']);
             $received = DB::quoteNull($rsvpData[$i]['Received']);
 
             if($i==0){          // prepare 1st value
-                $values = "($name, $surname, '$phone', $email, $groups, $rsvp, $ride, $message, $received)";
+                $values = "($name, $surname, $phone, $email, $groups, $rsvp, $ride, $message, $received)";
             }
             else {              // prepare other values
-                $values = $values . ", ($name, $surname, '$phone', $email, $groups, $rsvp, $ride, $message, $received)";
+                $values = $values . ", ($name, $surname, $phone, $email, $groups, $rsvp, $ride, $message, $received)";
             }
             $i++;
         }
@@ -252,7 +253,7 @@ class rawData extends Table {
         if (!$result) {
             throw new Exception("שגיאה: לא ניתן להכניס את הרשומות לטבלת ההודעות.");
         }
-        return DB::insertID();
+        return $i;
     }
 
     /**
