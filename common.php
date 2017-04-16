@@ -17,6 +17,8 @@ require  'vendor/autoload.php';
 
 
 function validatePhone($phone){
+    if ($phone==NULL or $phone=='NULL') return 'NULL';
+
     $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
     //throws exception if number is invalid
     try {
@@ -25,13 +27,14 @@ function validatePhone($phone){
         return false;
     }
     if ($phoneUtil->isValidNumberForRegion($ilNumberProto,"IL")){
-        return $phoneUtil->format($ilNumberProto, \libphonenumber\PhoneNumberFormat::NATIONAL);
+        return "'".$phoneUtil->format($ilNumberProto, \libphonenumber\PhoneNumberFormat::NATIONAL)."'";
     }
     return false;
 }
 
 function validateEmail($email){         // Todo: handle valid email address, Null returns true
-    return filter_var($email, FILTER_VALIDATE_EMAIL);
+    if ($email==NULL or $email=='NULL') return 'NULL';
+    return "'".filter_var($email, FILTER_VALIDATE_EMAIL)."'";
 }
 
 /**

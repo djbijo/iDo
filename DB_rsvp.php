@@ -69,7 +69,7 @@ class RSVP extends Table {
     public function getByPhone($Phone) {
         $eventID = $this->eventID;
         
-        $phone = DB::quote($Phone);
+        $phone = validatePhone($Phone);
         $result = DB::select("SELECT * FROM rsvp$eventID WHERE Phone=$phone");
         return $result;
     }
@@ -146,8 +146,8 @@ class RSVP extends Table {
         $name = DB::quote($Name);
         $surName = DB::quote($SurName);
         $nickName = DB::quote($NickName);
-        $phone = DB::quote($Phone);
-        $email = DB::quote($Email);
+        $phone = validatePhone($Phone);
+        $email = validateEmail($Email);
         $groups = DB::quote($Groups);
         $rsvp = DB::quote($RSVP);
         $uncertin = DB::quote($Uncertin);
@@ -156,10 +156,10 @@ class RSVP extends Table {
         $eventID = $this->eventID;
 
         //check that phone and email are not already in rsvp table
-        if (NULL !== $email and DB::select("SELECT * FROM rsvp$eventID WHERE Email=$email")) {
+        if ('NULL' !== $email and DB::select("SELECT * FROM rsvp$eventID WHERE Email=$email")) {
             throw new Exception("RSVP add: Email $email already in RSVP table");
         }
-        if (NULL !== $phone and DB::select("SELECT * FROM rsvp$eventID WHERE Phone=$phone")) {
+        if ('NULL' !== $phone and DB::select("SELECT * FROM rsvp$eventID WHERE Phone=$phone")) {
             throw new Exception("RSVP add: Phone $phone already in RSVP table");
         }
 
@@ -217,15 +217,15 @@ class RSVP extends Table {
                 $surName = DB::quote($empData[1]);
                 $nickName = DB::quote($empData[2]);
                 $invitees = (int)$empData[3];
-                $phone = DB::quote($empData[4]);
-                $email = DB::quote($empData[5]);
+                $phone = validatePhone($empData[4]);
+                $email = validateEmail($empData[5]);
                 $group = DB::quote($empData[6]);
                 $rsvp = (int)$empData[7];
                 $uncertin = (int)$empData[8];
                 $ride =(int)$empData[9];
 
                 // validate phone/email
-                if (!validatePhone($phone) or !validateEmail($email)){
+                if (!$phone or !$email){
                     $errors++;
                     continue;
                 }
@@ -272,14 +272,14 @@ class RSVP extends Table {
             $uncertin = DB::quote($raw['Uncertin']);
 
             // get needed information from RSVP table
-            $data = DB::select("SELECT * FROM rsvp$eventID WHERE Phone='$phone'");
+            $data = DB::select("SELECT * FROM rsvp$eventID WHERE Phone=$phone");
             // if message is not from guest in rsvp table
             if (!$data) {
                 continue;
             }
 
             // update rsvp table if RSVP/Uncertin/Ride == 'NULL'
-            DB::query("UPDATE rsvp$eventID SET RSVP=IF($rsvp!='NULL',$rsvp,RSVP), Uncertin=IF(Uncertin=NULL,$uncertin,Uncertin), Ride=IF(Ride=0,$ride,Ride), Messages = Messages + 1 WHERE Phone='$phone'");
+            DB::query("UPDATE rsvp$eventID SET RSVP=IF($rsvp!='NULL',$rsvp,RSVP), Uncertin=IF(Uncertin=NULL,$uncertin,Uncertin), Ride=IF(Ride=0,$ride,Ride), Messages = Messages + 1 WHERE Phone=$phone");
             if (DB::affectedRows() < 0) {
                 throw new Exception("שגיאה: אין אפשרות לעדכן את המידע המועבר מההודעות לטבלת המוזמנים. אנא עדכן את המידע באופן ידני.");
             }

@@ -6,6 +6,7 @@ require_once("DB_event.php");
 interface iUser
 {
 
+
     public function addUser($ID, $Name, $Email, $Phone = 'NULL', $Event1 = 'NULL', $Permission1 = 'NULL', $Event2 = 'NULL', $Permission2 = 'NULL', $Event3 = 'NULL', $Permission3 = 'NULL');
 
     public function deleteUser();
@@ -64,6 +65,16 @@ class User implements iUser
 //            }
 //            $this->event = new Event($this->id, $events['event1']);
 //            return;
+        }
+
+        // check if future user (email in system, id=-1)
+        if ($this->checkUserEmail($Email)){
+            $id = DB::quote($ID);
+            $name = DB::quote($Name);
+            $email = validateEmail($Email);
+            $phone = validatePhone($Phone);
+            DB::query("UPDATE Users SET ID=$id, Name=$name, Phone=$phone WHERE Email=$email AND ID=-1");
+            if (DB::affectedRows() > 0) return;
         }
 
         // user is not in users table (not registered to iDO)
@@ -223,8 +234,8 @@ class User implements iUser
             throw new Exception("Email field in null");
         }
         // Make strings query safe
-        $email = DB::quote($Email);
-        $phone = DB::quote($Phone);
+        $email = validateEmail($Email);
+        $phone = validatePhone($Phone);
         $name = DB::quote($Name);
         $permission1 = DB::quote($Permission1);
         $permission2 = DB::quote($Permission2);
@@ -246,14 +257,54 @@ class User implements iUser
     }
 
     /**
+     * addFutureUser: Add user to Users table
+     * @param string $ID : user id
+     * @param string $Name : user name
+     * @param string $Email : user login email
+     * @param string $Phone : user cell phone number (DEFAULT NULL)
+     * @param int|string $Event1 : event id for 1st event (DEFAULT NULL)
+     * @param string $Permission1 : user permission type for event1(root/edit/review) (DEFAULT NULL)
+     * @param int|string $Event2 : event id for 2nd event (DEFAULT NULL)
+     * @param string $Permission2 : user permission type for event2(root/edit/review) (DEFAULT NULL)
+     * @param int|string $Event3 : event id for 3rd event (DEFAULT NULL)
+     * @param string $Permission3 : user permission type for event3(root/edit/review) (DEFAULT NULL)
+     * @return bool false = user already in Users table / true = user added to Users table (DEFAULT NULL)
+     * @throws Exception "User addUser: User already registered to iDO"
+     * @throws Exception "User addUser: the Email address: '$Email' is already registered to iDO"
+     * @throws Exception "Name field in null"
+     * @throws Exception "Email field in null"
+     * @throws Exception "User addUser: couldn't add user $this->id to users table"
+     */
+    public function addFutureUser($Email, $Permission)
+    {
+        if (!$Email) {
+            throw new Exception("יש לתת כתובת email תקינה לשם הוספה לאתר.");
+        }
+
+        // Make strings query safe
+        $email = validateEmail($Email);
+        $permission = DB::quote($Permission);
+        $eventID = $this->event->getEventID();
+
+        //insert user to Users table as future user
+        $result = DB::query("INSERT INTO Users (ID, Name, Email, Event1, permission1) VALUES
+			('-1', 'John Doe', $email, $eventID, $permission)");
+        if (!$result) {
+            throw new Exception("שגיאה: לא ניתן להוסיף את המשתמש".$email );
+        }
+        return true;
+    }
+
+    /**
      * checkUserEmail:  Check if User email exists in the database
      * @param string $Email :  user login email
      * @return bool : false = email not in database / true = email in database
      */
     private function checkUserEmail($Email)
     {
+        if (NULL == $Email or 'NULL' == $Email) return false;
         // Make strings query safe
-        $email = DB::quote($Email);
+        $email = validateEmail($Email);
 
         // Search for user Email or phone in Users table
         if (!DB::select("SELECT * FROM Users WHERE Email=$email")) {
@@ -296,11 +347,12 @@ class User implements iUser
 
         //check that the user is already registered to iDO services
         if (!$this->checkUserEmail($Email)) {
-            throw new Exception("User addUserPermissions: the user with Email address:'$Email' is not registered to iDO. please register the user before granting permissions");
+            // add user as future user
+            return $this->addFutureUser($Email, $Permission);
         }
 
         // Make strings query safe
-        $email = DB::quote($Email);
+        $email = validateEmail($Email);
         $permission = DB::quote($Permission);
 
         //check if user is root for this event
@@ -344,7 +396,7 @@ class User implements iUser
         }
 
         // Make strings query safe
-        $email = DB::quote($Email);
+        $email = validateEmail($Email);
         $permission = DB::quote($Permission);
 
         //check if user is root for this event
@@ -379,7 +431,7 @@ class User implements iUser
     public function addUserPhone($Phone)
     {
         // Make strings query safe
-        $phone = DB::quote($Phone);
+        $phone = validatePhone($Phone);
         $id = $this->id;
 
         //check if phone number already in iDO database
@@ -404,7 +456,7 @@ class User implements iUser
     private function checkUserPhone($Phone)
     {
         // Make strings query safe
-        $phone = DB::quote($Phone);
+        $phone = validatePhone($Phone);
 
         // Search for user phone in Users table
         if (!DB::select("SELECT * FROM Users WHERE Phone=$phone")) {
