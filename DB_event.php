@@ -328,8 +328,6 @@ class Event implements iEvent
         // get new raw data in the format of Table : array[i]['Phone'/'Message'/'Recived'/'RSVP'/'Ride']
         $rawData = $this->rawData->getMessages($event['Email'], $event['Password'], $event['DeviceID']);
 
-        var_dump($rawData);
-
         // update RSVP according to RawData and get back name,surname, email and group
         $rsvpData = $this->rsvp->updateFromRaw($rawData);
 
