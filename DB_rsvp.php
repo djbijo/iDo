@@ -268,7 +268,7 @@ class RSVP extends Table {
 
         // update data in rsvp table and in return value
         foreach ($rawData as $raw) {
-            $phone = DB::quote($raw['Phone']);
+            $phone = validatePhone(DB::quote($raw['Phone']));
             $rsvp = DB::quote($raw['RSVP']);
             $ride = DB::quote($raw['Ride']);
             $uncertin = DB::quote($raw['Uncertin']);
