@@ -115,10 +115,33 @@ $(function () {
 
 //table actions:
 $rsvpTable.on('expand-row.bs.table', function (e, index, row, $detail) {
-        $detail.html('Loading from ajax request...');
-        $.get('post/rsvpHandler.php', {action: 'getRawData', phone: row.Phone}, function (res) {
-            $detail.html(res.replace(/\n/g, '<br>'));
-        });
+        $detail.bootstrapTable({
+            columns: [
+                {
+                field: 'Message',
+                title: 'תוכן ההודעה'
+                }, {
+                field: 'Received',
+                title: 'התקבל'
+                }],
+            url: 'post/rsvpHandler.php',
+            ajaxOptions: function(params){
+                return {action: 'getRawData', phone: row.Phone}
+            }
+
+        })
+        // $detail.html('Loading from ajax request...');
+        // $.get('post/rsvpHandler.php',
+        //     {action: 'getRawData', phone: row.Phone}, null,'json')
+        //     .done( function (res){
+        //         console.log(res);
+        //         if (res.status == "success") {
+        //             // $detail.html(res.status);
+        //             $detail.bootstrapTable(res.data);
+        //         }
+        //         else
+        //             $detail.html("fail");
+        //     });
 });
 
 function cellUpdateSuccess(response, newValue){
