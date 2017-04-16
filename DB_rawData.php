@@ -224,21 +224,8 @@ class rawData extends Table {
 
         $eventID = $this->eventID;
         // prepare values string for insert
-        // prepare 1st value
-        $i = 1;
-        $name = DB::quote($rsvpData[0]['Name']);
-        $surname = DB::quote($rsvpData[0]['Surname']);
-        $message = DB::quote($rsvpData[0]['Message']);
-        $phone = validatePhone($rsvpData[0]['Phone']);
-        $email = DB::quote($rsvpData[0]['Email']);
-        $groups = DB::quote($rsvpData[0]['Groups']);
-        $rsvp = DB::quote($rsvpData[0]['RSVP']);
-        $ride = DB::quote($rsvpData[0]['Ride']);
-        $received = DB::quote($rsvpData[0]['Received']);
-
-        $values = "($name, $surname, '$phone', $email, $groups, $rsvp, $ride, $message, $received)";
-
-        // prepare other values
+        $i = 0;
+        // prepare values for insert
         while (isset($rsvpData[$i])){
             $name = DB::quote($rsvpData[$i]['Name']);
             $surname = DB::quote($rsvpData[$i]['Surname']);
@@ -250,8 +237,13 @@ class rawData extends Table {
             $ride = DB::quote($rsvpData[$i]['Ride']);
             $received = DB::quote($rsvpData[$i]['Received']);
 
-            $values = $values.", ($name, $surname, '$phone', $email, $groups, $rsvp, $ride, $message, $received)";
-            $i++;
+            if($i==0){          // prepare 1st value
+                $values = "($name, $surname, '$phone', $email, $groups, $rsvp, $ride, $message, $received)";
+            }
+            else {              // prepare other values
+                $values = $values . ", ($name, $surname, '$phone', $email, $groups, $rsvp, $ride, $message, $received)";
+                $i++;
+            }
         }
 
         // insert data to rawData table as batch
