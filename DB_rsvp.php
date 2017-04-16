@@ -155,8 +155,6 @@ class RSVP extends Table {
 
         $eventID = $this->eventID;
 
-        //FIXME: WHY? echo "name: $name; surname: $surName; nickName: $nickName; phone: $phone; email: $email; groups: $groups; rsvp: $rsvp; uncertin: $uncertin; ride: $ride";
-
         //check that phone and email are not already in rsvp table
         if (NULL !== $email and DB::select("SELECT * FROM rsvp$eventID WHERE Email=$email")) {
             throw new Exception("RSVP add: Email $email already in RSVP table");

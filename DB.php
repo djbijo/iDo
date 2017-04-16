@@ -95,6 +95,16 @@ class DB {
         if($value === 'NULL') return 'NULL';
         return "'" . self::$link->real_escape_string(strip_tags($value)) . "'";
     }
+
+    /**
+     * quoteNull: Quote and escape value for use in a database query
+     * @param string $value The value to be quoted and escaped
+     * @return string The quoted and escaped string
+     */
+    static function quoteNull($value) {
+        if($value === NULL) return 'NULL';
+        return DB::quote($value);
+    }
     
     /**
      * escapeString: escape value for use in a database query

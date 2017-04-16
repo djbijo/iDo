@@ -228,15 +228,15 @@ class rawData extends Table {
         $values = '';
         // prepare values for insert
         while (isset($rsvpData[$i])){
-            $name = DB::quote($rsvpData[$i]['Name']);
-            $surname = DB::quote($rsvpData[$i]['Surname']);
-            $message = DB::quote($rsvpData[$i]['Message']);
+            $name = DB::quoteNull($rsvpData[$i]['Name']);
+            $surname = DB::quoteNull($rsvpData[$i]['Surname']);
+            $message = DB::quoteNull($rsvpData[$i]['Message']);
             $phone = validatePhone($rsvpData[$i]['Phone']);
-            $email = DB::quote($rsvpData[$i]['Email']);
-            $groups = DB::quote($rsvpData[$i]['Groups']);
-            $rsvp = DB::quote($rsvpData[$i]['RSVP']);
-            $ride = DB::quote($rsvpData[$i]['Ride']);
-            $received = DB::quote($rsvpData[$i]['Received']);
+            $email = DB::quoteNull($rsvpData[$i]['Email']);
+            $groups = DB::quoteNull($rsvpData[$i]['Groups']);
+            $rsvp = DB::quoteNull($rsvpData[$i]['RSVP']);
+            $ride = DB::quoteNull($rsvpData[$i]['Ride']);
+            $received = DB::quoteNull($rsvpData[$i]['Received']);
 
             if($i==0){          // prepare 1st value
                 $values = "($name, $surname, '$phone', $email, $groups, $rsvp, $ride, $message, $received)";
