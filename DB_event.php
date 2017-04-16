@@ -73,11 +73,6 @@ class Event implements iEvent
             $this->rawData = new RawData($this->eventID);
             $this->groups = new Groups($this->eventID);
 
-            //get messages for this event
-            try {
-                $this->getMessages();
-            }
-            catch (Exception $e){}
 
         } // Event is not in Events table (new Event)
         elseif (($EventName and $EventDate) or $addEvent) {

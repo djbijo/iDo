@@ -152,10 +152,15 @@ function signWithServer() {
                 // $("#error_modal").modal();
                 updateGoogleUser();
             }
+            if (resp.status === "success"){
+                ezVite.updateRawData();
+            }
             console.log(resp);
         } catch (e) {
+            console.log(e);
             document.getElementById("errMsg").innerHTML = xhr.responseText;
             $("#error_modal").modal();
+            console.log(xhr.responseText);
         }
         // $("#error_modal").modal();
 

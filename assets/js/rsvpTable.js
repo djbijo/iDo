@@ -125,8 +125,13 @@ $rsvpTable.on('expand-row.bs.table', function (e, index, row, $detail) {
                 title: 'התקבל'
                 }],
             url: 'post/rsvpHandler.php',
-            ajaxOptions: function(params){
+            queryParams: function(params){
                 return {action: 'getRawData', phone: row.Phone}
+            },
+            responseHandler(res){
+                if (res.status === 'success'){
+                    return res.data;
+                }
             }
 
         })

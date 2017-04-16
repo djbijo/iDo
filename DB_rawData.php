@@ -247,6 +247,7 @@ class rawData extends Table {
             }
             $i++;
         }
+        echo $values;
 
         // insert data to rawData table as batch
         $result = DB::query("INSERT INTO RawData$eventID (Name, Surname, Phone, Email, Groups, RSVP, Ride, Message, Received) VALUES $values");

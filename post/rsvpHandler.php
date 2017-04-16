@@ -59,7 +59,7 @@ if (empty($errors)) {
     } catch (Exception $e){
         $errors['event'] = $e->getMessage();
     }
-    if ($event !== null) {
+    if (isset($event)) {
         $rsvp = $event->rsvp;
         switch ($action) {
             case 'getTable':
