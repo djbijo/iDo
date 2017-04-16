@@ -291,7 +291,7 @@ class RSVP extends Table {
                 'Surname' => $data[0]['Surname'],
                 'Email' => $data[0]['Email'],
                 'Groups' => $data[0]['Groups'],
-                'Phone' => $raw['Phone'],
+                'Phone' => $phone,
                 'Message' => $raw['Message'],
                 'Received' => $raw['Received'],
                 'RSVP' => $raw['RSVP'],

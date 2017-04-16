@@ -221,36 +221,34 @@ class rawData extends Table {
         }
 
         $eventID = $this->eventID;
-        $reverseData = array_reverse($rsvpData);
-
         // prepare values string for insert
         // prepare 1st value
         $i = 1;
-        $name = DB::quote($reverseData[0]['Name']);
-        $surname = DB::quote($reverseData[0]['Surname']);
-        $message = DB::quote($reverseData[0]['Message']);
-        $phone = DB::quote($reverseData[0]['Phone']);
-        $email = DB::quote($reverseData[0]['Email']);
-        $groups = DB::quote($reverseData[0]['Groups']);
-        $rsvp = DB::quote($reverseData[0]['RSVP']);
-        $ride = DB::quote($reverseData[0]['Ride']);
-        $received = DB::quote($reverseData[0]['Received']);
+        $name = DB::quote($rsvpData[0]['Name']);
+        $surname = DB::quote($rsvpData[0]['Surname']);
+        $message = DB::quote($rsvpData[0]['Message']);
+        $phone = validatePhone(DB::quote($rsvpData[0]['Phone']));
+        $email = DB::quote($rsvpData[0]['Email']);
+        $groups = DB::quote($rsvpData[0]['Groups']);
+        $rsvp = DB::quote($rsvpData[0]['RSVP']);
+        $ride = DB::quote($rsvpData[0]['Ride']);
+        $received = DB::quote($rsvpData[0]['Received']);
 
         $message = DB::quote('IM IN 123');
 
         $values = "($name, $surname, $phone, $email, $groups, $rsvp, $ride, $message, $received)";
 
         // prepare other values
-        while (isset($reverseData[$i])){
-            $name = DB::quote($reverseData[$i]['Name']);
-            $surname = DB::quote($reverseData[$i]['Surname']);
-            $message = DB::quote($reverseData[$i]['Message']);
-            $phone = DB::quote($reverseData[$i]['Phone']);
-            $email = DB::quote($reverseData[$i]['Email']);
-            $groups = DB::quote($reverseData[$i]['Groups']);
-            $rsvp = DB::quote($reverseData[$i]['RSVP']);
-            $ride = DB::quote($reverseData[$i]['Ride']);
-            $received = DB::quote($reverseData[$i]['Received']);
+        while (isset($rsvpData[$i])){
+            $name = DB::quote($rsvpData[$i]['Name']);
+            $surname = DB::quote($rsvpData[$i]['Surname']);
+            $message = DB::quote($rsvpData[$i]['Message']);
+            $phone = validatePhone(DB::quote($rsvpData[$i]['Phone']));
+            $email = DB::quote($rsvpData[$i]['Email']);
+            $groups = DB::quote($rsvpData[$i]['Groups']);
+            $rsvp = DB::quote($rsvpData[$i]['RSVP']);
+            $ride = DB::quote($rsvpData[$i]['Ride']);
+            $received = DB::quote($rsvpData[$i]['Received']);
 
             $values = $values.", ($name, $surname, $phone, $email, $groups, $rsvp, $ride, $message, $received)";
             $i++;
