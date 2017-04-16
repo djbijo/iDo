@@ -98,8 +98,10 @@ class RSVP extends Table {
         $i=1;
         // make query safe
         $arrayI = DB::quote($array[0]);
+        // prepare string for 1st group
         $query = "SELECT * FROM rsvp$eventID WHERE Groups=$arrayI";
-        
+
+        // prepare string for rest of groups
         while (isset($array[$i])){
             $arrayI = DB::quote($array[$i]);
             $query = $query . " OR Groups=$arrayI";
