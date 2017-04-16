@@ -88,7 +88,8 @@ class Event implements iEvent
             $eventTime = DB::quote($EventTime);
             $eventPhone = DB::quote($EventPhone);
             $password = DB::quote($Password);
-            $secret = DB::quote($Secret);
+            $secret = DB::quote(randStrGen(10)); //fixme [gil] - the secret will be displayed to user but we decide what it is to ensure uniqueness
+            //todo : make sure secret can't be changed
             $deviceID = DB::quote($DeviceID);
 
             // Add new event to Events table

@@ -116,7 +116,7 @@ var updateEventData = function(event){
     //smsgateway form:
     $('#email').val(event.Email);
     $('#password').val(event.Password);
-    $('#secret').val(event.Secret);
+    $('#secret').text(event.Secret);
     // $('#device-id').val = event.DeviceID;
     $("#event-data").show();
     if ($eventID !== event.ID)

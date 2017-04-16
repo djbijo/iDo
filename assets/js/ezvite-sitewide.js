@@ -24,5 +24,14 @@ var ezVite = {
                console.log(res.responseText);
                bootbox.alert("Error: "+res.responseText);
             });
+    },
+
+    //taken from http://stackoverflow.com/questions/22581345/click-button-copy-to-clipboard-using-jquery
+    copyToClipboard(element) {
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val($(element).text()).select();
+        document.execCommand("copy");
+        $temp.remove();
     }
 };

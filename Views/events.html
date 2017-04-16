@@ -87,10 +87,17 @@
                     <input type="text" class="input-large" id="email" placeholder="rod.howard@example.com">
                 </div> <!-- /controls -->
             </div> <!-- /control-group -->
+            <div class="control-group" id="sms-password-group">
+                <label class="control-label" for="password">Password</label>
+                <div class="controls">
+                    <input type="password" class="input-medium" id="password" >
+                </div> <!-- /controls -->
+            </div> <!-- /control-group -->
             <div class="control-group" id="sms-secret-group">
                 <label class="control-label" for="secret">secret</label>
                 <div class="controls">
-                    <input type="text" class="input-medium" id="secret" placeholder="unique secret">
+                    <p class="form-control-static col-sm-3" id="secret" ></p>
+                    <button class="btn btn-xs col-sm-2" type="button" onclick="ezVite.copyToClipboard('#secret')">העתק</button>
                 </div> <!-- /controls -->
             </div> <!-- /control-group -->
             <!--<div class="control-group" id="sms-id-group">-->
@@ -99,12 +106,7 @@
                     <!--<input type="text" class="input-medium" id="device-id" value="1111">-->
                 <!--</div> &lt;!&ndash; /controls &ndash;&gt;-->
             <!--</div> &lt;!&ndash; /control-group &ndash;&gt;-->
-            <div class="control-group" id="sms-password-group">
-                <label class="control-label" for="password">Password</label>
-                <div class="controls">
-                    <input type="password" class="input-medium" id="password" >
-                </div> <!-- /controls -->
-            </div> <!-- /control-group -->
+
             <div class="help-block" id="sms-help-block"></div>
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">שמור</button>
