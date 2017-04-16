@@ -225,6 +225,7 @@ class rawData extends Table {
         $eventID = $this->eventID;
         // prepare values string for insert
         $i = 0;
+        $values = '';
         // prepare values for insert
         while (isset($rsvpData[$i])){
             $name = DB::quote($rsvpData[$i]['Name']);
@@ -242,8 +243,8 @@ class rawData extends Table {
             }
             else {              // prepare other values
                 $values = $values . ", ($name, $surname, '$phone', $email, $groups, $rsvp, $ride, $message, $received)";
-                $i++;
             }
+            $i++;
         }
 
         // insert data to rawData table as batch
