@@ -72,6 +72,10 @@ class Event implements iEvent
             $this->messages = new Messages($this->eventID);
             $this->rawData = new RawData($this->eventID);
             $this->groups = new Groups($this->eventID);
+
+            //get messages for this event
+            $this->getMessages();
+
         } // Event is not in Events table (new Event)
         elseif (($EventName and $EventDate) or $addEvent) {
             // initiate Database with user Database

@@ -88,13 +88,20 @@ class RSVP extends Table {
         
         // if empty group
         if ($array[0] === NULL) return false;
+        // if sending to all guests
+        if ($array[0]=='all'){
+            $result = DB::select("SELECT * FROM rsvp$eventID");
+            return $result;
+        }
         
         // prepare query (append while array[i] is not null)
         $i=1;
         // make query safe
         $arrayI = DB::quote($array[0]);
+        // prepare string for 1st group
         $query = "SELECT * FROM rsvp$eventID WHERE Groups=$arrayI";
-        
+
+        // prepare string for rest of groups
         while (isset($array[$i])){
             $arrayI = DB::quote($array[$i]);
             $query = $query . " OR Groups=$arrayI";
@@ -133,7 +140,7 @@ class RSVP extends Table {
      * @throws Exception "RSVP add: Phone $phone already in RSVP table"
      * @throws Exception "RSVP add: Error adding guest $name $surName to RSVP$eventID table"
      */
-    public function add($Name, $SurName, $Invitees, $NickName = 'NULL', $Phone = 'NULL', $Email = 'NULL', $Groups = 'NULL', $RSVP = 0, $Uncertin = 0,$Ride = 0) {       //TODO: can't add phone +972...
+    public function add($Name, $SurName, $Invitees, $NickName = 'NULL', $Phone = 'NULL', $Email = 'NULL', $Groups = 'NULL', $RSVP = 0, $Uncertin = 0,$Ride = 0) {
 
         // Make strings query safe
         $name = DB::quote($Name);
@@ -242,12 +249,11 @@ class RSVP extends Table {
         return $errors;
     }
 
-    /**     TODO:: update
-     * updateFromRaw:  import RSVP table from excel file (deleting previous rsvp table)
+    /**
+     * updateFromRaw: update rsvp table from messages added from smsGateway through rawData
      * @param table $rawData : array[i]['Phone'/'Message'/'Recived'/'RSVP'/'Uncertin'/'Ride']
      * @return array[i]['Name'/'Surname'/'Email'/'Groups'/'Phone'/'Message'/'Recived'/'RSVP'/'Uncertin'/'Ride']
      * @throws Exception "שגיאה: משהו מוזר קרה, אנא נסה שנית."
-     * @throws Exception "שגיאה: לא ניתן לעדכן את המידע המועבר מההודעות לטבלת המוזמנים. אנא עדכן את המידע באופן ידני."
      * @throws Exception "שגיאה: אין אפשרות לעדכן את המידע המועבר מההודעות לטבלת המוזמנים. אנא עדכן את המידע באופן ידני."
      */
     public function updateFromRaw($rawData) {
