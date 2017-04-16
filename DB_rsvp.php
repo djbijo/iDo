@@ -102,7 +102,7 @@ class RSVP extends Table {
         if (!$validPhone) {
             $query = "SELECT * FROM rsvp$eventID WHERE Groups=$arrayI";
         } else{
-            $query = "SELECT * FROM rsvp$eventID WHERE Groups=$arrayI AND Phone IS NOT NULL";
+            $query = "SELECT * FROM rsvp$eventID WHERE Groups=$arrayI AND Phone <> 'NULL'";
         }
 
         // prepare string for rest of groups
