@@ -152,8 +152,6 @@ class rawData extends Table {
         $done = 0;
         $result = $smsGateway->getMessages($page);
 
-        var_dump($result);
-
         $rawData = array();
         while ($result['response']['success'] and $done == 0) {                // TODO: validate blank page
 
