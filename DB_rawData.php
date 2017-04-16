@@ -151,6 +151,10 @@ class rawData extends Table {
         $page = 1;
         $done = 0;
         $result = $smsGateway->getMessages($page);
+
+        var_dump($result);
+
+        $rawData = array();
         while ($result['response']['success'] and $done == 0) {                // TODO: validate blank page
 
             foreach ($result['response']['result'] as $Message) {
@@ -227,30 +231,28 @@ class rawData extends Table {
         $name = DB::quote($rsvpData[0]['Name']);
         $surname = DB::quote($rsvpData[0]['Surname']);
         $message = DB::quote($rsvpData[0]['Message']);
-        $phone = validatePhone(DB::quote($rsvpData[0]['Phone']));
+        $phone = validatePhone($rsvpData[0]['Phone']);
         $email = DB::quote($rsvpData[0]['Email']);
         $groups = DB::quote($rsvpData[0]['Groups']);
         $rsvp = DB::quote($rsvpData[0]['RSVP']);
         $ride = DB::quote($rsvpData[0]['Ride']);
         $received = DB::quote($rsvpData[0]['Received']);
 
-        $message = DB::quote('IM IN 123');
-
-        $values = "($name, $surname, $phone, $email, $groups, $rsvp, $ride, $message, $received)";
+        $values = "($name, $surname, '$phone', $email, $groups, $rsvp, $ride, $message, $received)";
 
         // prepare other values
         while (isset($rsvpData[$i])){
             $name = DB::quote($rsvpData[$i]['Name']);
             $surname = DB::quote($rsvpData[$i]['Surname']);
             $message = DB::quote($rsvpData[$i]['Message']);
-            $phone = validatePhone(DB::quote($rsvpData[$i]['Phone']));
+            $phone = validatePhone($rsvpData[$i]['Phone']);
             $email = DB::quote($rsvpData[$i]['Email']);
             $groups = DB::quote($rsvpData[$i]['Groups']);
             $rsvp = DB::quote($rsvpData[$i]['RSVP']);
             $ride = DB::quote($rsvpData[$i]['Ride']);
             $received = DB::quote($rsvpData[$i]['Received']);
 
-            $values = $values.", ($name, $surname, $phone, $email, $groups, $rsvp, $ride, $message, $received)";
+            $values = $values.", ($name, $surname, '$phone', $email, $groups, $rsvp, $ride, $message, $received)";
             $i++;
         }
 

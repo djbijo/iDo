@@ -268,20 +268,20 @@ class RSVP extends Table {
 
         // update data in rsvp table and in return value
         foreach ($rawData as $raw) {
-            $phone = validatePhone(DB::quote($raw['Phone']));
+            $phone = validatePhone($raw['Phone']);
             $rsvp = DB::quote($raw['RSVP']);
             $ride = DB::quote($raw['Ride']);
             $uncertin = DB::quote($raw['Uncertin']);
 
             // get needed information from RSVP table
-            $data = DB::select("SELECT * FROM rsvp$eventID WHERE Phone=$phone");
+            $data = DB::select("SELECT * FROM rsvp$eventID WHERE Phone='$phone'");
             // if message is not from guest in rsvp table
             if (!$data) {
                 continue;
             }
 
             // update rsvp table if RSVP/Uncertin/Ride == 'NULL'
-            DB::query("UPDATE rsvp$eventID SET RSVP=IF($rsvp!='NULL',$rsvp,RSVP), Uncertin=IF(Uncertin=NULL,$uncertin,Uncertin), Ride=IF(Ride=0,$ride,Ride), Messages = Messages + 1 WHERE Phone=$phone");
+            DB::query("UPDATE rsvp$eventID SET RSVP=IF($rsvp!='NULL',$rsvp,RSVP), Uncertin=IF(Uncertin=NULL,$uncertin,Uncertin), Ride=IF(Ride=0,$ride,Ride), Messages = Messages + 1 WHERE Phone='$phone'");
             if (DB::affectedRows() < 0) {
                 throw new Exception("שגיאה: אין אפשרות לעדכן את המידע המועבר מההודעות לטבלת המוזמנים. אנא עדכן את המידע באופן ידני.");
             }
