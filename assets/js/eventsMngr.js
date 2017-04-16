@@ -86,7 +86,6 @@ var getEvents = function(){
                     $('#change-event-group').show();
                 } else {
                     $('#change-event-group').hide();
-                    $("#addEventForm").collapse('show');
                 }
                 $('#selectEventsDropdown li').on("click", "a", function(event){
                     event.preventDefault();
@@ -119,6 +118,7 @@ var updateEventData = function(event){
     $('#password').val(event.Password);
     $('#secret').val(event.Secret);
     // $('#device-id').val = event.DeviceID;
+    $("#event-data").show();
     if ($eventID !== event.ID)
         getEvents();
     $eventID = event.ID;
@@ -165,7 +165,7 @@ var loadEventData = function (data) {
     console.log("loading event data");
     console.log(data);
     if (data.status === 'success'){
-        $("#event-data").show();
+        // $("#addEventForm").collapse('hide');
         updateEventData(data.event);
         $("#deleteEventButton").prop('disabled', false);
     } else {

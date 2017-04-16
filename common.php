@@ -37,19 +37,17 @@ function validateEmail($email){         // Todo: handle valid email address, Nul
     return "'".filter_var($email, FILTER_VALIDATE_EMAIL)."'";
 }
 
-/**
- * @return Event|null
- */
-function postGetEvent(){
-    if (isset($_SESSION['userId']) and isset($_SESSION['eventId'])) {
-        try {
-            $user = new User($_SESSION['userId']);
-        } catch (Exception $e){
-            return null;
-        }
-        return  new Event($user, NULL, NULL, $_SESSION['eventId']);
+//from http://www.developphp.com/video/PHP/Random-String-Generator-PHP-Function-Programming-Tutorial
+// (with modifications)
+function randStrGen($len){
+    $result = "";
+    $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    $charArray = str_split($chars);
+    for($i = 0; $i < $len; $i++){
+        $randItem = array_rand($charArray);
+        $result .= "".$charArray[$randItem];
     }
-    return null;
+    return $result;
 }
 
 function GER2UTC($date,$time){

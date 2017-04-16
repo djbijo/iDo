@@ -115,21 +115,28 @@ $(function () {
 
 //table actions:
 $rsvpTable.on('expand-row.bs.table', function (e, index, row, $detail) {
-        $detail.bootstrapTable({
+        var subTable = $detail.html('<table></table>').find('table');
+        subTable.bootstrapTable({
             columns: [
                 {
-                field: 'Message',
-                title: 'תוכן ההודעה'
+                    field: 'Message',
+                    title: 'תוכן ההודעה',
+                    rowspan: 1
                 }, {
-                field: 'Received',
-                title: 'התקבל'
+                    field: 'Received',
+                    title: 'התקבל',
+                    sortable: true,
+                    order: 'desc'
                 }],
             url: 'post/rsvpHandler.php',
+            sortName: 'Received',
+            sortOrder: 'desc',
             queryParams: function(params){
                 return {action: 'getRawData', phone: row.Phone}
             },
             responseHandler(res){
                 if (res.status === 'success'){
+                    console.log(res.data);
                     return res.data;
                 }
             }
