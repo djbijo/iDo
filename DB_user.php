@@ -125,7 +125,7 @@ class User implements iUser
                 }
             }
         }
-        // FIXME: gil added, so after delete the object will still have the right event
+
         $events = $this->getEvents();
         if ($events['event1'] === NULL) {
             return true;
@@ -180,7 +180,7 @@ class User implements iUser
             $i=0;
             foreach ($result as $event){
                 $out[$i]['name'] = $event['EventName'];
-                $out[$i]['id'] = $event['ID']; //FIXME: [gil] - changed because the order wasn't the same
+                $out[$i]['id'] = $event['ID'];
                 $i++;
             }
             return $out;
@@ -270,8 +270,10 @@ class User implements iUser
     public function deleteUser()
     {
         // Todo: if user is the last of his event - delete event
-        // Make strings query safe
         $id = $this->id;
+        $events = $this->getEvents();
+
+        $events = DB::query("SELECT * FROM Users WHERE ");
 
         // Delete user from Users table
         if (!DB::query("DELETE FROM Users WHERE ID=$id")) {

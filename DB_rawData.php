@@ -166,7 +166,7 @@ class rawData extends Table {
                 $extracted = $this->extract($Message['message']);
 
                 $rawData[] = [
-                    'Phone' => $Message['contact']['number'],
+                    'Phone' => validatePhone($Message['contact']['number']),
                     'Message' => $Message['message'],
                     'Received' => UNIX2GER($Message['received_at']),
                     'RSVP' => $extracted['RSVP'],
