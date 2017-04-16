@@ -79,7 +79,7 @@ class RSVP extends Table {
      * @param string $Groups : groups separated by a comma
      * @return RSVP table of guests from all the groups combined / false if group is empty
      */
-    public function getByGroups($Groups) {
+    public function getByGroups($Groups, $validPhone) {
         
         $eventID = $this->eventID;
         
@@ -99,7 +99,11 @@ class RSVP extends Table {
         // make query safe
         $arrayI = DB::quote($array[0]);
         // prepare string for 1st group
-        $query = "SELECT * FROM rsvp$eventID WHERE Groups=$arrayI";
+        if (!$validPhone) {
+            $query = "SELECT * FROM rsvp$eventID WHERE Groups=$arrayI";
+        } else{
+            $query = "SELECT * FROM rsvp$eventID WHERE Groups=$arrayI AND Phone IS NOT NULL";
+        }
 
         // prepare string for rest of groups
         while (isset($array[$i])){

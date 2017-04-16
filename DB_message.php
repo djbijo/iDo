@@ -252,6 +252,8 @@ class Messages extends Table {
      * @return string updated message with all replacements
      */
     private function updateMessage($Message, $event){
+        // update timestamp
+        $time = date("G:i", strtotime($event['EventTime']));
 
         $patterns = array();
         $replacements = array();
@@ -266,7 +268,7 @@ class Messages extends Table {
         $replacements[0] = $event['EventName'];
         $replacements[1] = $event['EventDate'];
         $replacements[2] = $event['HebrewDate'];
-        $replacements[3] = $event['EventTime'];
+        $replacements[3] = $time;
         $replacements[4] = $event['Address'];
         $replacements[5] = $event['Venue'];
 

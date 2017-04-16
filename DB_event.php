@@ -276,7 +276,7 @@ class Event implements iEvent
             throw new Exception("שגיאה: הודעה $messageID זו איננה במאגרי האתר. אנא בחר הודעה המתאימה לאירוע זה.");
         }
         // get guests from rsvp table
-        $guests = $this->rsvp->getByGroups($message[0]['Groups']);
+        $guests = $this->rsvp->getByGroups($message[0]['Groups'],1);
         $event = $this->get();
 
         // check email
