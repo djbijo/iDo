@@ -17,15 +17,17 @@ class rawData extends Table {
 
         $result = DB::query("CREATE TABLE IF NOT EXISTS rawData$eventID ( 
                 ID INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                Name VARCHAR(50) NOT NULL,
-                Surname VARCHAR(50) NOT NULL,
-                Phone VARCHAR(12) DEFAULT NULL,
-                Email VARCHAR(50) DEFAULT NULL,
-                Groups VARCHAR(50) DEFAULT NULL,
-                RSVP INT(3) DEFAULT NULL,
-                Ride BOOLEAN DEFAULT FALSE,
-                Message TEXT NOT NULL,
-                Received datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+	            Name VARCHAR(50) NOT NULL,
+	            Surname VARCHAR(50) NOT NULL,
+	            Phone VARCHAR(12) DEFAULT NULL,
+	            Email VARCHAR(50) DEFAULT NULL,
+	            Groups VARCHAR(50) DEFAULT NULL,
+	            Message TEXT NOT NULL,
+	            RSVP INT(3) DEFAULT NULL,
+	            Uncertin int(3) DEFAULT NULL,
+	            Ride BOOLEAN DEFAULT FALSE,
+	            Received datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	            Complex BOOLEAN DEFAULT FALSE
                 ) DEFAULT CHARACTER SET utf8;");
 
         if (!$result) {
@@ -72,20 +74,20 @@ class rawData extends Table {
     }
 
     /**
-     * add:  add row to rawData[$eventID] table in database
-     * @param string $Name : guest name
-     * @param string $SurName : guest surname
-     * @param string $Message : sms/email content
-     * @param string $Phone : guest phone (default null)
-     * @param string $Email : guest email (default null)
-     * @param string $Groups : group in which the guest is categorised (default null)
-     * @param int $RSVP : amount of guests coming (default 0)
-     * @param bool $Ride : if the guest ordered a ride or not (default false)
-     * @param int $Received
-     * @return int insert id if added
-     * @throws Exception "RawData add: Error adding rawData from $name $surName to RawData$eventID table"
-     */
-    public function add($Name, $SurName, $Message, $Phone = 'NULL', $Email = 'NULL', $Groups = 'NULL', $RSVP = 0, $Ride = false, $Received = 0) {
+ * add:  add row to rawData[$eventID] table in database
+ * @param string $Name : guest name
+ * @param string $SurName : guest surname
+ * @param string $Message : sms/email content
+ * @param string $Phone : guest phone (default null)
+ * @param string $Email : guest email (default null)
+ * @param string $Groups : group in which the guest is categorised (default null)
+ * @param int $RSVP : amount of guests coming (default 0)
+ * @param bool $Ride : if the guest ordered a ride or not (default false)
+ * @param int $Received
+ * @return int insert id if added
+ * @throws Exception "RawData add: Error adding rawData from $name $surName to RawData$eventID table"
+ */
+    public function add($Name, $SurName, $Message, $Phone = 'NULL', $Email = 'NULL', $Groups = 'NULL', $RSVP = 0, $Uncertin = 0, $Ride = false, $Received = 0) {
 
         // Make strings query safe
         $name = DB::quote($Name);
@@ -98,13 +100,43 @@ class rawData extends Table {
 
         $eventID = $this->eventID;
 
-        $result = DB::query("INSERT INTO rawData$eventID (Name, Surname, Phone, Email, Groups, RSVP, Ride, Message, Received) VALUES
+        $result = DB::query("INSERT INTO rawData$eventID (Name, Surname, Phone, Email, Groups, Message, RSVP, Ride, Received) VALUES
                     ($name, $surName, $phone, $email, $groups, $RSVP, $Ride, $message, $received)");
 
         if (!$result) {
             throw new Exception("RawData add: Error adding rawData from $name $surName to RawData$eventID table");
         }
         return DB::insertID();
+    }
+
+    /**
+     * insertMessage:  add row to rawData[$eventID] table in database
+     * @param array $RsvpData : ['Name'/'Surname'/'Email'/'Groups'/'RSVP'/'Uncertin'/'Ride'/'Complex']
+     * @param string $Message : message to insert to raw data
+     * @param string $Phone : phone number as received from message
+     * @return bool true if data inserted to rawData, false otherwise
+     */
+    public function insertMessage($RsvpData, $Message, $Phone) {
+
+        // Make strings query safe
+        $name = DB::quote($RsvpData[0]['Name']);
+        $surName = DB::quote($RsvpData[0]['Surname']);
+        $message = DB::quote($Message);
+        $phone = validatePhone($Phone);
+        $email = validateEmail($RsvpData[0]['Email']);
+        $groups = DB::quote($RsvpData[0]['Groups']);
+        $rsvp = DB::quote($RsvpData[0]['RSVP']);
+        $uncertin = DB::quote($RsvpData[0]['Uncertin']);
+        $ride = DB::quote($RsvpData[0]['Ride']);
+        $complex = DB::quote($RsvpData[0]['Complex']);
+
+        $eventID = $this->eventID;
+
+        // insert to rawData table
+        $result = DB::query("INSERT INTO rawData$eventID (Name, Surname, Phone, Email, Groups, Message, RSVP, Uncertin, Ride, Complex) VALUES
+                    ($name, $surName, $phone, $email, $groups, $message, $rsvp, $uncertin, $ride, $complex)");
+        if (!$result) return false;
+        return true;
     }
 
     /**
@@ -154,7 +186,7 @@ class rawData extends Table {
         $result = $smsGateway->getMessages($page);
 
         $rawData = array();
-        while ($result['response']['success'] and $done == 0) {                // TODO: validate blank page
+        while ($result['response']['success'] and !$done) {                // TODO: validate blank page
 
             foreach ($result['response']['result'] as $Message) {
                 // continue if not received message (only received messages) or if not this deviceID
@@ -247,7 +279,6 @@ class rawData extends Table {
             }
             $i++;
         }
-        echo $values;
 
         // insert data to rawData table as batch
         $result = DB::query("INSERT INTO RawData$eventID (Name, Surname, Phone, Email, Groups, RSVP, Ride, Message, Received) VALUES $values");

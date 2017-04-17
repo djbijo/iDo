@@ -57,14 +57,6 @@ class User implements iUser
             //shift user events left
             $this->shiftEvents();
             return;
-
-//            // construct an events with only events ID to it
-//            $events = $this->getEvents();
-//            if ($events['event1'] === NULL) {
-//                return;
-//            }
-//            $this->event = new Event($this->id, $events['event1']);
-//            return;
         }
 
         // check if future user (email in system, id=-1)

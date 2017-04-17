@@ -25,7 +25,8 @@ class RSVP extends Table {
                 RSVP INT(3) DEFAULT NULL,
                 Uncertin int(3) DEFAULT NULL,
                 Ride BOOLEAN DEFAULT FALSE,
-                Messages INT DEFAULT 0
+                Messages INT DEFAULT 0,
+                Complex BOOLEAN DEFAULT NULL
                 ) DEFAULT CHARACTER SET utf8");
 
         if (!$result) {
@@ -302,6 +303,70 @@ class RSVP extends Table {
             ];
         }
         return $rsvpData;
+    }
+
+    /**
+     * updateFromMessage: update rsvp table from message received from smsGateway
+     * @param string $message : the ['message'] from received message
+     * @param string $phone : the ['phone'] from received message
+     * @return array[i]['Name'/'Surname'/'Email'/'Groups'/'Phone'/'Message'/'RSVP'/'Uncertin'/'Ride']
+     */
+    public function updateFromMessage($message, $phone) {
+
+        $eventID = $this->eventID;
+//        $rsvpData = array();
+
+        // extract data from $message
+        $extracted = $this->extract($message);
+        $rsvp =  DB::quote($extracted['RSVP']);
+        $uncertin = DB::quote($extracted['Uncertin']);
+        $ride = DB::quote($extracted['Ride']);
+        $complex = DB::quote($extracted['Complex']);
+
+        // get needed information from RSVP table
+        $data = DB::select("SELECT * FROM rsvp$eventID WHERE Phone=$phone");
+        // if message is not from guest in rsvp table
+        if (!$data) return false;
+        // update rsvp table if RSVP/Uncertin/Ride == 'NULL'
+        DB::query("UPDATE rsvp$eventID SET RSVP=IF($rsvp!='NULL',$rsvp,RSVP), Uncertin=IF($uncertin!='NULL',$uncertin,Uncertin),
+                    Ride=IF(Ride=0,$ride,Ride), Messages = Messages + 1, Complex=$complex WHERE Phone=$phone");
+        if (DB::affectedRows() < 0) {
+            return false;
+        }
+        // create data to be inserted back to rawData table (exclude messages from non guests)
+        $rsvpData[] = [             // TODO: make sure these are ''
+            'Name' => $data[0]['Name'],
+            'Surname' => $data[0]['Surname'],
+            'Email' => $data[0]['Email'],
+            'Groups' => $data[0]['Groups'],
+            'Messages' => $data[0]['Messages']+1,
+            'RSVP' => $extracted['RSVP'],
+            'Uncertin' => $extracted['Uncertin'],
+            'Ride' => $extracted['Ride'],
+            'Complex' => $extracted['Complex'],
+        ];
+        return $rsvpData;
+    }
+
+    /**
+     * extract: extract RSVP, Uncertin and Ride numbers out of string
+     * @param string $String : message to extract rsvp from
+     * @return array['RSVP'/'Uncertin/'Ride']
+     */
+    private function extract($String) {
+        $string = DB::quote($String);
+        $numbers = [];
+
+        $updatedString = dictionary($string);
+        preg_match_all('!\d+!', $updatedString, $matches);
+        (isset($matches[0][0])) ? $numbers['RSVP']=$matches[0][0] : $numbers['RSVP']='NULL';                            // TODO: this returns only the 1st number in the string after dict
+        (isset($matches[0][1])) ? $numbers['Uncertin']=$matches[0][1] : $numbers['Uncertin']='NULL';                    // TODO: this returns only the 2nd number in the string after dict
+        (isset($matches[0][2])) ? $numbers['Ride']=$matches[0][2] : $numbers['Ride']=0;                                 // TODO: this returns only the 3rd number in the string after dict
+        ($numbers['Ride'] !=0 ) ? $numbers['Ride']=1 : $numbers['Ride']=0;
+
+        (strlen($updatedString)>11) ? $numbers['Complex']=1 : $numbers['Complex']=0;                                    // TODO: this relays on string being longer than 3 seperate dnumbers after dictionary
+
+        return $numbers;
     }
 }
 
