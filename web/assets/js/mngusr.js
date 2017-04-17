@@ -140,7 +140,7 @@ function signWithServer() {
     var access_token = googleUser.getAuthResponse(true).access_token;
 //	console.log('id_token= '+ id_token);
 	var xhr = new XMLHttpRequest();
-	xhr.open('POST', 'post/signinuser.php');
+	xhr.open('POST', '/post/signinuser.php');
 	xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	xhr.onload = function() {
 	  //only for development
