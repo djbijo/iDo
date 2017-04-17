@@ -27,8 +27,9 @@ $client->setAccessToken($access_token);
 try {
     $payload = $client->verifyIdToken($id_token);
 } catch (Exception $e) {
-    session_unset();
-    session_destroy();
+    $errors['google'] = $e->getMessage();
+//    session_unset();
+//    session_destroy();
 }
 if (isset($payload)) {
   $usrId = $payload['sub'];
