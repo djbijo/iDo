@@ -252,8 +252,13 @@ class User implements iUser
      */
     public function addFutureUser($Email, $Permission)
     {
+        // check valid email
         if (!$Email) {
-            throw new Exception("יש לתת כתובת email תקינה לשם הוספה לאתר.");
+            throw new Exception("שגיאה: יש לתת כתובת email תקינה לשם הוספה לאתר.");
+        }
+        // check for root permissions
+        if ($this->event->getPermission()!='root'){
+            throw new Exception("שגיאה: רק משתמש בעל השראות מנהל יכול להוסיף משתמשים לאירוע.");
         }
 
         // Make strings query safe
@@ -330,6 +335,10 @@ class User implements iUser
      */
     public function addUserPermissions($Email, $Permission)
     {
+        // check for root permissions
+        if ($this->event->getPermission()!='root'){
+            throw new Exception("שגיאה: רק משתמש בעל השראות מנהל יכול להוסיף משתמשים לאירוע.");
+        }
 
         //check that the user is already registered to iDO services
         if (!$this->checkUserEmail($Email)) {
@@ -375,6 +384,11 @@ class User implements iUser
      */
     public function editUserPermissions($Email, $Permission)
     {
+
+        // check for root permissions
+        if ($this->event->getPermission()!='root'){
+            throw new Exception("שגיאה: רק משתמש בעל השראות מנהל יכול לערוך הרשאות לאירוע.");
+        }
 
         //check that the user is already registered to iDO services
         if (!$this->checkUserEmail($Email)) {
