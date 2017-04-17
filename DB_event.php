@@ -89,7 +89,6 @@ class Event implements iEvent
             $eventPhone = DB::quote($EventPhone);
             $password = DB::quote($Password);
             $secret = DB::quote(randStrGen(10)); //fixme [gil] - the secret will be displayed to user but we decide what it is to ensure uniqueness
-            //todo : make sure secret can't be changed
             $deviceID = DB::quote($DeviceID);
 
             // Add new event to Events table
@@ -185,7 +184,8 @@ class Event implements iEvent
      * @return array of event[$eventID]
      * @throws Exception "Event get: couldn't get row for event$eventID from Events table "
      */
-    public function get() {
+    public function get()
+    {
         $eventID = $this->eventID;
 
         $result = DB::select("SELECT * FROM Events WHERE ID=$eventID");
@@ -196,8 +196,14 @@ class Event implements iEvent
 
         unset($result[0]['RootID']);
 
-//        $permission = $this->getPermission();
-//        if ($permission!='root')
+        // TODO:[oriah] getPermission is bool?
+        if (!$this->getPermission()){
+            unset($result[0]['Email']);
+            unset($result[0]['Phone']);
+            unset($result[0]['Password']);
+            unset($result[0]['Secret']);
+            unset($result[0]['DeviceID']);
+        }
 
         return $result[0];
     }
@@ -215,13 +221,18 @@ class Event implements iEvent
         $value = DB::quote($Value);
         $eventID = $this->eventID;
 
+        // make sure secret can't be changed
+        if($colName=='Secret'){
+            throw new Exception("שגיאה: לא ניתן לערוך שדה זה.");
+        }
+        // TODO:[oriah] getPermission is bool?
         $permission = $this->getPermission();
 
         if($permission!=='root'){
             throw new Exception("שגיאה: רק משתמש שהינו בעל הרשאת מנהל יכול לערוך את האירוע.");
         }
 
-        //if date change - change also hebrew date
+        // if date update - update also hebrew date
         if ($colName==='EventDate'){
             $hebrewDate = DB::quote($this->makeHebrewDate($Value));
 
@@ -230,9 +241,10 @@ class Event implements iEvent
             if (DB::affectedRows() < 0) {
                 throw new Exception("Event update: couldn't update Events table with EventDate=$value and HebrewDate=$hebrewDate for Event$eventID");
             }
+            return true;
         }
 
-        // generate mysql command
+        // update events table
         DB::query("UPDATE Events SET $colName = $value WHERE id = $eventID");
 
         if (DB::affectedRows() < 0) {
@@ -342,6 +354,47 @@ class Event implements iEvent
     }
 
     /**
+     * messageReceived: get message (only received messages) and update Event tables accordingly
+     * @param string $DeviceID : ['device_id'] from received message
+     * @param string $Message : ['message'] from received message
+     * @param string $Secret : ['secret']  from received message
+     * @param string $Phone : ['phone'] from received message
+     * @return bool true if messages received and event updated - return message is echoed (up to 5 times), false otherwise.
+     */
+    static function messageReceived($DeviceID, $Message, $Secret, $Phone){
+
+        // check valid params
+        if (!$Message or !$DeviceID or !$Secret) return false;
+        // make strings query safe
+        $deviceID = DB::quote($DeviceID);
+        $message = DB::quote($Message);
+        $secret = DB::quote($Secret);
+        $phone = validatePhone($Phone);
+        if (!$phone) return false;
+
+        // get eventID
+        $event = DB::select("SELECT * FROM Events WHERE DeviceID=$deviceID AND Secret=$secret");
+        // check stored deviceID and Secret
+        if(!$event) return false;
+
+        $eventID = $event[0]['ID'];
+        $rootID = $event[0]['RootID'];
+
+        $event = new Event($rootID, $eventID);
+        // update RSVP according to Message and get back name,surname, email, group, RSVP, uncertin, ride and complex
+        $rsvpData = $event->rsvp->updateFromMessage($message, $phone);
+        if(!$rsvpData) return false;
+
+        // insert to rawData table
+        $raw = $event->rawData->insertMessage($rsvpData, $message, $phone);
+
+        if (!$raw) return false;
+
+        // event updated, echo "thank you" message
+         return $event->thankYou(($rsvpData[0]['Messages']));
+    }
+
+    /**
      * getPermission: get the user permission for this event;
      * @return permission of this event for a specific user
      * @throws Exception "שגיאה: האירוע המבוקש לא נמצא במאגרי האתר."
@@ -356,6 +409,7 @@ class Event implements iEvent
             throw new Exception("שגיאה: האירוע המבוקש לא נמצא במאגרי האתר.");
         }
 
+        // FIXME: [oriah] - gil, what does this return? boolean?
         $regexp = '/root/';
         return filter_var($result[0]['Permission1'], FILTER_VALIDATE_REGEXP,
             array("options"=>array("regexp"=>$regexp)));
@@ -363,22 +417,19 @@ class Event implements iEvent
         return $result[0]['Permission1'];
     }
 
-    /* ---------- Static Functions ---------- */
-
     /**
      * makeHebrewDate:  change date to Heberw date
      * @param Date $Date : the date to be converted to hebrew date
      * @return String hebrew date
      * @throws Exception "Event makeHebrewDate: date template is YEAR-MONTH-DAY (XXXX-XX-XX), $Date doesn't comply with this format"
      */
-    public static function makeHebrewDate($Date){
+     static function makeHebrewDate($Date){
         // break date into an array
         $date = explode('-',$Date);
 
         // if empty group
         if (!$date[0] or !$date[1] or !$date[2]) throw new Exception("Event makeHebrewDate: date template is YEAR-MONTH-DAY (XXXX-XX-XX), $Date doesn't comply with this format");
         $response = file_get_contents("http://www.hebcal.com/converter/?cfg=json&gy=$date[0]&gm=$date[1]&gd=$date[2]&g2h=1");
-//        echo $response;
         $response = json_decode($response, true);
         try {
             $hebDate = $response['hebrew'];
@@ -389,6 +440,17 @@ class Event implements iEvent
         if (!$hebDate) throw new Exception("couldn't get hebrew date");
 
         return $hebDate;
+    }
+
+    /**
+     * thankYou: echo "thank you" message as ling as $message<=5
+     * @param int $messages : number of messages received
+     * @return bool true if message sent / false otherwise
+     */
+    private function thankYou($messages){
+        // get hard coded "thank you" message and echo it
+        if($messages<=5) echo file_get_contents( "thankYou.txt" );
+        return true;
     }
 }
 

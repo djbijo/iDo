@@ -32,7 +32,7 @@ function validatePhone($phone){
     return false;
 }
 
-function validateEmail($email){         // Todo: handle valid email address, Null returns true
+function validateEmail($email){
     if ($email==NULL or $email=='NULL') return 'NULL';
     return "'".filter_var($email, FILTER_VALIDATE_EMAIL)."'";
 }
@@ -59,9 +59,11 @@ function GER2UTC($date,$time){
 }
 
 function UNIX2GER($unixTime){
-    // set default timezone
-    date_default_timezone_set('Asia/Jerusalem');
-    return date("Y-m-d G:i:s", $unixTime);
+    $utcTime = new DateTime(null, new DateTimeZone('UTC'));
+    $utcTime->setTimestamp($unixTime);
+
+    $utcTime->setTimezone(new DateTimeZone('Asia/Jerusalem'));
+    return $utcTime->format("Y-m-d G:i:s");
 }
 
 function get_numerics ($str) {
