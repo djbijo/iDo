@@ -121,14 +121,13 @@ class Event implements iEvent
      * @throws Exception "Event deleteEvent: couldn't delete event$eventID from Users table"
      * @throws Exception "Event deleteEvent: only root user can delete event$eventID"
      */
-    public function deleteEvent(User &$user)
+    public function deleteEvent(User &$user, $make = 0)
     {
         // Check user permission for event
-        $permission = $this->getPermission();
+//        $permission = $this->getPermission();
         $eventID = DB::quote($this->eventID);
 
-        if ($permission === 'root') {
-            for ($i = 1; $i <= 3; $i++) {
+        if ($make or $this->getPermission()=='root') {
                 // delete event from Events table
                 $sql = DB::query("DELETE FROM Events WHERE ID=$eventID");
                 // delete RSVP[eventID] table
@@ -143,6 +142,7 @@ class Event implements iEvent
                 if (!$sql or !$sqlRSVP or !$sqlMessages or !$sqlRawData or !$sqlGroups) {
                     throw new Exception("Event deleteEvent: couldn't delete event tables");
                 }
+            for ($i = 1; $i <= 3; $i++) {
                 DB::query("UPDATE Users SET Event$i=NULL, Permission$i=NULL WHERE Event$i=$eventID");
                 //if event updated
                 if (DB::affectedRows() < 0) {
@@ -164,6 +164,10 @@ class Event implements iEvent
      */
     public function switchEvent($EventID) {
         $this->eventID = $EventID;
+        $this->rsvp->switch($EventID);
+        $this->rawData->switch($EventID);
+        $this->messages->switch($EventID);
+        $this->groups->switch($EventID);
         return true;
     }
 

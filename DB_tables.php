@@ -81,6 +81,16 @@ abstract class Table {
         return true;
     }
 
+    /**
+     * switch: change the event id
+     * @param int $EventID : the EventID that we would like to change to
+     * @return bool true if eventID changed / false otherwise
+     */
+    public function switch($EventID) {
+        $this->eventID = $EventID;
+        return true;
+    }
+
 }
 
 ?>

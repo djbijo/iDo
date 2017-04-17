@@ -51,9 +51,7 @@ class User implements iUser
         // user is in users table (registered to iDO)
         if ($this->checkUserID($ID)) {
 
-            if (!isset($this->id)) {
-                $this->id = DB::quote($ID);
-            }
+            if (!isset($this->id)) $this->id = DB::quote($ID);
             //shift user events left
             $this->shiftEvents();
             return;
@@ -69,7 +67,7 @@ class User implements iUser
             if (DB::affectedRows() > 0) return;
         }
 
-        // user is not in users table (not registered to iDO)
+        // user is not in users table (not registered to EZVITE)
         $result = $this->addUser($ID, $Name, $Email, $Phone);
         if (!$result) {
             throw new Exception("User New: addUser function error");
@@ -84,14 +82,11 @@ class User implements iUser
      */
     static function checkUserID($ID)
     {
-
         // Make strings query safe
         $id = DB::quote($ID);
 
         // Search for user ID in Users table
-        if (!DB::select("SELECT * FROM Users WHERE ID=$id")) {
-            return false;
-        }
+        if (!DB::select("SELECT * FROM Users WHERE ID=$id")) return false;
         return true;
     }
 
@@ -102,11 +97,8 @@ class User implements iUser
      */
     public function shiftEvents()
     {
-
         $result = $this->getEvents();
-        if(!$result){
-            $this->event = NULL;
-        }
+        if(!$result) $this->event = NULL;
 
         $id = $this->id;
 
@@ -130,9 +122,7 @@ class User implements iUser
         }
 
         $events = $this->getEvents();
-        if ($events['event1'] === NULL) {
-            return true;
-        }
+        if ($events['event1'] === NULL) return true;
         $this->event = new Event($this->id, $events['event1']);
         return true;
     }
@@ -173,12 +163,7 @@ class User implements iUser
         $id[2] = $events['event2'];
         $id[3] = $events['event3'];
 
-        // set ' ' to null
-        for ($i=1;$i<=3;$i++){
-            if (!$id[$i]) $id[$i]='NULL';
-        }
-
-        $result = DB::select("SELECT * FROM Events WHERE ID=$id[1] OR ID=$id[2] OR ID=$id[3]");
+        $result = DB::select("SELECT * FROM Events WHERE ID=IF(!$id[1],'NULL',$id[1]) OR ID=IF(!$id[2],'NULL',$id[2]) OR ID=IF(!$id[3],'NULL',$id[3])");
         if ($result) {
             $i=0;
             foreach ($result as $event){
@@ -234,9 +219,7 @@ class User implements iUser
         $permission3 = DB::quote($Permission3);
 
         // save user ID
-        if (!isset($this->id)) {
-            $this->id = DB::quote($ID);
-        }
+        if (!isset($this->id)) $this->id = DB::quote($ID);
         $id = $this->id;
 
         //insert user to Users table
@@ -312,11 +295,22 @@ class User implements iUser
      */
     public function deleteUser()
     {
-        // Todo: if user is the last of his event - delete event
         $id = $this->id;
         $events = $this->getEvents();
 
-        $events = DB::query("SELECT * FROM Users WHERE ");
+        // check and delete event if no more users are connected to this event
+        for ($i = 1; $i <= 3; $i++) {
+            $eventID = $events["event$i"];
+            if ('NULL'==$eventID or NULL==$eventID) break;
+
+            $eventUsers = DB::select("SELECT * FROM Users WHERE Event1=$eventID OR Event2=$eventID OR Event3=$eventID");
+            // if only one user is connected to the event, delete this event
+
+            if (empty($eventUsers[1])){
+                $this->event->switchEvent($eventID);
+                $this->event->deleteEvent($this,1);
+            }
+        }
 
         // Delete user from Users table
         if (!DB::query("DELETE FROM Users WHERE ID=$id")) {
