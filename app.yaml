@@ -1,11 +1,9 @@
 runtime: php
-threadsafe: true
+env: flex
 
 handlers:
-- url: /
-  static_files: web/index.html
-  upload: web/index.html
+- url: /.*
+  script: web/index.html
 
-- url: /
-  static_dir: web
-
+runtime_config:
+  document_root: web
