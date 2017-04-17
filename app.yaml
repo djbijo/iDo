@@ -1,9 +1,14 @@
+application: ezvitewed
+version: 1
 runtime: php
-env: flex
+api_version: 1
+threadsafe: true
 
 handlers:
-- url: /.*
-  script: index.html
+- url: /
+  static_files: web/index.html
+  upload: web/index.html
 
-runtime_config:
-  document_root: web
+- url: /
+  static_dir: web
+
