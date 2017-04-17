@@ -124,7 +124,6 @@ class Event implements iEvent
     public function deleteEvent(User &$user, $make = 0)
     {
         // Check user permission for event
-//        $permission = $this->getPermission();
         $eventID = DB::quote($this->eventID);
 
         if ($make or $this->getPermission()=='root') {
@@ -200,8 +199,7 @@ class Event implements iEvent
 
         unset($result[0]['RootID']);
 
-        // TODO:[oriah] getPermission is bool?
-        if (!$this->getPermission()){
+        if ($this->getPermission()!='root'){
             unset($result[0]['Email']);
             unset($result[0]['Phone']);
             unset($result[0]['Password']);
@@ -229,10 +227,8 @@ class Event implements iEvent
         if($colName=='Secret'){
             throw new Exception("שגיאה: לא ניתן לערוך שדה זה.");
         }
-        // TODO:[oriah] getPermission is bool?
-        $permission = $this->getPermission();
 
-        if($permission!=='root'){
+        if($this->getPermission()!='root'){
             throw new Exception("שגיאה: רק משתמש שהינו בעל הרשאת מנהל יכול לערוך את האירוע.");
         }
 
@@ -263,6 +259,7 @@ class Event implements iEvent
      * @throws Exception "Event getUsers: couldn't get users for event$eventID from Users table"
      */
     public function getUsers(){
+
         $eventID = $this->eventID;
         $result = DB::select("SELECT * FROM Users WHERE Event1=$eventID OR Event2=$eventID OR Event3=$eventID");
 
@@ -278,6 +275,15 @@ class Event implements iEvent
      * @throws Exception "שגיאה: בכדי לשלוח הודעה יש צורך בהתחברות לאתר smsGateway והכנסת הפרטים תחת 'ניהול אירוע'"
      */
     public function sendMessages($MessageID){
+
+        // check for 'root' or 'send' permissions
+        $permission = $this->getPermission();
+        if($permission!='root'){
+            $permission =  filter_var($permission, FILTER_VALIDATE_REGEXP, array("options"=>array("regexp"=>'/send/')));
+            if($permission!='send'){
+                throw new Exception("שגיאה: רק משתמש בעל השראת מנהל או הרשאת שליחה יכול לשלוח הודעות לאירוע.");
+            }
+        }
 
         $messageID = $MessageID;//DB::quote($MessageID); //FIXME: this added some slashes
         $eventID = $this->eventID;
@@ -323,10 +329,11 @@ class Event implements iEvent
         return $this->messages->sendMessages($event, $guests, $message[0]);
     }
 
-    /** TODO: update
-     * sendMessages: send messages to relevant guests
-     * @return bool true if messages sent
-     * @throws Exception "שגיאה: בכדי לשלוח הודעה יש צורך בהתחברות לאתר smsGateway והכנסת הפרטים תחת 'ניהול אירוע'"
+    /**
+     * getMessages: get messages as batch from smsGateway servers
+     * @return bool true if messages received
+     * @throws Exception "שגיאה: בכדי לקבל הודעה יש צורך בהתחברות לאתר smsGateway והכנסת הפרטים תחת 'ניהול אירוע'"
+     * @throws Exception "לא התקבלו הודעות חדשות אשר מקושרות לאירוע זה."
      */
     public function getMessages(){
         // get messages and insert to rawData[eventID] table
@@ -400,7 +407,7 @@ class Event implements iEvent
 
     /**
      * getPermission: get the user permission for this event;
-     * @return permission of this event for a specific user
+     * @return string permission of this event for a specific user / string 'root' if user is root for this event
      * @throws Exception "שגיאה: האירוע המבוקש לא נמצא במאגרי האתר."
      */
     public function getPermission() {
@@ -412,13 +419,9 @@ class Event implements iEvent
         if (!$result) {
             throw new Exception("שגיאה: האירוע המבוקש לא נמצא במאגרי האתר.");
         }
-
-        // FIXME: [oriah] - gil, what does this return? boolean?
-        $regexp = '/root/';
-        return filter_var($result[0]['Permission1'], FILTER_VALIDATE_REGEXP,
-            array("options"=>array("regexp"=>$regexp)));
-
-        return $result[0]['Permission1'];
+        // if user has root permissions, return root. else - return permissions
+        return (filter_var($result[0]['Permission1'], FILTER_VALIDATE_REGEXP,
+            array("options"=>array("regexp"=>'/root/')))) ? 'root' : $result[0]['Permission1'];
     }
 
     /**

@@ -334,7 +334,7 @@ class RSVP extends Table {
             return false;
         }
         // create data to be inserted back to rawData table (exclude messages from non guests)
-        $rsvpData[] = [             // TODO: make sure these are ''
+        $rsvpData[] = [
             'Name' => $data[0]['Name'],
             'Surname' => $data[0]['Surname'],
             'Email' => $data[0]['Email'],
