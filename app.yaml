@@ -1,4 +1,4 @@
-runtime: php71
+runtime: php
 api_version: 1
 threadsafe: true
 
