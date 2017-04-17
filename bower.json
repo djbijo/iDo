@@ -2,7 +2,7 @@
   "name": "ezvite",
   "homepage": "https://github.com/djbijo/iDo",
   "description": "wedding rsvp by sms",
-  "main": "index.html",
+  "main": "web/index.html",
   "keywords": [
     "wedding",
     "sms"
