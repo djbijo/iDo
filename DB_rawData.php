@@ -54,11 +54,16 @@ class rawData extends Table {
 
     /**
      * getMessages:  get rawData table for specific event
-     * @return result rawData[$eventID] table or false if not rawData[$eventID] exists
+     * @return array rawData[$eventID] table or false if no rawData[$eventID] exists
+     * @throws Exception "שגיאה: לא קיימת הרשאת גישה לצפייה בטבלה זו. אנא פנה למנהל האירוע ובקש הרשאה מתאימה."
      */
     public function get() {
-        $eventID = $this->eventID;
-        $result = DB::select("SELECT * FROM rawData$eventID");
+        // get by root/edit/groups
+        $result = $this->getByGroups('rawData',$this->permissions);
+
+        if(!$result){
+            throw new Exception("שגיאה: לא קיימת הרשאת גישה לצפייה בטבלה זו. אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
+        }
         return $result;
     }
 
@@ -70,7 +75,42 @@ class rawData extends Table {
      * @return bool true if table updated / false if table not updated
      */
     public function update($colName, $id, $value) {
-        return Table::updateTable('rawData', $colName, $id, $value);
+        return $this->updateTable('rawData', $colName, $id, $value);
+    }
+
+    /**
+     * updateTable: override updateTable function in Table to fit permission needs
+     * @param string $tableType : the type of the table [rsvp/messages/rawData]
+     * @param string $colName : name of column to be updated
+     * @param string $id : table id column (table id not user id)
+     * @param string/int value : value to be inserted to the table
+     * @return bool true if table updated / false if table not updated
+     * @throws Exception "Table $tableType updateTable: couldn't update table ".$tableType.$eventID." with $colName = $value for row $id"
+     */
+    public function updateTable($tableType, $colName, $id, $Value) {
+        // handel data
+        $value = DB::quote($Value);
+        $eventID = $this->eventID;
+
+        // if root/edit permissios
+        if ($this->isPermission('root,edit')){
+            DB::query("UPDATE $tableType"."$eventID SET $colName = $value WHERE id = $id");
+
+            if (DB::affectedRows() < 0) {
+                throw new Exception("שגיאה: אין אפשרות לעדכן את הערך ".$value." בטבלה.");
+            }
+            return true;
+        }
+
+        // update according to groups in permission
+        $query = $this->orGroups($this->permissions);
+
+        DB::query("UPDATE $tableType"."$eventID SET $colName = $value WHERE id = $id AND Groups=$query");
+
+        if (DB::affectedRows() < 0) {
+            throw new Exception("שגיאה: אין אפשרות לעדכן את הערך ".$value." בטבלה.");
+        }
+        return true;
     }
 
     /**
@@ -88,6 +128,9 @@ class rawData extends Table {
  * @throws Exception "RawData add: Error adding rawData from $name $surName to RawData$eventID table"
  */
     public function add($Name, $SurName, $Message, $Phone = 'NULL', $Email = 'NULL', $Groups = 'NULL', $RSVP = 0, $Uncertin = 0, $Ride = false, $Received = 0) {
+        if (!$this->isPermission('root,edit')){
+            throw new Exception("שגיאה: לא קיימת הרשאת גישה להוספה לטבלה זו. אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
+        }
 
         // Make strings query safe
         $name = DB::quote($Name);
@@ -143,8 +186,12 @@ class rawData extends Table {
      * delete:  delete row in table rsvp[$eventID] at database
      * @param string $id : table id column (table id not user id)
      * @return bool true if row deleted / false otherwise
+     * @throws Exception "שגיאה: לא קיימת הרשאת גישה להסרת שורות מטבלה זו. אנא פנה למנהל האירוע ובקש הרשאה מתאימה."
      */
     public function delete($id) {
+        if (!$this->isPermission('root,edit')){
+            throw new Exception("שגיאה: לא קיימת הרשאת גישה להסרת שורות מטבלה זו. אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
+        }
         return Table::deleteFromTable('rawData', $id);
     }
     
@@ -154,11 +201,7 @@ class rawData extends Table {
      * @return row of specific guest (specified by phone number)
      */
     public function getByPhone($Phone) {
-        $eventID = $this->eventID;
-        
-        $phone = validatePhone($Phone);
-        $result = DB::select("SELECT * FROM RawData$eventID WHERE Phone=$phone");
-        return $result;
+        return Table::getByPhones('rawData',$Phone);
     }
 
 

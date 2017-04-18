@@ -56,8 +56,11 @@ class groups extends Table {
      * @param string $id : id of row to be updated
      * @param $value : value to be inserted to the colName column
      * @return bool true if table updated / false if table not updated
+     * @throws Exception "שגיאה: לא ניתן להוסיף קבוצה בשם זה."
      */
     public function update($colName, $id, $value) {
+        // prevent adding saved groups names
+        self::validateGroup($value);
         return Table::updateTable('groups', $colName, $id, $value);
     }
 
@@ -68,7 +71,8 @@ class groups extends Table {
      * @throws Exception "groups add: Error adding group $groupName to groups$eventID table"
      */
     public function add($GroupName) {
-
+        // prevent adding saved groups names
+        self::validateGroup($GroupName);
         // Make strings query safe
         $groupName = DB::quote($GroupName);
 
@@ -94,6 +98,19 @@ class groups extends Table {
      */
     public function delete($id) {
         return Table::deleteFromTable('groups', $id);
+    }
+
+
+    /**
+     * validateGroup:  make sure group is not a saved name
+     * @param string $group : group name
+     * @throws Exception "שגיאה: לא ניתן להוסיף קבוצה בשם זה."
+     */
+    static function validateGroup($group){
+        // prevent adding saved groups names
+        if ($group=='all' or $group=='root' or $group=='edit' or $group=='send'){
+            throw new Exception("שגיאה: לא ניתן להוסיף קבוצה בשם זה.");
+        }
     }
 
 }

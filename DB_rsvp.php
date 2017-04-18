@@ -75,47 +75,6 @@ class RSVP extends Table {
         return $result;
     }
 
-    /**
-     * getByGroups:  get RSVP table for specific event by Groups
-     * @param string $Groups : groups separated by a comma
-     * @return RSVP table of guests from all the groups combined / false if group is empty
-     */
-    public function getByGroups($Groups, $validPhone) {
-        
-        $eventID = $this->eventID;
-        
-        // break groups into an array
-        $array = explode(',',$Groups);
-        
-        // if empty group
-        if ($array[0] === NULL) return false;
-        // if sending to all guests
-        if ($array[0]=='all'){
-            $result = DB::select("SELECT * FROM rsvp$eventID");
-            return $result;
-        }
-        
-        // prepare query (append while array[i] is not null)
-        $i=1;
-        // make query safe
-        $arrayI = DB::quote($array[0]);
-        // prepare string for 1st group
-        if (!$validPhone) {
-            $query = "SELECT * FROM rsvp$eventID WHERE Groups=$arrayI";
-        } else{
-            $query = "SELECT * FROM rsvp$eventID WHERE Groups=$arrayI AND Phone <> 'NULL'";
-        }
-
-        // prepare string for rest of groups
-        while (isset($array[$i])){
-            $arrayI = DB::quote($array[$i]);
-            $query = $query . " OR Groups=$arrayI";
-            $i++;
-        }
-        
-        $result = DB::select($query);
-        return $result;
-    }
 
     /**
      * update:  update rsvp[$eventID] table in database
@@ -126,6 +85,41 @@ class RSVP extends Table {
      */
     public function update($colName, $id, $value) {
         return Table::updateTable('rsvp', $colName, $id, $value);
+    }
+
+    /**
+     * updateTable: override updateTable function in Table to fit permission needs
+     * @param string $tableType : the type of the table [rsvp/messages/rawData]
+     * @param string $colName : name of column to be updated
+     * @param string $id : table id column (table id not user id)
+     * @param string/int value : value to be inserted to the table
+     * @return bool true if table updated / false if table not updated
+     * @throws Exception "Table $tableType updateTable: couldn't update table ".$tableType.$eventID." with $colName = $value for row $id"
+     */
+    public function updateTable($tableType, $colName, $id, $Value) {
+        // handel data
+        $value = DB::quote($Value);
+        $eventID = $this->eventID;
+
+        // if root/edit permissios
+        if ($this->isPermission('root,edit')){
+            DB::query("UPDATE $tableType"."$eventID SET $colName = $value WHERE id = $id");
+
+            if (DB::affectedRows() < 0) {
+                throw new Exception("שגיאה: אין אפשרות לעדכן את הערך ".$value." בטבלה.");
+            }
+            return true;
+        }
+
+        // update according to groups in permission
+        $query = $this->orGroups($this->permissions);
+
+        DB::query("UPDATE $tableType"."$eventID SET $colName = $value WHERE id = $id AND Groups=$query");
+
+        if (DB::affectedRows() < 0) {
+            throw new Exception("שגיאה: אין אפשרות לעדכן את הערך ".$value." בטבלה.");
+        }
+        return true;
     }
 
     /**

@@ -257,8 +257,8 @@ class User implements iUser
             throw new Exception("שגיאה: יש לתת כתובת email תקינה לשם הוספה לאתר.");
         }
         // check for root permissions
-        if ($this->event->getPermission()!='root'){
-            throw new Exception("שגיאה: רק משתמש בעל השראות מנהל יכול להוסיף משתמשים לאירוע.");
+        if (!$this->event->getPermission('root')){
+            throw new Exception("שגיאה: רק משתמש בעל השראות מנהל יכול להוסיף משתמשים לאירוע. אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
         }
 
         // Make strings query safe
@@ -333,11 +333,11 @@ class User implements iUser
      * @throws Exception "User addUserPermissions: Only the user which created the event can change permissions to it"
      * @throws Exception "User addUserPermissions:User $email has too many events registered (max 3 events per user at a time)"
      */
-    public function addUserPermissions($Email, $Permission)
+    public function addUserPermissions($Email, $Permission, $overRide = 0)
     {
         // check for root permissions
-        if ($this->event->getPermission()!='root'){
-            throw new Exception("שגיאה: רק משתמש בעל השראות מנהל יכול להוסיף משתמשים לאירוע.");
+        if (!$this->event->getPermission('root') and $overRide==0){
+            throw new Exception("שגיאה: רק משתמש בעל השראות מנהל יכול להוסיף משתמשים לאירוע. אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
         }
 
         //check that the user is already registered to iDO services
@@ -386,8 +386,8 @@ class User implements iUser
     {
 
         // check for root permissions
-        if ($this->event->getPermission()!='root'){
-            throw new Exception("שגיאה: רק משתמש בעל השראות מנהל יכול לערוך הרשאות לאירוע.");
+        if (!$this->event->getPermission('root')){
+            throw new Exception("שגיאה: רק משתמש בעל השראת מנהל יכול לערוך הרשאות לאירוע, אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
         }
 
         //check that the user is already registered to iDO services
@@ -413,9 +413,7 @@ class User implements iUser
             DB::query("UPDATE Users SET Permission$i=$permission WHERE Email=$email AND Event$i=$eventID");
 
             //if event updated
-            if (DB::affectedRows() > 0) {
-                return true;
-            }
+            if (DB::affectedRows() > 0) return true;
         }
 
         throw new Exception("User editUserPermissions: user $email has is not registered to this event, please add user to event with relevant permission");
@@ -493,15 +491,10 @@ class User implements iUser
 
         $this->event = new Event($id, NULL,1, $EventName, $EventDate, $EventTime, $Venue, $Address, $EventEmail, $EventPhone, $Password, $Secret, $DeviceID);
 
-        $this->addUserPermissions($result[0]['Email'], 'root');
+        $this->addUserPermissions($result[0]['Email'], 'root',1);
         $this->selectEvent($this->event->getEventID());
         return $this->event;
     }
-
-    /* ---------- Static Functions ---------- */
-
-
-    /* ---------- Private Functions ---------- */
 
     /**
      * selectEvent: select Event out of user possible events (call getEvents() function before of this function)

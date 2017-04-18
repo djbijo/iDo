@@ -68,11 +68,11 @@ class Event implements iEvent
             }
             $this->eventID = $EventID;
             $this->userID = $UserID;
-            $this->rsvp = new RSVP($this->eventID);
-            $this->messages = new Messages($this->eventID);
-            $this->rawData = new RawData($this->eventID);
-            $this->groups = new Groups($this->eventID);
-
+            $permission = $this->getPermission();
+            $this->rsvp = new RSVP($this->eventID, $permission);
+            $this->messages = new Messages($this->eventID, $permission);
+            $this->rawData = new RawData($this->eventID, $permission);
+            $this->groups = new Groups($this->eventID, $permission);
 
         } // Event is not in Events table (new Event)
         elseif (($EventName and $EventDate) or $addEvent) {
@@ -82,7 +82,8 @@ class Event implements iEvent
             $eventName = DB::quote($EventName);
             $eventDate = DB::quote($EventDate);
             $eventEmail = DB::quote($EventEmail);
-            $hebrewDate = DB::quote($this->makeHebrewDate($EventDate));
+//            $hebrewDate = DB::quote($this->makeHebrewDate($EventDate));
+            $hebrewDate = DB::quote('תאריך');             //TODO: this is for running OOO
             $venue = DB::quote($Venue);
             $address = DB::quote($Address);
             $eventTime = DB::quote($EventTime);
@@ -99,12 +100,11 @@ class Event implements iEvent
             }
             // set eventID if not already set.
             $this->eventID = DB::insertID();
-
             // make new RSVP, Messages and RawData tables
-            $this->rsvp = new RSVP($this->eventID);
-            $this->messages = new Messages($this->eventID);
-            $this->rawData = new RawData($this->eventID);
-            $this->groups = new Groups($this->eventID);
+            $this->rsvp = new RSVP($this->eventID, 'root');
+            $this->messages = new Messages($this->eventID, 'root');
+            $this->rawData = new RawData($this->eventID, 'root');
+            $this->groups = new Groups($this->eventID, 'root');
 
         } else {
             throw new Exception("Event New : Couldn't construct new event");
@@ -126,7 +126,7 @@ class Event implements iEvent
         // Check user permission for event
         $eventID = DB::quote($this->eventID);
 
-        if ($make or $this->getPermission()=='root') {
+        if ($make or $this->getPermission('root')) {
                 // delete event from Events table
                 $sql = DB::query("DELETE FROM Events WHERE ID=$eventID");
                 // delete RSVP[eventID] table
@@ -152,7 +152,7 @@ class Event implements iEvent
             $user->shiftEvents();
             return true;
         }
-        throw new Exception("Event deleteEvent: only root user can delete event$eventID");
+        throw new Exception("שגיאה: רק משתמש בעל השראת מנהל יכול למחוק את האירוע, אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
     }
 
 
@@ -163,10 +163,10 @@ class Event implements iEvent
      */
     public function switchEvent($EventID) {
         $this->eventID = $EventID;
-        $this->rsvp->switch($EventID);
-        $this->rawData->switch($EventID);
-        $this->messages->switch($EventID);
-        $this->groups->switch($EventID);
+        $this->rsvp->switchEvent($EventID);
+        $this->rawData->switchEvent($EventID);
+        $this->messages->switchEvent($EventID);
+        $this->groups->switchEvent($EventID);
         return true;
     }
 
@@ -199,7 +199,7 @@ class Event implements iEvent
 
         unset($result[0]['RootID']);
 
-        if ($this->getPermission()!='root'){
+        if (!$this->getPermission('root')){
             unset($result[0]['Email']);
             unset($result[0]['Phone']);
             unset($result[0]['Password']);
@@ -228,8 +228,8 @@ class Event implements iEvent
             throw new Exception("שגיאה: לא ניתן לערוך שדה זה.");
         }
 
-        if($this->getPermission()!='root'){
-            throw new Exception("שגיאה: רק משתמש שהינו בעל הרשאת מנהל יכול לערוך את האירוע.");
+        if(!$this->getPermission('root')){
+            throw new Exception("שגיאה: רק משתמש בעל השראת מנהל יכול לעדכן את האירוע, אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
         }
 
         // if date update - update also hebrew date
@@ -277,12 +277,8 @@ class Event implements iEvent
     public function sendMessages($MessageID){
 
         // check for 'root' or 'send' permissions
-        $permission = $this->getPermission();
-        if($permission!='root'){
-            $permission =  filter_var($permission, FILTER_VALIDATE_REGEXP, array("options"=>array("regexp"=>'/send/')));
-            if($permission!='send'){
-                throw new Exception("שגיאה: רק משתמש בעל השראת מנהל או הרשאת שליחה יכול לשלוח הודעות לאירוע.");
-            }
+        if(!$this->getPermission('root,send')){
+                throw new Exception("שגיאה: רק משתמש בעל השראת מנהל או הרשאת שליחה יכול לשלוח הודעות, אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
         }
 
         $messageID = $MessageID;//DB::quote($MessageID); //FIXME: this added some slashes
@@ -293,8 +289,8 @@ class Event implements iEvent
         if (!$message){
             throw new Exception("שגיאה: הודעה $messageID זו איננה במאגרי האתר. אנא בחר הודעה המתאימה לאירוע זה.");
         }
-        // get guests from rsvp table
-        $guests = $this->rsvp->getByGroups($message[0]['Groups'],1);
+        // get guests from rsvp table - TODO: inorder to send to all contacts, $message[0]['Groups']='all'
+        $guests = $this->rsvp->getByGroups('rsvp',$message[0]['Groups'],1);
         $event = $this->get();
 
         // check email
@@ -336,6 +332,11 @@ class Event implements iEvent
      * @throws Exception "לא התקבלו הודעות חדשות אשר מקושרות לאירוע זה."
      */
     public function getMessages(){
+        //check permissions
+        if(!$this->getPermission('root,edit')){
+            throw new Exception("שגיאה: רק משתמש בעל השראת מנהל או הרשאת עריכה יכול לשלוח הודעות, אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
+        }
+
         // get messages and insert to rawData[eventID] table
         $event = $this->get();
 
@@ -410,18 +411,31 @@ class Event implements iEvent
      * @return string permission of this event for a specific user / string 'root' if user is root for this event
      * @throws Exception "שגיאה: האירוע המבוקש לא נמצא במאגרי האתר."
      */
-    public function getPermission() {
+    public function getPermission($relevant = NULL) {
         $eventID = $this->eventID;
         $userID = $this->userID;
 
-        $result = DB::select("SELECT * FROM Users WHERE ID=$userID AND Event1=$eventID");
+        $result = DB::select("SELECT * FROM Users WHERE ID=$userID");
 
         if (!$result) {
             throw new Exception("שגיאה: האירוע המבוקש לא נמצא במאגרי האתר.");
         }
-        // if user has root permissions, return root. else - return permissions
-        return (filter_var($result[0]['Permission1'], FILTER_VALIDATE_REGEXP,
-            array("options"=>array("regexp"=>'/root/')))) ? 'root' : $result[0]['Permission1'];
+
+        // if given relevant function permissions, return true if any exist, false otherwise
+        if ($relevant!=NULL){
+            $array = explode(',',$relevant);
+            $regexp = '';
+            foreach ($array as $permission){
+                $regexp = $regexp.'\b'."$permission".'\b|';
+            }
+            // set /$regexp/ and trim last | from regexp
+            $regexp = "/".rtrim($regexp,"|")."/";
+
+            return (filter_var($result[0]['Permission1'], FILTER_VALIDATE_REGEXP,
+                array("options"=>array("regexp"=>$regexp)))) ? true : false;
+        }
+        // if no relevant permissions give, return permissions string
+        return $result[0]['Permission1'];
     }
 
     /**

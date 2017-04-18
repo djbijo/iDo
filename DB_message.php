@@ -88,6 +88,14 @@ class Messages extends Table {
     }
 
     /**
+     * updateTable:  override UpdateTable method in Tables so it does not applay to messages
+     * @throws Exception "שגיאה: לא ניתן להשתמש בפונקציה"."updateTable"."עבור הודעות. נא השתמש בפונקציה"."update."
+     */
+    public function updateTable($tableType, $colName, $id, $Value) {
+        throw new Exception("שגיאה: לא ניתן להשתמש בפונקציה"."updateTable"."עבור הודעות. נא השתמש בפונקציה"."update.");
+    }
+
+    /**
      * add:  add row to messages[$eventID] table in database
      * @param $MessageType : type of message [SaveTheDate/Reminder/ThankYou]
      * @param $Message : message text to be sent
