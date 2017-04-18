@@ -51,6 +51,9 @@ class Messages extends Table {
      * @return result messages[$eventID] table or false if not messages[$eventID] exists
      */
     public function get() {
+        if (!$this->isPermission('root,send')){
+            throw new Exception("שגיאה: לא קיימת הרשאת גישה לצפייה בהודעות. אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
+        }
         $eventID = $this->eventID;
         $result = DB::select("SELECT * FROM messages$eventID");
         return $result;
@@ -68,6 +71,9 @@ class Messages extends Table {
      * @throws Exception "שגיאה: לא ניתן להכניס את ההודעה בפורמט הנוכחי, אנא נסח מחדש את ההודעה ונסה שנית."
      */
     public function update($ID, $MessageType, $Message, $SendDate, $SendTime, $Groups = NULL) {
+        if (!$this->isPermission('root,send')){
+            throw new Exception("שגיאה: לא קיימת הרשאת גישה לעריכת הודעות. אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
+        }
 
         // Make strings query safe
         $id = DB::quote($ID);
@@ -106,6 +112,9 @@ class Messages extends Table {
      * @throws Exception "Messages add: Error adding guest $message to Messages$eventID table"
      */
     public function add($MessageType, $Message, $SendDate, $SendTime, $Groups = NULL) {
+        if (!$this->isPermission('root,send')){
+            throw new Exception("שגיאה: לא קיימת הרשאת גישה להוספת הודעות. אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
+        }
 
         // Make strings query safe
         $messageType = DB::quote($MessageType);
@@ -133,6 +142,11 @@ class Messages extends Table {
      * @return bool true if row deleted / false otherwise
      */
     public function delete($id) {
+        if (!$this->isPermission('root,send')){
+            throw new Exception("שגיאה: לא קיימת הרשאת גישה למחיקת הודעות. אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
+        }
+        $id = DB::quote($id);
+
         return Table::deleteFromTable('messages', $id);
     }
     
@@ -192,6 +206,10 @@ class Messages extends Table {
      * @throws Exception "שגיאה: שליחת ההודעות נכשלה כשלון קולוסלי. הודעת שגיאה: $errorMsg"
      */
     public function sendMessages($event, $guests, $Message){
+        if (!$this->isPermission('root,send')){
+            throw new Exception("שגיאה: לא קיימת הרשאת גישה לשליחת הודעות. אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
+        }
+
         // set time in UTC
         $time = GER2UTC($Message['SendDate'], $Message['SendTime']);
         $i=0;

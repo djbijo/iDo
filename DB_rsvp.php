@@ -55,10 +55,14 @@ class RSVP extends Table {
     /**
      * get:  get RSVP table for specific event
      * @return RSVP table
+     * @throws Exception "שגיאה: לא קיימת הרשאת גישה לצפייה במוזמנים. אנא פנה למנהל האירוע ובקש הרשאה מתאימה."
      */
     public function get() {
-        $eventID = $this->eventID;
-        $result = DB::select("SELECT * FROM rsvp$eventID");
+        $result = $this->getByGroups('rsvp',$this->permissions);
+
+        if(!$result){
+            throw new Exception("שגיאה: לא קיימת הרשאת גישה לצפייה במוזמנים. אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
+        }
         return $result;
     }
     
@@ -68,13 +72,9 @@ class RSVP extends Table {
      * @return string row of specific guest (specified by phone number)
      */
     public function getByPhone($Phone) {
-        $eventID = $this->eventID;
-        
-        $phone = validatePhone($Phone);
-        $result = DB::select("SELECT * FROM rsvp$eventID WHERE Phone=$phone");
-        return $result;
-    }
+        return Table::getByPhones('rsvp',$Phone);
 
+    }
 
     /**
      * update:  update rsvp[$eventID] table in database
@@ -141,6 +141,10 @@ class RSVP extends Table {
      */
     public function add($Name, $SurName, $Invitees, $NickName = 'NULL', $Phone = 'NULL', $Email = 'NULL', $Groups = 'NULL', $RSVP = 0, $Uncertin = 0,$Ride = 0) {
 
+        if (!$this->isPermission("root,edit,$Groups")){
+            throw new Exception("שגיאה: לא קיימת הרשאת גישה להוספה לטבלה זו. אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
+        }
+
         // Make strings query safe
         $name = DB::quote($Name);
         $surName = DB::quote($SurName);
@@ -176,8 +180,21 @@ class RSVP extends Table {
      * delete:  delete row in table rsvp[$eventID] at database
      * @param string $id : table id column (table id not user id)
      * @return bool true if row deleted / false otherwise
+     * @throws Exception "שגיאה: לא ניתן למצוא את הרשומה הרצויה."
+     * @throws Exception "שגיאה: לא קיימת הרשאת גישה למחיקה מטבלה זו. אנא פנה למנהל האירוע ובקש הרשאה מתאימה."
      */
     public function delete($id) {
+        $id = DB::quote($id);
+        $eventID = $this->eventID;
+        $result = DB::select("SELECT FROM rsvp$eventID WHERE ID=$id");
+        if(!$result){
+            throw new Exception("שגיאה: לא ניתן למצוא את הרשומה הרצויה.");
+        }
+        $group = $result[0]['Groups'];
+
+        if (!$this->isPermission("root,edit,$group")){
+            throw new Exception("שגיאה: לא קיימת הרשאת גישה למחיקה מטבלה זו. אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
+        }
         return Table::deleteFromTable('rsvp', $id);
     }
 
@@ -185,8 +202,12 @@ class RSVP extends Table {
      * importFullExcel:  import RSVP table from excel file (deleting previous rsvp table)
      * @param file $excel : excel file
      * @return bool true if excel imported / false if excel not imported
+     * @throws Exception "שגיאה: לא קיימת הרשאת גישה להעלאת קובץ מוזמנים. אנא פנה למנהל האירוע ובקש הרשאה מתאימה."
      */
     public function importFullExcel($excel) {
+        if (!$this->isPermission("root,edit")){
+            throw new Exception("שגיאה: לא קיימת הרשאת גישה להעלאת קובץ מוזמנים. אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
+        }
         // delete rsvp[eventID] table if exists
         $this->destroy();
         // create new (empty) rsvp[eventID] table
@@ -201,6 +222,9 @@ class RSVP extends Table {
      * @throws Exception "שגיאה: טעינת המידע לשרתינו נחלה כשלון קולוסלי"
      */
     public function importPartExcel($excel) {
+        if (!$this->isPermission("root,edit")){
+            throw new Exception("שגיאה: לא קיימת הרשאת גישה להעלאת קובץ מוזמנים. אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
+        }
         // open excel file
         $file = fopen($excel, "r");
         $count = 0;
@@ -218,7 +242,7 @@ class RSVP extends Table {
                 $invitees = (int)$empData[3];
                 $phone = validatePhone($empData[4]);
                 $email = validateEmail($empData[5]);
-                $group = DB::quote($empData[6]);
+                $group = groups::validateGroup($empData[6]);
                 $rsvp = (int)$empData[7];
                 $uncertin = (int)$empData[8];
                 $ride =(int)$empData[9];
@@ -231,7 +255,7 @@ class RSVP extends Table {
 
                 // validate phone/email are not already in rsvp list
                 $sql = DB::query("SELECT * FROM rsvp$eventID WHERE Phone=$phone OR Email=$email");
-                if ($sql){
+                if ($sql or !isset($phone) or !isset($email) or !isset($group)){
                     $errors++;
                     continue;
                 }

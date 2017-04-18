@@ -45,6 +45,7 @@ class groups extends Table {
      * @return result groups[$eventID] table or false if not groups[$eventID] exists
      */
     public function get() {
+
         $eventID = $this->eventID;
         $result = DB::select("SELECT * FROM groups$eventID");
         return $result;
@@ -59,6 +60,9 @@ class groups extends Table {
      * @throws Exception "שגיאה: לא ניתן להוסיף קבוצה בשם זה."
      */
     public function update($colName, $id, $value) {
+        if (!$this->isPermission('root,edit')){
+            throw new Exception("שגיאה: לא קיימת הרשאת גישה לעריכת קבוצות. אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
+        }
         // prevent adding saved groups names
         self::validateGroup($value);
         return Table::updateTable('groups', $colName, $id, $value);
@@ -71,6 +75,9 @@ class groups extends Table {
      * @throws Exception "groups add: Error adding group $groupName to groups$eventID table"
      */
     public function add($GroupName) {
+        if (!$this->isPermission('root,edit')){
+            throw new Exception("שגיאה: לא קיימת הרשאת גישה להוספת קבוצות. אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
+        }
         // prevent adding saved groups names
         self::validateGroup($GroupName);
         // Make strings query safe
@@ -95,8 +102,14 @@ class groups extends Table {
      * delete:  delete row in table groups[$eventID] at database
      * @param string $id : table id column (table id not user id)
      * @return bool true if row deleted / false otherwise
+     * @throws Exception "שגיאה: לא קיימת הרשאת גישה למחיקת קבוצות. אנא פנה למנהל האירוע ובקש הרשאה מתאימה."
      */
     public function delete($id) {
+        if (!$this->isPermission('root,edit')){
+            throw new Exception("שגיאה: לא קיימת הרשאת גישה למחיקת קבוצות. אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
+        }
+        $id = DB::quote($id);
+
         return Table::deleteFromTable('groups', $id);
     }
 
@@ -104,13 +117,14 @@ class groups extends Table {
     /**
      * validateGroup:  make sure group is not a saved name
      * @param string $group : group name
-     * @throws Exception "שגיאה: לא ניתן להוסיף קבוצה בשם זה."
+     * @return boolean true if group is valid, false otherwise
      */
     static function validateGroup($group){
         // prevent adding saved groups names
         if ($group=='all' or $group=='root' or $group=='edit' or $group=='send'){
-            throw new Exception("שגיאה: לא ניתן להוסיף קבוצה בשם זה.");
+            return false;
         }
+        return true;
     }
 
 }

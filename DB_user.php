@@ -159,11 +159,14 @@ class User implements iUser
     public function getEventNames()
     {
         $events = $this->getEvents();
-        $id[1] = $events['event1'];
-        $id[2] = $events['event2'];
-        $id[3] = $events['event3'];
 
-        $result = DB::select("SELECT * FROM Events WHERE ID=IF(!$id[1],'NULL',$id[1]) OR ID=IF(!$id[2],'NULL',$id[2]) OR ID=IF(!$id[3],'NULL',$id[3])");
+        $i=1;
+        while(isset($events["event$i"])){
+            if($i=1) $query = $events["event$i"];
+            $query = $query." OR ".$events["event$i"];
+        }
+
+        $result = DB::select("SELECT * FROM Events WHERE ID=$query");
         if ($result) {
             $i=0;
             foreach ($result as $event){

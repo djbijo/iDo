@@ -192,6 +192,8 @@ class rawData extends Table {
         if (!$this->isPermission('root,edit')){
             throw new Exception("שגיאה: לא קיימת הרשאת גישה להסרת שורות מטבלה זו. אנא פנה למנהל האירוע ובקש הרשאה מתאימה.");
         }
+        $id = DB::quote($id);
+
         return Table::deleteFromTable('rawData', $id);
     }
     
@@ -309,7 +311,7 @@ class rawData extends Table {
             $message = DB::quoteNull($rsvpData[$i]['Message']);
             $phone = validatePhone($rsvpData[$i]['Phone']);
             $email = validateEmail($rsvpData[$i]['Email']);
-            $groups = DB::quoteNull($rsvpData[$i]['Groups']);
+            $groups = groups::validateGroup($rsvpData[$i]['Groups']);
             $rsvp = DB::quoteNull($rsvpData[$i]['RSVP']);
             $ride = DB::quoteNull($rsvpData[$i]['Ride']);
             $received = DB::quoteNull($rsvpData[$i]['Received']);
