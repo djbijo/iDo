@@ -60,7 +60,7 @@ $(function() {
 var getEvents = function(){
     $.ajax({
         type        : "POST",
-        url         : "post/eventHandler.php",
+        url         : '/post/eventHandler.php',
         data        : {action: 'getEvents'},
         // contentType: "application/json; charset=utf-8",
         dataType    : 'json', // what type of data do we expect back from the server
@@ -128,7 +128,7 @@ var changeEvent = function (eventId) {
     if (eventId == $eventID) return;
     $.ajax({
         type        : "POST",
-        url         : "post/eventHandler.php",
+        url         : "/post/eventHandler.php",
         data        : {action: 'changeEvent', eventId: eventId},
         // contentType: "application/json; charset=utf-8",
         dataType    : 'json', // what type of data do we expect back from the server
@@ -147,7 +147,7 @@ var changeEvent = function (eventId) {
 var getEventData = function () {
     $.ajax({
         type        : "POST",
-        url         : "post/eventHandler.php",
+        url         : "/post/eventHandler.php",
         data        : {action: 'getEventData'},
         // contentType: "application/json; charset=utf-8",
         dataType    : 'json', // what type of data do we expect back from the server
@@ -207,7 +207,7 @@ function submitForm(){
 
     $.ajax({
         type        : "POST",
-        url         : "post/eventHandler.php",
+        url         : "/post/eventHandler.php",
         data        : {action: 'create', data: formData},
         // contentType: "application/json; charset=utf-8",
         dataType    : 'json', // what type of data do we expect back from the server
@@ -273,7 +273,7 @@ var deleteEvent = function ()  {
         if (result) {
             $.ajax({
                 type: "POST",
-                url: "post/eventHandler.php",
+                url: "/post/eventHandler.php",
                 data: {action: 'delete'},
                 dataType: 'json', // what type of data do we expect back from the server
                 encode: true,

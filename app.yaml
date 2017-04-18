@@ -2,8 +2,17 @@ runtime: php
 env: flex
 
 handlers:
-- url: /.*
-  script: web/index.html
+- url: /
+  static_dir: web
 
-runtime_config:
-  document_root: web
+- url: /bower_components
+  static_dir: bower_componentes
+
+- url: /post/(.*)\.php
+  script: post/\1.php
+
+#- url: /
+#  script: web/index.html
+
+#runtime_config:
+#  document_root: web

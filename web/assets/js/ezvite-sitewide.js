@@ -1,6 +1,6 @@
 var ezVite = {
     updateRawData(){
-        $.get('post/rowDataHandler.php', {action: "updateFromServer"}, null, "json")
+        $.get('/post/rowDataHandler.php', {action: "updateFromServer"}, null, "json")
             .done(function (res) {
                 if (res.status === 'success'){
                     console.log("received "+res.newMsgs+" new messages");
